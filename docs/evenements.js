@@ -213,12 +213,20 @@
     ['raid','🛡️','RAID'],['war','⚔️','GUERRE'],['arena','🏟️','ARÈNE'],
     ['blitz','⚡','CHOC'],['crucible','🔷','ÉPREUVE COSMIQUE'],
     ['campaign','📖','CAMPAGNE'],['battleworld','🌌','BATTLEWORLD'],
-    ['divers','📋','DIVERS']
+    ['upgrade','⬆️','AMÉLIORATION'],['divers','📋','DIVERS']
   ];
   const MODE_BY_KEY=new Map(OBJECTIVE_MODES.map(([key,emoji,label])=>[key,{emoji,label}]));
   function objectiveMode(description){
     // Normaliser les accents avant les frontières de mots JS (\b est ASCII).
-    const text=eventNameKey(description);
+    const text=eventNameKey(description).replace(/\s+/g,' ').trim();
+    // Une condition de combat (G21, ISO-8, étoiles…) n'est pas une
+    // amélioration. Reconnaître l'action de progression elle-même.
+    const improvesCharacter=/^(?:amelior(?:er|ez)|faire monter|faites monter|monter|augment(?:er|ez)|entrain(?:er|ez)|promouvoir|upgrade|level up|gear up|rank up|train|promote|equip)\b/.test(text)&&
+      /\b(?:personnages?|characters?|niveau|levels?|equipements?|gear|iso-?8|etoiles?|stars?|capacites?|abilities|ability|skills?|rang|rank|tier)\b/.test(text);
+    const spendsUpgradeMaterial=/^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+/.test(text)&&(
+      /^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+(?:(?:\d+|un|une|des|les|du|de|some|any|one)\s+)?(?:ions?|(?:iso-?8|t[1-9]|tier \d+|green|blue|purple|orange)\s+ions?)\b/.test(text)||
+      /\b(?:modules? d'entrainement|training (?:modules?|materials?)|materiaux? de capacites?|ability materials?)\b/.test(text));
+    if(!isBattleObjective(description)&&(improvesCharacter||spendsUpgradeMaterial))return 'upgrade';
     const modes=[];
     if(/\braids?\b/.test(text))modes.push('raid');
     // Les jetons gagnés en guerre sont un objectif de Guerre, sans
