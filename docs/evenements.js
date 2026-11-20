@@ -223,10 +223,10 @@
   function objectiveUpgradeGroup(description){
     if(isBattleObjective(description))return null;
     const text=eventNameKey(description).replace(/\s+/g,' ').trim();
-    const improvesCharacter=/^(?:amelior(?:er|ez)|faire monter|faites monter|monter|augment(?:er|ez)|entrain(?:er|ez)|promouvoir|upgrade|level up|gear up|rank up|train|promote|equip)\b/.test(text)&&
-      /\b(?:personnages?|characters?|niveau|levels?|equipements?|gear|iso-?8|etoiles?|stars?|capacites?|abilities|ability|skills?|rang|rank|tier)\b/.test(text);
+    const improvesCharacter=/^(?:amelior(?:er|ez)|faire monter|faites monter|monter|passer|faites passer|augment(?:er|ez)|entrain(?:er|ez)|promouvoir|upgrade|level up|gear up|rank up|train|promote|equip)\b/.test(text)&&
+      /\b(?:personnages?|characters?|niveau|levels?|equipements?|gear|g\d+|gt\d+|iso-?8|etoiles?|stars?|capacites?|abilities|ability|skills?|rang|rank|tier)\b/.test(text);
     const spendsUpgradeMaterial=/^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+/.test(text)&&(
-      /^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+(?:(?:\d+|un|une|des|les|du|de|some|any|one)\s+)?(?:ions?|(?:iso-?8|t[1-9]|tier \d+|green|blue|purple|orange)\s+ions?)\b/.test(text)||
+      /^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+(?:(?:\d+|un|une|des|les|du|de|some|any|one)\s+)?(?:ions?|(?:iso-?8|t[1-9]|tier \d+|green|blue|purple|orange)(?:\s+level\s+\d+)?\s+ions?)\b/.test(text)||
       /\b(?:modules? d'entrainement|training (?:modules?|materials?)|materiaux? de capacites?|ability materials?)\b/.test(text));
     const spendsGold=/^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+(?:(?:\d[\d ,.]*)\s+|(?:de\s+l'|l'|de\s+|du\s+|some\s+|any\s+))?(?:or|gold)\b/.test(text);
     const spends=/^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+/.test(text);
