@@ -516,7 +516,7 @@ test('Une équipe avec 2 bonus individuels montre 5 membres sans inventer de mé
   assert.equal(nodes.get('stat-objectives').textContent,'3');
 });
 
-test('Événements distincts : combat avec toute une équipe et ses personnages restent associés',async()=>{
+test('Événements distincts : conditions avec mode imposé et combats généraux restent séparés',async()=>{
   const scenarios=[
     {
       team:"Combattre en guerre avec tous les membres du Conclave de l'Ombre",
@@ -550,17 +550,21 @@ test('Événements distincts : combat avec toute une équipe et ses personnages 
     assert.equal(nodes.get('stat-objectives').textContent,'3');
     assert.equal(objectiveNodes(nodes).length,3);
     assert.deepEqual(sections(nodes).map(section=>section.children[0].textContent),
-      ['⚔️ GUERRE']);
+      ['⚔️ GUERRE','⚡ CHOC']);
     const groups=objectiveDetails(nodes,'ev-objective-team');
-    assert.equal(groups.length,1);
-    const group=groups[0];
-    assert.equal(group.children[0].children[0].textContent,"Conclave de l'Ombre");
-    assert.equal(group.children[0].children[1].textContent,'5 personnages · 3 objectifs');
-    const roster=group.children[0].children.find(child=>
-      child.className==='ev-objective-team-roster');
-    assert.equal(roster.children.length,5);
-    assert.ok(!group.children[1].children.some(child=>
-      child.className==='ev-objective-team-roster'));
+    assert.equal(groups.length,2);
+    for(const group of groups){
+      assert.equal(group.children[0].children[0].textContent,"Conclave de l'Ombre");
+      const roster=group.children[0].children.find(child=>
+        child.className==='ev-objective-team-roster');
+      assert.equal(roster.children.length,5);
+      assert.ok(!group.children[1].children.some(child=>
+        child.className==='ev-objective-team-roster'));
+    }
+    const explicitTeam=scenario.team.includes('en guerre');
+    assert.deepEqual(groups.map(group=>group.children[0].children[1].textContent),
+      explicitTeam?['5 personnages · 1 objectif','5 personnages · 2 objectifs']:
+        ['5 personnages · 2 objectifs','5 personnages · 1 objectif']);
     const members=objectiveDetails(nodes,'ev-objective-character');
     assert.equal(members.length,2);
     const names=members.map(member=>
@@ -682,7 +686,7 @@ test('Objectifs généraux : équipe complète, personnages et Choc se retrouven
   assert.equal(objectiveNodes(nodes).length,Number(nodes.get('stat-objectives').textContent));
 });
 
-test('Les objectifs Raid et Guerre absorbent leurs combats généraux, sans inclure les non-combats',async()=>{
+test('Raid et Guerre gardent les combats imposés ; les combats généraux vont dans Choc',async()=>{
   const fixture=[
     ['Objectifs Raid','milestone',{milestone:{type:'solo',scoring:{
       methods:[{description:'Combattre en raid avec Crossbones',points:100}],
@@ -701,15 +705,53 @@ test('Les objectifs Raid et Guerre absorbent leurs combats généraux, sans incl
   assert.equal(nodes.get('stat-objectives').textContent,'5');
   assert.equal(objectiveNodes(nodes).length,5);
   assert.deepEqual(sections(nodes).map(s=>s.children[0].textContent),
-    ['🛡️ RAID','⚔️ GUERRE','📋 DIVERS']);
-  assert.equal(sections(nodes)[0].children[1].children.length,1);
-  assert.equal(sections(nodes)[1].children[1].children.length,1);
-  assert.equal(sections(nodes)[2].children[1].children.length,1);
+    ['🛡️ RAID','⚔️ GUERRE','⚡ CHOC','📋 DIVERS']);
+  assert.equal(sections(nodes)[0].children[0].children[0].textContent,'1 objectif');
+  assert.equal(sections(nodes)[1].children[0].children[0].textContent,'1 objectif');
+  assert.equal(sections(nodes)[2].children[0].children[0].textContent,'2 objectifs');
+  assert.equal(sections(nodes)[3].children[0].children[0].textContent,'1 objectif');
   const general=objectiveNodes(nodes).filter(row=>
     row.children[1].children.some(c=>c.textContent?.includes('Tous modes')));
   assert.equal(general.length,2);
-  assert.ok(!sections(nodes)[2].children[1].children.some(group=>
-    group.textContent?.includes('Combattre')));
+  const walk=(node)=>[node,...node.children.flatMap(walk)];
+  assert.ok(general.every(row=>walk(sections(nodes)[2]).includes(row)));
+  assert.ok(actions(nodes).includes('Dépenser des noyaux d’énergie'));
+});
+
+test('Les combats généraux actifs vont dans Choc même sans combat Choc explicite',async()=>{
+  const now=Math.floor(Date.now()/1000),day=86400;
+  const active={startTime:now-day,endTime:now+day};
+  const expired={startTime:now-2*day,endTime:now};
+  const future={startTime:now+day,endTime:now+2*day};
+  const combat=(description)=>({type:'solo',scoring:{
+    methods:[{description,points:1}],cappedScorings:[]}});
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Plan de bataille','milestone',{...active,locationHints:['lohub_wrapper']}],
+    ['Plan de bataille','milestone',{...active,locationHints:['lohub_feeder'],
+      milestone:combat('Combattre avec tous les membres des Avengers I.A.')}],
+    ['Plan de bataille','milestone',{...active,locationHints:['lohub_feeder'],
+      milestone:combat('Combattre avec tous les membres des Fantassins de fer')}],
+    ['Plan de bataille','milestone',{...expired,locationHints:['lohub_feeder'],
+      milestone:combat('Combattre avec tous les membres de Menace')}],
+    ['Plan de bataille','milestone',{...future,locationHints:['lohub_feeder'],
+      milestone:combat('Combattre avec tous les membres de Nightreaver')}],
+    ['Prêt au combat','milestone',{...active,
+      milestone:combat('Jouer avec Cyclope (Puissant)')}],
+    ['Divers','milestone',{...active,milestone:combat('Se connecter')}],
+    ['Épreuve','milestone',{...active,
+      milestone:combat('Combattre dans l’Épreuve cosmique avec les Guerriers audacieux')}]
+  ],eligibleIds:['fixture-1','fixture-2','fixture-4','fixture-5']});
+  assert.equal(nodes.get('stat-objectives').textContent,'4');
+  assert.equal(objectiveNodes(nodes).length,4);
+  assert.deepEqual(sections(nodes).map(section=>section.children[0].textContent),
+    ['⚡ CHOC','🔷 ÉPREUVE COSMIQUE','📋 DIVERS']);
+  assert.equal(sections(nodes)[0].children[0].children[0].textContent,'2 objectifs');
+  const walk=node=>[node,...node.children.flatMap(walk)];
+  const choc=walk(sections(nodes)[0]).filter(node=>node.className==='ev-objective-item');
+  assert.equal(choc.length,2);
+  assert.ok(choc.every(row=>row.children[1].children.some(c=>c.textContent?.includes('Tous modes'))));
+  assert.ok(actions(nodes).some(label=>label.includes('Avengers')));
+  assert.ok(!actions(nodes).some(label=>/Fantassins|Menace|Nightreaver/.test(label)));
 });
 
 test('Un combat transversal est compté une fois même si plusieurs modes lui conviennent',async()=>{
@@ -1241,7 +1283,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=39/);
+  assert.match(html,/evenements\.js\?v=40/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
