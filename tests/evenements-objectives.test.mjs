@@ -161,13 +161,13 @@ test('Le profil niveau 110 affiche seulement les feeders autorisés par ID Scope
   assert.equal(selected.get('stat-objectives').textContent,'1');
   assert.ok(actions(selected).some(x=>x.includes('raid')));
   assert.ok(!actions(selected).some(x=>x.includes('guerre')));
-  assert.ok(selected.get('events-objectives').children[0].textContent.includes(
-    'Référence niveau 110 vérifiée'));
+  assert.equal(selected.get('events-objectives').children[0].textContent,
+    "Objectifs regroupés par catégorie pour simplifier la visualisation globale.\nAttention : la progression personnelle n'est pas synchronisée");
   const invalid=await makePage({includeBase:false,extraEvents:extra,
     eligibleIds:['unknown-event-id']});
   assert.equal(invalid.get('stat-objectives').textContent,'2');
-  assert.ok(invalid.get('events-objectives').children[0].textContent.includes(
-    'éligibilité personnelle des missions n’est pas vérifiée'));
+  assert.equal(invalid.get('events-objectives').children[0].textContent,
+    selected.get('events-objectives').children[0].textContent);
 });
 
 test('Le résumé rassemble les objectifs actifs, y compris les feeders, sans doublons',async()=>{
@@ -1419,7 +1419,8 @@ test('Les libellés affichés utilisent objectif(s), y compris au singulier',asy
     return result;
   };
   const shown=visit(nodes.get('events-objectives')).join(' | ');
-  assert.ok(shown.includes('2 objectifs, regroupés par action'));
+  assert.equal(nodes.get('events-objectives').children[0].textContent,
+    "Objectifs regroupés par catégorie pour simplifier la visualisation globale.\nAttention : la progression personnelle n'est pas synchronisée");
   assert.equal(nodes.get('count-objectives').textContent,'2');
   assert.equal(nodes.get('stat-objectives').textContent,'2');
   assert.deepEqual(sections(nodes).map(section=>section.children[0].textContent),
@@ -1433,6 +1434,7 @@ test('Les libellés affichés utilisent objectif(s), y compris au singulier',asy
 
 test('Les textes essentiels des objectifs restent lisibles sans modifier le zoom',()=>{
   assert.ok(css.includes('.ev-objectives-note{font-size:15px;'));
+  assert.match(css,/\.ev-objectives-note\{[^}]*white-space:pre-line/);
   assert.ok(css.includes('.ev-objective-event-summary>.ev-objective-limit{order:1;flex:0 0 100%;font-size:15px;'));
   assert.ok(css.includes('.ev-objective-mini-count{font-size:14px;'));
   assert.ok(css.includes('.ev-objective-score,.ev-objective-cap,.ev-objective-premium{font-size:14px;'));
@@ -1446,7 +1448,7 @@ test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP co
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=22"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=23"/);
   assert.doesNotMatch(css,/\.ev-toolbar\{|\.ev-filters\{|\.ev-date-controls\{/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -1475,7 +1477,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=46/);
+  assert.match(html,/evenements\.js\?v=47/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{

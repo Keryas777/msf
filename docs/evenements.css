@@ -87,7 +87,7 @@ body.ev-body{margin:0;min-height:100vh;color:var(--text);font-family:system-ui,-
 
 /* Objectifs exploitables : liste compacte, groupée par mode de jeu. */
 .ev-objectives{display:flex;flex-direction:column;gap:17px;min-width:0}
-.ev-objectives-note{font-size:15px;line-height:1.55;color:var(--muted);margin:0 2px}
+.ev-objectives-note{font-size:15px;line-height:1.55;color:var(--muted);margin:0 2px;white-space:pre-line}
 .ev-objective-mode{display:flex;flex-direction:column;gap:8px;min-width:0}
 .ev-objective-heading{display:flex;align-items:center;gap:8px;margin:0 2px;color:var(--text);font-size:20px;font-weight:850;letter-spacing:.04em}
 .ev-objective-count{margin-left:auto;border:1px solid var(--border);border-radius:12px;padding:5px 9px;color:var(--muted);background:var(--toggle-on-bg);font-size:14px;font-variant-numeric:tabular-nums}
