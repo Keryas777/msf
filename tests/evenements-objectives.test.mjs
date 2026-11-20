@@ -1148,7 +1148,8 @@ test('Les dépenses d’énergie vont dans Campagne sauf mode explicite ou monna
   assert.deepEqual(rows('📖 CAMPAGNE'),campaign.slice().sort());
   assert.deepEqual(rows('🛡️ RAID'),raid.slice().sort());
   assert.deepEqual(rows('⚔️ GUERRE'),war.slice().sort());
-  assert.deepEqual(rows('📋 DIVERS'),other.slice().sort());
+  assert.deepEqual(rows('📋 DIVERS'),other.map(label=>label==='Spend Power Cores'?
+    'Dépenser des noyaux d’énergie':label).sort());
 });
 
 test('Dépenser 1 point ou dépenser de l’énergie de campagne partage une seule action',async()=>{
