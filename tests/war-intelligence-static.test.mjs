@@ -26,5 +26,5 @@ test("les trois modes de carte, les triangles et la version PWA restent présent
   const [html,css,sw]=await Promise.all([read("docs/admin-renseignements-guerre.html"),read("docs/renseignements-guerre.css"),read("docs/sw.js")]);
   for(const mode of ["overview","emitted","received"])assert.match(html,new RegExp('data-mode="'+mode+'"'));
   assert.match(css,/intelInfluenceTriangle/);assert.match(css,/intelUnknown/);
-  assert.match(sw,/losp-v26/);assert.match(sw,/admin-renseignements-guerre\.html/);
+  assert.match(sw,/const CACHE = "losp-v\d+";/);assert.match(sw,/admin-renseignements-guerre\.html/);
 });
