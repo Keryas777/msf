@@ -216,17 +216,34 @@
     ['upgrade','⬆️','AMÉLIORATION'],['divers','📋','DIVERS']
   ];
   const MODE_BY_KEY=new Map(OBJECTIVE_MODES.map(([key,emoji,label])=>[key,{emoji,label}]));
-  function objectiveMode(description){
-    // Normaliser les accents avant les frontières de mots JS (\b est ASCII).
+  const UPGRADE_GROUPS=[
+    ['iso','ISO'],['training','Modules & Or'],['gear','Équipement'],
+    ['other','Autres améliorations']
+  ];
+  function objectiveUpgradeGroup(description){
+    if(isBattleObjective(description))return null;
     const text=eventNameKey(description).replace(/\s+/g,' ').trim();
-    // Une condition de combat (G21, ISO-8, étoiles…) n'est pas une
-    // amélioration. Reconnaître l'action de progression elle-même.
     const improvesCharacter=/^(?:amelior(?:er|ez)|faire monter|faites monter|monter|augment(?:er|ez)|entrain(?:er|ez)|promouvoir|upgrade|level up|gear up|rank up|train|promote|equip)\b/.test(text)&&
       /\b(?:personnages?|characters?|niveau|levels?|equipements?|gear|iso-?8|etoiles?|stars?|capacites?|abilities|ability|skills?|rang|rank|tier)\b/.test(text);
     const spendsUpgradeMaterial=/^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+/.test(text)&&(
       /^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+(?:(?:\d+|un|une|des|les|du|de|some|any|one)\s+)?(?:ions?|(?:iso-?8|t[1-9]|tier \d+|green|blue|purple|orange)\s+ions?)\b/.test(text)||
       /\b(?:modules? d'entrainement|training (?:modules?|materials?)|materiaux? de capacites?|ability materials?)\b/.test(text));
-    if(!isBattleObjective(description)&&(improvesCharacter||spendsUpgradeMaterial))return 'upgrade';
+    const spendsGold=/^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+(?:(?:\d[\d ,.]*)\s+|(?:de\s+l'|l'|de\s+|du\s+|some\s+|any\s+))?(?:or|gold)\b/.test(text);
+    const spends=/^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+/.test(text);
+    if(!(improvesCharacter||spendsUpgradeMaterial||spendsGold))return null;
+    if((improvesCharacter&&/\biso-?8\b/.test(text))||
+      (spends&&/\bions?\b/.test(text)))return 'iso';
+    if(improvesCharacter&&/\b(?:equipements?|gear|g\d+|gt\d+)\b/.test(text)&&
+      !/\b(?:capacites?|abilities|ability|skills?)\b/.test(text))return 'gear';
+    if(spendsGold||(spends&&/\b(?:modules? d'entrainement|training (?:modules?|materials?))\b/.test(text))||
+      (improvesCharacter&&/\b(?:niveau|levels?|entrain(?:er|ez)|train)\b/.test(text)&&
+        !/\b(?:etoiles?|stars?|capacites?|abilities|ability|skills?|rang|rank)\b/.test(text)))return 'training';
+    return 'other';
+  }
+  function objectiveMode(description){
+    // Normaliser les accents avant les frontières de mots JS (\b est ASCII).
+    const text=eventNameKey(description).replace(/\s+/g,' ').trim();
+    if(objectiveUpgradeGroup(description))return 'upgrade';
     const modes=[];
     if(/\braids?\b/.test(text))modes.push('raid');
     // Les jetons gagnés en guerre sont un objectif de Guerre, sans
@@ -655,6 +672,88 @@
     routeBattleObjectives(items);
     return items;
   }
+  function renderObjectiveCards(entries,eventList){
+    // On groupe d'abord les exigences d'équipe et leurs personnages,
+    // même lorsqu'elles proviennent d'événements différents.
+    const {teams,individual,other}=objectiveTeams(entries);
+    for(const team of teams){
+      const teamBlock=create('details','ev-objective-team');
+      const summary=create('summary','ev-objective-team-summary');
+      summary.append(create('strong','',team.name));
+      const total=team.goals.length+
+        team.characters.reduce((sum,member)=>sum+member.items.length,0);
+      summary.append(create('span','ev-objective-mini-count',
+        fmtNumber.format(team.roster.length)+' personnages · '+
+        objectiveCount(total)));
+      if(team.roster.length)summary.append(objectiveTeamRoster(team.roster));
+      const people=create('div','ev-objective-people');
+      if(team.goals.length){
+        people.append(create('h4','ev-objective-subhead',
+          team.goals.some(item=>item.teamComplete)?
+            'Conditions d’équipe complète / collectives':'Conditions d’équipe'));
+        people.append(objectiveList(team.goals));
+      }
+      for(const member of team.characters)people.append(objectiveCharacterCard(member));
+      teamBlock.append(summary,people);eventList.append(teamBlock);
+    }
+    if(individual.length){
+      const singles=create('div','ev-objective-singles');
+      singles.append(create('h4','ev-objective-subhead','Personnages'));
+      const people=create('div','ev-objective-people');
+      for(const member of individual)people.append(objectiveCharacterCard(member));
+      singles.append(people);eventList.append(singles);
+    }
+    // Les méthodes sans équipe ni personnage sont regroupées par action,
+    // et non par événement : un combat peut faire progresser plusieurs
+    // jalons, chacun conservant ses propres points et plafonds.
+    const byAction=new Map();
+    for(const item of other){
+      const orbOpening=isOrbOpeningObjective(item);
+      const label=orbOpening?'Ouverture d’orbes':objectiveActionLabel(item);
+      const key=item.mode+'|'+(orbOpening?'orb-openings':eventNameKey(label));
+      if(!byAction.has(key))byAction.set(key,{label,items:[],orbOpening});
+      byAction.get(key).items.push(item);
+    }
+    for(const {label,items:methods,orbOpening} of byAction.values()){
+      // Les menus restent fermés au chargement, même pour une action unique.
+      const actionBlock=create('details','ev-objective-event-group');
+      const actionTitle=create('summary','ev-objective-event-summary');
+      actionTitle.append(create('strong','',label));
+      actionTitle.append(create('span','ev-objective-mini-count',
+        objectiveCount(methods.length)));
+      // Les types d'orbes ont des plafonds indépendants : ne pas
+      // afficher de limite agrégée trompeuse dans l'en-tête commun.
+      for(const hint of (orbOpening?[]:objectiveActionHints(methods)))
+        actionTitle.append(create('span','ev-objective-limit',hint));
+      const body=create('div','ev-objective-event-content');
+      const bySource=new Map();
+      for(const item of methods){
+        const parent=state.events.find(candidate=>
+          (calendarGroup(candidate)==='phases'||calendarGroup(candidate)==='command')&&
+          eventNameKey(candidate.name)===eventNameKey(item.event.name)&&
+          candidate.startTime<item.event.endTime&&
+          candidate.endTime>item.event.startTime)||item.event;
+        const sourceKey=parent.id||objectiveGroup(parent)+'|'+eventNameKey(parent.name);
+        if(!bySource.has(sourceKey))bySource.set(sourceKey,{event:parent,items:[]});
+        bySource.get(sourceKey).items.push(item);
+      }
+      for(const {event,items:scorings} of bySource.values()){
+        const source=create('div','ev-objective-source');
+        const sourceHead=create('div','ev-objective-source-head');
+        const link=create('button','ev-objective-event',eventTitle(event));
+        link.type='button';link.title='Détails de l’événement';
+        link.addEventListener('click',()=>openDetail(event,link));
+        sourceHead.append(link);
+        sourceHead.append(create('span','ev-objective-scope',
+          event.milestone?.type==='alliance'?'Alliance':'Solo'));
+        // Dans une famille d'orbes, chaque méthode garde son type d'orbe :
+        // cacher les libellés ferait disparaître la différence entre orbes.
+        source.append(sourceHead,objectiveList(scorings,false,!orbOpening));
+        body.append(source);
+      }
+      actionBlock.append(actionTitle,body);eventList.append(actionBlock);
+    }
+  }
   function renderObjectives(reference){
     const host=$('events-objectives');host.replaceChildren();
     const items=objectiveEntries(reference);
@@ -696,86 +795,19 @@
       heading.append(create('span','ev-objective-count',
         objectiveCount(entries.length)));
       const eventList=create('div','ev-objective-events');
-      // On groupe d'abord les exigences d'équipe et leurs personnages,
-      // même lorsqu'elles proviennent d'événements différents.
-      const {teams,individual,other}=objectiveTeams(entries);
-      for(const team of teams){
-        const teamBlock=create('details','ev-objective-team');
-        const summary=create('summary','ev-objective-team-summary');
-        summary.append(create('strong','',team.name));
-        const total=team.goals.length+
-          team.characters.reduce((sum,member)=>sum+member.items.length,0);
-        summary.append(create('span','ev-objective-mini-count',
-          fmtNumber.format(team.roster.length)+' personnages · '+
-          objectiveCount(total)));
-        if(team.roster.length)summary.append(objectiveTeamRoster(team.roster));
-        const people=create('div','ev-objective-people');
-        if(team.goals.length){
-          people.append(create('h4','ev-objective-subhead',
-            team.goals.some(item=>item.teamComplete)?
-              'Conditions d’équipe complète / collectives':'Conditions d’équipe'));
-          people.append(objectiveList(team.goals));
+      if(key==='upgrade'){
+        for(const [group,label] of UPGRADE_GROUPS){
+          const subset=entries.filter(item=>objectiveUpgradeGroup(item.description)===group);
+          if(!subset.length)continue;
+          const block=create('details','ev-objective-event-group ev-objective-upgrade-group');
+          const summary=create('summary','ev-objective-event-summary');
+          summary.append(create('strong','',label));
+          summary.append(create('span','ev-objective-mini-count',objectiveCount(subset.length)));
+          const body=create('div','ev-objective-event-content');
+          renderObjectiveCards(subset,body);
+          block.append(summary,body);eventList.append(block);
         }
-        for(const member of team.characters)people.append(objectiveCharacterCard(member));
-        teamBlock.append(summary,people);eventList.append(teamBlock);
-      }
-      if(individual.length){
-        const singles=create('div','ev-objective-singles');
-        singles.append(create('h4','ev-objective-subhead','Personnages'));
-        const people=create('div','ev-objective-people');
-        for(const member of individual)people.append(objectiveCharacterCard(member));
-        singles.append(people);eventList.append(singles);
-      }
-      // Les méthodes sans équipe ni personnage sont regroupées par action,
-      // et non par événement : un combat peut faire progresser plusieurs
-      // jalons, chacun conservant ses propres points et plafonds.
-      const byAction=new Map();
-      for(const item of other){
-        const orbOpening=isOrbOpeningObjective(item);
-        const label=orbOpening?'Ouverture d’orbes':objectiveActionLabel(item);
-        const key=item.mode+'|'+(orbOpening?'orb-openings':eventNameKey(label));
-        if(!byAction.has(key))byAction.set(key,{label,items:[],orbOpening});
-        byAction.get(key).items.push(item);
-      }
-      for(const {label,items:methods,orbOpening} of byAction.values()){
-        // Les menus restent fermés au chargement, même pour une action unique.
-        const actionBlock=create('details','ev-objective-event-group');
-        const actionTitle=create('summary','ev-objective-event-summary');
-        actionTitle.append(create('strong','',label));
-        actionTitle.append(create('span','ev-objective-mini-count',
-          objectiveCount(methods.length)));
-        // Les types d'orbes ont des plafonds indépendants : ne pas
-        // afficher de limite agrégée trompeuse dans l'en-tête commun.
-        for(const hint of (orbOpening?[]:objectiveActionHints(methods)))
-          actionTitle.append(create('span','ev-objective-limit',hint));
-        const body=create('div','ev-objective-event-content');
-        const bySource=new Map();
-        for(const item of methods){
-          const parent=state.events.find(candidate=>
-            (calendarGroup(candidate)==='phases'||calendarGroup(candidate)==='command')&&
-            eventNameKey(candidate.name)===eventNameKey(item.event.name)&&
-            candidate.startTime<item.event.endTime&&
-            candidate.endTime>item.event.startTime)||item.event;
-          const sourceKey=parent.id||objectiveGroup(parent)+'|'+eventNameKey(parent.name);
-          if(!bySource.has(sourceKey))bySource.set(sourceKey,{event:parent,items:[]});
-          bySource.get(sourceKey).items.push(item);
-        }
-        for(const {event,items:scorings} of bySource.values()){
-          const source=create('div','ev-objective-source');
-          const sourceHead=create('div','ev-objective-source-head');
-          const link=create('button','ev-objective-event',eventTitle(event));
-          link.type='button';link.title='Détails de l’événement';
-          link.addEventListener('click',()=>openDetail(event,link));
-          sourceHead.append(link);
-          sourceHead.append(create('span','ev-objective-scope',
-            event.milestone?.type==='alliance'?'Alliance':'Solo'));
-          // Dans une famille d'orbes, chaque méthode garde son type d'orbe :
-          // cacher les libellés ferait disparaître la différence entre orbes.
-          source.append(sourceHead,objectiveList(scorings,false,!orbOpening));
-          body.append(source);
-        }
-        actionBlock.append(actionTitle,body);eventList.append(actionBlock);
-      }
+      }else renderObjectiveCards(entries,eventList);
       modeSection.append(heading,eventList);host.append(modeSection);
     }
   }
