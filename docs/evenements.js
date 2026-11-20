@@ -366,39 +366,14 @@
   function isFullTeamObjective(description){
     return /\b(?:tous les membres|all (?:members|characters))\b/i.test(description);
   }
-  function battleCompatible(general,specific){
-    if(!general.isBattle||!specific.isBattle)return false;
-    if(general.character){
-      if(specific.character)return general.character.id===specific.character.id;
-      return Boolean(specific.team?.characters.includes(general.character.id));
-    }
-    if(general.team){
-      if(specific.team)return general.team.team===specific.team.team;
-      return Boolean(specific.character&&
-        general.team.characters.includes(specific.character.id));
-    }
-    // « Jouer n'importe quel combat » englobe toute bataille, mais jamais
-    // une connexion, un achat, une amélioration ou une dépense d'énergie.
-    return !general.character&&!general.team;
-  }
   function routeBattleObjectives(items){
-    const specific=items.filter(item=>item.isBattle&&item.mode!=='divers');
     for(const item of items){
       item.originalMode=item.mode;
-      item.relatedModes=[];
-      if(item.mode!=='divers'||!item.isBattle)continue;
-      const scores=new Map();
-      for(const candidate of specific){
-        if(!battleCompatible(item,candidate))continue;
-        scores.set(candidate.mode,(scores.get(candidate.mode)||0)+1);
-      }
-      if(!scores.size)continue;
-      const ranked=[...scores].sort((a,b)=>b[1]-a[1]||
-        a[0].localeCompare(b[0],'fr'));
-      // Une méthode générale est montrée UNE seule fois, dans le contexte
-      // le plus pertinent. Elle reste valable dans tous les modes autorisés.
-      item.mode=ranked[0][0];
-      item.relatedModes=ranked.map(([mode])=>mode);
+      // Choc est la rubrique de référence LoSP pour les combats sans
+      // mode imposé. Ne pas déduire un mode à partir des autres événements
+      // ni du mode de prédilection d'une équipe. Les combats restent
+      // créditables dans tous les modes compatibles avec leur condition.
+      if(item.mode==='divers'&&item.isBattle)item.mode='blitz';
     }
     return items;
   }
