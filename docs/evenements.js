@@ -799,13 +799,13 @@
         for(const [group,label] of UPGRADE_GROUPS){
           const subset=entries.filter(item=>objectiveUpgradeGroup(item.description)===group);
           if(!subset.length)continue;
-          const block=create('details','ev-objective-event-group ev-objective-upgrade-group');
-          const summary=create('summary','ev-objective-event-summary');
-          summary.append(create('strong','',label));
-          summary.append(create('span','ev-objective-mini-count',objectiveCount(subset.length)));
-          const body=create('div','ev-objective-event-content');
+          const block=create('section','ev-objective-upgrade-group');
+          const title=create('h4','ev-objective-upgrade-heading');
+          title.append(create('strong','',label));
+          title.append(create('span','ev-objective-mini-count',objectiveCount(subset.length)));
+          const body=create('div','ev-objective-events');
           renderObjectiveCards(subset,body);
-          block.append(summary,body);eventList.append(block);
+          block.append(title,body);eventList.append(block);
         }
       }else renderObjectiveCards(entries,eventList);
       modeSection.append(heading,eventList);host.append(modeSection);
@@ -860,6 +860,35 @@
     }
   }
   function listFor(parent,rows){const ul=create('ul','ev-detail-list');for(const row of rows){const li=create('li','');li.textContent=row;ul.append(li);}parent.append(ul);}
+  // Les descriptions Scopely peuvent contenir des balises Unity ou des
+  // séparations de paragraphes perdues. Tout reste rendu en textContent.
+  function renderPresentation(parent,raw){
+    const lines=String(raw??'')
+      .replace(/\r\n?/g,'\n')
+      .replace(/<br\s*\/?>|<\/(?:p|div|li|h[1-6])\s*>/gi,'\n')
+      .replace(/<li\b[^>]*>/gi,'\n- ')
+      .replace(/<\/color\s*>(?=[A-ZÀ-ÖØ-Þ][a-zà-öø-ÿ])/g,'\n')
+      .replace(/<[^>]*>/g,'')
+      .replace(/&nbsp;|&#160;|\u00a0|\u202f/g,' ')
+      // Restaurer le passage du titre de phase à son introduction.
+      .replace(/^(Phase [^\n]+?)(?=(?:Progressez|Profitez|Déchaînez|Progress|Make progress)\b)/i,'$1\n')
+      // Puces de la forme « : - texte. - texte » ; ne pas couper ISO-8.
+      .replace(/([:.!?])\s*[-•]\s+(?=\S)/g,'$1\n- ')
+      // Phrases collées sans espace : ne pas couper les sigles, les
+      // décimales, les adresses web ou les traits d'union des noms.
+      .replace(/([.!?])(?=[A-ZÀ-ÖØ-Þ][a-zà-öø-ÿ])/g,'$1\n')
+      .split(/\n+/).map(line=>line.replace(/[ \t]+/g,' ').trim()).filter(Boolean);
+    let list=null;
+    for(const line of lines){
+      const bullet=line.match(/^[-•]\s+(.+)$/);
+      if(bullet){
+        if(!list){list=create('ul','ev-detail-list ev-presentation-list');parent.append(list);}
+        list.append(create('li','',bullet[1]));
+      }else{
+        list=null;parent.append(create('p','',line));
+      }
+    }
+  }
   function detailSection(parent,title){const section=create('section','ev-dialog-section');section.append(create('h3','',title));parent.append(section);return section;}
   function openDetail(e,trigger){
     state.lastButton=trigger;const dialog=$('event-dialog'),host=$('event-dialog-content');host.replaceChildren();
@@ -879,7 +908,7 @@
       box.append(create('span','ev-dialog-label',label),create('strong','',value));info.append(box);
     }
     body.append(info);
-    const description=strip(e.details||e.subName);if(description){const sec=detailSection(body,'Présentation');sec.append(create('p','',description));}
+    const description=e.details||e.subName;if(strip(description)){const sec=detailSection(body,'Présentation');sec.className+=' ev-presentation';renderPresentation(sec,description);}
     const scoring=e.milestone?.scoring;const methods=Array.isArray(scoring?.methods)?scoring.methods:[];
     const caps=Array.isArray(scoring?.cappedScorings)?scoring.cappedScorings:[];
     if(methods.length){const sec=detailSection(body,'Comment gagner des points');listFor(sec,methods.map(x=>`${strip(x.description)||'Action'} : ${fmtNumber.format(x.points||0)} point(s)`));}
