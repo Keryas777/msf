@@ -1157,7 +1157,9 @@ test('Amélioration regroupe les progressions de personnages et ressources dédi
   assert.deepEqual(sections(nodes).map(s=>s.children[0].textContent),
     ['⚔️ GUERRE','⚡ CHOC','📖 CAMPAGNE','⬆️ AMÉLIORATION','📋 DIVERS']);
   const improvements=rows('⬆️ AMÉLIORATION');
-  assert.deepEqual(improvements.map(r=>r.children[0].textContent).sort(),upgrade.slice().sort());
+  const expected=upgrade.map(label=>label==="Upgrade Any Character to Gear Tier 22"?
+    "Améliorer un personnage au palier G22":label.replace(/\s+/g,' '));
+  assert.deepEqual(improvements.map(r=>r.children[0].textContent).sort(),expected.sort());
   assert.equal(rows('⚡ CHOC').length,choc.length);
   assert.equal(rows('⚔️ GUERRE').length,war.length);
   assert.equal(rows('📖 CAMPAGNE').length,campaign.length);
