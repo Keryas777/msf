@@ -1118,6 +1118,39 @@ test('Épreuve abrégée : classement en Épreuve cosmique, jamais sous Choc',as
   assert.ok(bounds.includes('(plafond 1 000 pts)')||bounds.includes('(plafond 1 000 pts)'));
 });
 
+test('Les dépenses d’énergie vont dans Campagne sauf mode explicite ou monnaie',async()=>{
+  const campaign=[
+    "Dépenser de l'énergie de Doomsday dans Doomsday : Incursion",
+    'Dépenser de l’énergie',
+    'Dépensez 1 énergie',
+    'Dépenser 10 points d’énergie préhistorique',
+    'Spend Doomsday Energy',
+    'Dépenser de l’énergie ISO-8',
+    'Dépenser de l’énergie (campagne, iso ou incursion)'
+  ];
+  const raid=['Dépenser de l’énergie de raid','Spend Raid Energy'];
+  const war=['Dépenser de l’énergie de guerre','Spend War Energy'];
+  const other=['Dépenser 1 noyau d’énergie','Dépensez des noyaux d’énergie',
+    'Utiliser 1 noyau d’énergie','Spend Power Cores','Obtenir de l’énergie de Doomsday'];
+  const labels=[...campaign,...raid,...war,...other];
+  const nodes=await makePage({includeBase:false,extraEvents:labels.map((description,i)=>
+    ['Événement '+i,'milestone',{milestone:{type:'solo',scoring:{
+      methods:[],cappedScorings:[{cap:10,methods:[{description,points:1}]}]
+    }}}])});
+  assert.equal(nodes.get('stat-objectives').textContent,String(labels.length));
+  assert.equal(objectiveNodes(nodes).length,labels.length);
+  const rows=section=>{
+    const walk=node=>[node,...node.children.flatMap(walk)];
+    return walk(sections(nodes).find(s=>s.children[0].textContent===section))
+      .filter(node=>node.className==='ev-objective-item')
+      .map(row=>row.children[0].textContent).sort();
+  };
+  assert.deepEqual(rows('📖 CAMPAGNE'),campaign.slice().sort());
+  assert.deepEqual(rows('🛡️ RAID'),raid.slice().sort());
+  assert.deepEqual(rows('⚔️ GUERRE'),war.slice().sort());
+  assert.deepEqual(rows('📋 DIVERS'),other.slice().sort());
+});
+
 test('Dépenser 1 point ou dépenser de l’énergie de campagne partage une seule action',async()=>{
   const nodes=await makePage({includeBase:false,extraEvents:[
     ['Sauvez le monde !','milestone',{milestone:{type:'solo',scoring:{
@@ -1332,7 +1365,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=41/);
+  assert.match(html,/evenements\.js\?v=42/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
