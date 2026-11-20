@@ -1,10 +1,11 @@
 // docs/sw.js
 
-const CACHE = "losp-v30";
+const CACHE = "losp-v31";
 
 const CORE_ASSETS = [
   "./",
   "./home.html",
+  "./war-choose.html",
   "./style.css",
   "./home.css",
   "./install-banner.js",
@@ -60,7 +61,7 @@ self.addEventListener("activate", (event) => {
       .then((keys) => {
         return Promise.all(
           keys
-            .filter((key) => key !== CACHE)
+            .filter((key) => /^losp-v\d+$/.test(key) && key !== CACHE)
             .map((key) => caches.delete(key))
         );
       })
@@ -203,6 +204,13 @@ self.addEventListener("fetch", (event) => {
       url.pathname.endsWith("/renseignements-guerre.html") ||
       url.pathname.endsWith("/renseignements-guerre.css") ||
       url.pathname.endsWith("/data/war-intelligence.json")) {
+    event.respondWith(networkFirst(request, null, true));
+    return;
+  }
+
+  // Résumé Objectifs : ne jamais réutiliser une ancienne réponse HTTP
+  // pour le code ou les deux illustrations de cette version publiée.
+  if (/\/(?:evenements\.(?:js|css)|HeaderObjectifs\.webp|ResumeObjectifs\.webp)$/.test(url.pathname)) {
     event.respondWith(networkFirst(request, null, true));
     return;
   }
