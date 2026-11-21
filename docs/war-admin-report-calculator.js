@@ -10,9 +10,9 @@
     hades: Object.freeze({ minimum_attacks: 10, minimum_deviations: 0 })
   });
 
-  // Barème courant : 10 salles défensives, 1 010 points par victoire au premier essai.
+  // Barème courant : 918 points par victoire au premier essai.
   // Les débriefs historiques déjà publiés restent inchangés.
-  const ESTIMATED_POINTS_PER_SUCCESS = 1010;
+  const ESTIMATED_POINTS_PER_SUCCESS = 918;
 
   const PLAYER_NUMERIC_FIELDS = [
     "rank",
