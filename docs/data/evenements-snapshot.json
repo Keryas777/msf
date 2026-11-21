@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "status": "ok",
   "source": "verified-daily-game-events",
-  "updatedAt": "2026-11-20T21:05:15.343Z",
-  "revision": "55e941bd737a59f41adf",
-  "total": 146,
-  "count": 146,
+  "updatedAt": "2026-11-21T21:05:19.438Z",
+  "revision": null,
+  "total": 148,
+  "count": 148,
   "pages": 2,
   "events": [
     {
@@ -367,15 +367,6 @@
       }
     },
     {
-      "id": "6afa19cdfb365c004bfbbef0",
-      "type": "raid",
-      "startTime": 1795294800,
-      "endTime": 1795380900,
-      "name": "Raids d'appréhension",
-      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
-      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
-    },
-    {
       "id": "6afa19cdfb365c004bfbbef7",
       "type": "milestone",
       "startTime": 1794776400,
@@ -489,43 +480,37 @@
       "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
     },
     {
-      "id": "6a875cc04803a25f1ae00a81",
-      "type": "milestone",
-      "startTime": 1787259600,
-      "endTime": 1795208400,
-      "name": "ORBE ÉCHO",
-      "locationHints": [
-        "mercy_orb"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "",
-          "methods": [],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6af8c84dfb365c004bfbbb31",
+      "id": "6b00b14c2c6b04c8d8a62d24",
       "type": "raid",
-      "startTime": 1795208400,
-      "endTime": 1795294500,
+      "startTime": 1795726800,
+      "endTime": 1795812900,
       "name": "Raids d'appréhension",
       "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
       "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
     },
     {
-      "id": "6aff5fcc2c6b04c8d8a626f6",
+      "id": "6b0202cc2c6b04c8d8a63369",
+      "type": "raid",
+      "startTime": 1795813200,
+      "endTime": 1795899300,
+      "name": "Raids d'appréhension",
+      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
+      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
+    },
+    {
+      "id": "6afa19cdfb365c004bfbbef0",
+      "type": "raid",
+      "startTime": 1795294800,
+      "endTime": 1795380900,
+      "name": "Raids d'appréhension",
+      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
+      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
+    },
+    {
+      "id": "6b00b14c2c6b04c8d8a62d22",
       "type": "milestone",
-      "startTime": 1795122000,
-      "endTime": 1795208400,
+      "startTime": 1795208400,
+      "endTime": 1795294800,
       "name": "Récomp. quot. du web",
       "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
       "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
@@ -556,83 +541,6 @@
           }
         ]
       }
-    },
-    {
-      "id": "6aff5fcd2c6b04c8d8a626f9",
-      "type": "milestone",
-      "startTime": 1795122000,
-      "endTime": 1795208400,
-      "name": "Phases quotidiennes exclusives du web",
-      "details": "Gagnez des récompenses en interagissant avec MSF sur le web, en exclusivité sur MarvelStrikeForce.com ! Jouez à la version web de MSF, récupérez vos cadeaux quotidiens et effectuez des achats dans la boutique web ou la boutique du Strike pour progresser.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_Generic_Card_6863aeca0459d9fd89c3f2b8a4e170b2ffd4_6aecb6c7ef88d351ed5dfef244d14ed24c44.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_Generic_Banner_6863ae980459d9fd89c3f2b77fc64851b9e6_6aecb738ef88d351ed5dfef467e049f14186.jpg",
-      "locationHints": [
-        "web_exclusive"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "",
-          "methods": [],
-          "cappedScorings": [
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Récoltez une offre gratuite.",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 2
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Effectuez un achat dans la boutique du web.",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 6
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Effectuez un achat sur la boutique du Strike",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 3
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Dépensez des noyaux d’énergie",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 5
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6b00b14c2c6b04c8d8a62d24",
-      "type": "raid",
-      "startTime": 1795726800,
-      "endTime": 1795812900,
-      "name": "Raids d'appréhension",
-      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
-      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
     },
     {
       "id": "6b00b14c2c6b04c8d8a62d25",
@@ -703,10 +611,78 @@
       }
     },
     {
-      "id": "6b00b14c2c6b04c8d8a62d22",
+      "id": "6b0202cc2c6b04c8d8a6336a",
       "type": "milestone",
-      "startTime": 1795208400,
-      "endTime": 1795294800,
+      "startTime": 1795294800,
+      "endTime": 1795381200,
+      "name": "Phases quotidiennes exclusives du web",
+      "details": "Gagnez des récompenses en interagissant avec MSF sur le web, en exclusivité sur MarvelStrikeForce.com ! Jouez à la version web de MSF, récupérez vos cadeaux quotidiens et effectuez des achats dans la boutique web ou la boutique du Strike pour progresser.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_Generic_Card_6863aeca0459d9fd89c3f2b8a4e170b2ffd4_6aecb6c7ef88d351ed5dfef244d14ed24c44.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_Generic_Banner_6863ae980459d9fd89c3f2b77fc64851b9e6_6aecb738ef88d351ed5dfef467e049f14186.jpg",
+      "locationHints": [
+        "web_exclusive"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Récoltez une offre gratuite.",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 2
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Effectuez un achat dans la boutique du web.",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 6
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Effectuez un achat sur la boutique du Strike",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 3
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Dépensez des noyaux d’énergie",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 5
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b0202cc2c6b04c8d8a63367",
+      "type": "milestone",
+      "startTime": 1795294800,
+      "endTime": 1795381200,
       "name": "Récomp. quot. du web",
       "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
       "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
@@ -739,29 +715,43 @@
       }
     },
     {
-      "id": "6af776ce47f5070146e7b864",
+      "id": "6af8c84dfb365c004bfbbb31",
       "type": "raid",
-      "startTime": 1795122000,
-      "endTime": 1795208100,
+      "startTime": 1795208400,
+      "endTime": 1795294500,
       "name": "Raids d'appréhension",
       "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
       "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
     },
     {
-      "id": "6afb60c0fb365c004bfbcb55",
-      "type": "blitz",
-      "startTime": 1794862800,
+      "id": "6a875cc04803a25f1ae00a81",
+      "type": "milestone",
+      "startTime": 1787259600,
       "endTime": 1795208400,
-      "name": "Reine des morts",
-      "subName": "Gagnez des éclats de Hela !",
-      "details": "Affrontez des équipes d'autres joueurs pour gagner des récompenses de phase, avec une chance d'obtenir des éclats de Hela !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Blitz_Hela_card_66424eea1ed44d173b1d96ba2e0f5c06c392.jpg"
+      "name": "ORBE ÉCHO",
+      "locationHints": [
+        "mercy_orb"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "",
+          "methods": [],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
     },
     {
-      "id": "6afe0e4cfb365c004bfbd92f",
+      "id": "6aff5fcc2c6b04c8d8a626f6",
       "type": "milestone",
-      "startTime": 1795035600,
-      "endTime": 1795122000,
+      "startTime": 1795122000,
+      "endTime": 1795208400,
       "name": "Récomp. quot. du web",
       "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
       "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
@@ -2212,169 +2202,6 @@
       }
     },
     {
-      "id": "6af61ac047f5070146e7b2f8",
-      "type": "milestone",
-      "startTime": 1794517200,
-      "endTime": 1795986000,
-      "name": "Fête de l’iso",
-      "subName": "Obtenez le Professeur Xavier à 5 losanges !",
-      "details": "Phase <color=#fff568>Fête de l’iso</color>Progressez dans cet événement en :- Améliorant un personnage à l’iso palier 3 niveau 5.- Améliorant un personnage à l’iso palier 4 niveau 3.- Dépensant des ions de palier 2 niveau 1, niveau 4 et niveau 5.- Dépensant des ions de palier 3 niveau 1, niveau 4 et niveau 5.- Dépensant des ions de palier 4 niveau 1.- Dépensant des noyaux d'énergie, de l'or et des modules d’entraînement N4.- Gagnant des points de phase Fête de l’iso grâce aux offres et aux cadeaux quotidiens du web.Gagnez des récompenses fantastiques, dont :- Un orbe d’iso-8 P2 de base, des ions P2 niveau 1, 4 et 5.- Un orbe d’iso-8 P3 de base, des ions P3 niveau 1, 4 et 5.- Des étoiles rouges pour Knull, Professeur Xavier et Maestro.- Des losanges pour Spider-Man supérieur, Knull et Professeur Xavier.Allez plus loin dans les phases pour obtenir des récompenses supérieures : <color=#fff568>Spider-Man supérieur à 5 losanges, Knull à 5 losanges et Professeur Xavier à 5 losanges</color> !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Event_ISOFest_Card_02_6abdd700e2aadc4c9d29978f88feac8375c6.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Event_ISOFest_Banner_02_6abdd715e2aadc4c9d299790c0f2e59194d0.jpg",
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Obtenez le Professeur Xavier à 5 losanges !",
-          "methods": [
-            {
-              "description": "Dépenser 1 ion palier 3 niveau 1",
-              "points": 1
-            },
-            {
-              "description": "Dépenser 1 ion palier 3 niveau 4",
-              "points": 1
-            },
-            {
-              "description": "Dépenser 1 ion palier 3 niveau 5",
-              "points": 1
-            },
-            {
-              "description": "Dépenser 1 ion palier 4 niveau 1",
-              "points": 1
-            },
-            {
-              "description": "Améliorer n'importe quel personnage à l’iso-8 P3 niveau 5",
-              "points": 5000000
-            },
-            {
-              "description": "Améliorer n'importe quel personnage à l’iso-8 P4 niveau 3",
-              "points": 8000000
-            },
-            {
-              "description": "Gagner des points de phase Fête de l’iso dans des offres sélectionnées",
-              "points": 1
-            }
-          ],
-          "cappedScorings": [
-            {
-              "cap": 51000000,
-              "methods": [
-                {
-                  "description": "Se connecter",
-                  "points": 3000000
-                }
-              ]
-            },
-            {
-              "cap": 50000000,
-              "methods": [
-                {
-                  "description": "Dépenser 1 ion palier 2 niveau 1",
-                  "points": 1
-                }
-              ]
-            },
-            {
-              "cap": 50000000,
-              "methods": [
-                {
-                  "description": "Dépenser 1 ion palier 2 niveau 4",
-                  "points": 1
-                }
-              ]
-            },
-            {
-              "cap": 88000000,
-              "methods": [
-                {
-                  "description": "Dépenser 1 ion palier 2 niveau 5",
-                  "points": 1
-                }
-              ]
-            },
-            {
-              "cap": 250000000,
-              "methods": [
-                {
-                  "description": "Dépenser des noyaux d’énergie",
-                  "points": 1000
-                }
-              ]
-            },
-            {
-              "cap": 500000000,
-              "methods": [
-                {
-                  "description": "Dépenser de l’or",
-                  "points": 1
-                }
-              ]
-            },
-            {
-              "cap": 500000000,
-              "methods": [
-                {
-                  "description": "Dépenser des modules d'entraînement N4",
-                  "points": 5000
-                }
-              ]
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "completed_42"
-          },
-          {
-            "id": "completed_41"
-          },
-          {
-            "id": "completed_40"
-          },
-          {
-            "id": "completed_39"
-          },
-          {
-            "id": "completed_38"
-          },
-          {
-            "id": "completed_37"
-          },
-          {
-            "id": "completed_36"
-          },
-          {
-            "id": "completed_35"
-          },
-          {
-            "id": "completed_34"
-          },
-          {
-            "id": "completed_33"
-          },
-          {
-            "id": "completed_32"
-          },
-          {
-            "id": "completed_31"
-          },
-          {
-            "id": "completed_30"
-          },
-          {
-            "id": "completed_29"
-          },
-          {
-            "id": "completed_28"
-          },
-          {
-            "id": "completed_27"
-          }
-        ]
-      }
-    },
-    {
       "id": "6af7502047f5070146e7b604",
       "type": "milestone",
       "startTime": 1794596400,
@@ -2952,10 +2779,173 @@
       }
     },
     {
-      "id": "6aff5fcd2c6b04c8d8a626fa",
+      "id": "6af61ac047f5070146e7b2f8",
       "type": "milestone",
-      "startTime": 1795122000,
-      "endTime": 1795208400,
+      "startTime": 1794517200,
+      "endTime": 1795986000,
+      "name": "Fête de l’iso",
+      "subName": "Obtenez le Professeur Xavier à 5 losanges !",
+      "details": "Phase <color=#fff568>Fête de l’iso</color>Progressez dans cet événement en :- Améliorant un personnage à l’iso palier 3 niveau 5.- Améliorant un personnage à l’iso palier 4 niveau 3.- Dépensant des ions de palier 2 niveau 1, niveau 4 et niveau 5.- Dépensant des ions de palier 3 niveau 1, niveau 4 et niveau 5.- Dépensant des ions de palier 4 niveau 1.- Dépensant des noyaux d'énergie, de l'or et des modules d’entraînement N4.- Gagnant des points de phase Fête de l’iso grâce aux offres et aux cadeaux quotidiens du web.Gagnez des récompenses fantastiques, dont :- Un orbe d’iso-8 P2 de base, des ions P2 niveau 1, 4 et 5.- Un orbe d’iso-8 P3 de base, des ions P3 niveau 1, 4 et 5.- Des étoiles rouges pour Knull, Professeur Xavier et Maestro.- Des losanges pour Spider-Man supérieur, Knull et Professeur Xavier.Allez plus loin dans les phases pour obtenir des récompenses supérieures : <color=#fff568>Spider-Man supérieur à 5 losanges, Knull à 5 losanges et Professeur Xavier à 5 losanges</color> !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Event_ISOFest_Card_02_6abdd700e2aadc4c9d29978f88feac8375c6.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Event_ISOFest_Banner_02_6abdd715e2aadc4c9d299790c0f2e59194d0.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Obtenez le Professeur Xavier à 5 losanges !",
+          "methods": [
+            {
+              "description": "Dépenser 1 ion palier 3 niveau 1",
+              "points": 1
+            },
+            {
+              "description": "Dépenser 1 ion palier 3 niveau 4",
+              "points": 1
+            },
+            {
+              "description": "Dépenser 1 ion palier 3 niveau 5",
+              "points": 1
+            },
+            {
+              "description": "Dépenser 1 ion palier 4 niveau 1",
+              "points": 1
+            },
+            {
+              "description": "Améliorer n'importe quel personnage à l’iso-8 P3 niveau 5",
+              "points": 5000000
+            },
+            {
+              "description": "Améliorer n'importe quel personnage à l’iso-8 P4 niveau 3",
+              "points": 8000000
+            },
+            {
+              "description": "Gagner des points de phase Fête de l’iso dans des offres sélectionnées",
+              "points": 1
+            }
+          ],
+          "cappedScorings": [
+            {
+              "cap": 51000000,
+              "methods": [
+                {
+                  "description": "Se connecter",
+                  "points": 3000000
+                }
+              ]
+            },
+            {
+              "cap": 50000000,
+              "methods": [
+                {
+                  "description": "Dépenser 1 ion palier 2 niveau 1",
+                  "points": 1
+                }
+              ]
+            },
+            {
+              "cap": 50000000,
+              "methods": [
+                {
+                  "description": "Dépenser 1 ion palier 2 niveau 4",
+                  "points": 1
+                }
+              ]
+            },
+            {
+              "cap": 88000000,
+              "methods": [
+                {
+                  "description": "Dépenser 1 ion palier 2 niveau 5",
+                  "points": 1
+                }
+              ]
+            },
+            {
+              "cap": 250000000,
+              "methods": [
+                {
+                  "description": "Dépenser des noyaux d’énergie",
+                  "points": 1000
+                }
+              ]
+            },
+            {
+              "cap": 500000000,
+              "methods": [
+                {
+                  "description": "Dépenser de l’or",
+                  "points": 1
+                }
+              ]
+            },
+            {
+              "cap": 500000000,
+              "methods": [
+                {
+                  "description": "Dépenser des modules d'entraînement N4",
+                  "points": 5000
+                }
+              ]
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "completed_42"
+          },
+          {
+            "id": "completed_41"
+          },
+          {
+            "id": "completed_40"
+          },
+          {
+            "id": "completed_39"
+          },
+          {
+            "id": "completed_38"
+          },
+          {
+            "id": "completed_37"
+          },
+          {
+            "id": "completed_36"
+          },
+          {
+            "id": "completed_35"
+          },
+          {
+            "id": "completed_34"
+          },
+          {
+            "id": "completed_33"
+          },
+          {
+            "id": "completed_32"
+          },
+          {
+            "id": "completed_31"
+          },
+          {
+            "id": "completed_30"
+          },
+          {
+            "id": "completed_29"
+          },
+          {
+            "id": "completed_28"
+          },
+          {
+            "id": "completed_27"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b0202cc2c6b04c8d8a6336b",
+      "type": "milestone",
+      "startTime": 1795294800,
+      "endTime": 1795381200,
       "name": "Briseur de volontés - Plan de bataille du mois 1",
       "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
       "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
@@ -2973,7 +2963,7 @@
               "cap": 1,
               "methods": [
                 {
-                  "description": "Combattre avec Hawkeye (Robot)",
+                  "description": "Combattre avec la Torche humaine (Jim)",
                   "points": 1
                 }
               ],
@@ -2983,7 +2973,7 @@
               "cap": 1,
               "methods": [
                 {
-                  "description": "Combattre avec Iron Monger",
+                  "description": "Combattre avec Whiplash",
                   "points": 1
                 }
               ],
@@ -2993,7 +2983,64 @@
               "cap": 1,
               "methods": [
                 {
-                  "description": "Combattre avec des personnages West Coast Avenger",
+                  "description": "Combattre avec des personnages Menace",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 4
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b0202cc2c6b04c8d8a6336e",
+      "type": "milestone",
+      "startTime": 1795294800,
+      "endTime": 1795381200,
+      "name": "Battle Pass du chapitre : Objectifs quotidiens",
+      "subName": "Aperçu du Black Friday pour le palier d'équipement 21 !",
+      "details": "Aperçu du Black Friday pour le palier d'équipement 21 !",
+      "locationHints": [
+        "lohub_feeder"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 20000,
+              "methods": [
+                {
+                  "description": "Récupérer des marques d’effroi",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 2
+            },
+            {
+              "cap": 200,
+              "methods": [
+                {
+                  "description": "Dépenser de l’énergie (campagne, iso ou incursion)",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 3
+            },
+            {
+              "cap": 3,
+              "methods": [
+                {
+                  "description": "Jouer dans l’arène, en guerre, en arène en temps réel ou dans l’Épreuve",
                   "points": 1
                 }
               ],
@@ -3237,124 +3284,10 @@
       }
     },
     {
-      "id": "6b00b14d2c6b04c8d8a62d34",
+      "id": "6b0202cc2c6b04c8d8a6336d",
       "type": "milestone",
-      "startTime": 1795208400,
-      "endTime": 1795294800,
-      "name": "Battle Pass du chapitre : Objectifs quotidiens",
-      "subName": "Aperçu du Black Friday pour le palier d'équipement 21 !",
-      "details": "Aperçu du Black Friday pour le palier d'équipement 21 !",
-      "locationHints": [
-        "lohub_feeder"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "",
-          "methods": [],
-          "cappedScorings": [
-            {
-              "cap": 20000,
-              "methods": [
-                {
-                  "description": "Récupérer des marques d’effroi",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 2
-            },
-            {
-              "cap": 200,
-              "methods": [
-                {
-                  "description": "Dépenser de l’énergie (campagne, iso ou incursion)",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 3
-            },
-            {
-              "cap": 3,
-              "methods": [
-                {
-                  "description": "Jouer dans l’arène, en guerre, en arène en temps réel ou dans l’Épreuve",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 4
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6aff5fcd2c6b04c8d8a626fe",
-      "type": "milestone",
-      "startTime": 1795122000,
-      "endTime": 1795208400,
-      "name": "Nuit des Sentinelles",
-      "subName": "Fêtez l'anniversaire de la série animée des X-Men !",
-      "details": "Fêtez l'anniversaire de la série animée des X-Men !",
-      "locationHints": [
-        "lohub_feeder"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Fêtez l'anniversaire de la série animée des X-Men !",
-          "methods": [],
-          "cappedScorings": [
-            {
-              "cap": 10,
-              "methods": [
-                {
-                  "description": "Dépenser de l'énergie préhistorique dans la campagne Terre Sauvage",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 2
-            },
-            {
-              "cap": 600,
-              "methods": [
-                {
-                  "description": "Dépenser de l'énergie préhistorique dans la campagne Terre Sauvage",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 3
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Combattre avec n’importe quel personnage au palier d’équipement 21",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 4
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6aff5fcd2c6b04c8d8a626fc",
-      "type": "milestone",
-      "startTime": 1795122000,
-      "endTime": 1795208400,
+      "startTime": 1795294800,
+      "endTime": 1795381200,
       "name": "Briseur de volontés - Plan de bataille du mois 1",
       "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
       "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
@@ -3408,10 +3341,10 @@
       }
     },
     {
-      "id": "6aff5fcd2c6b04c8d8a626fb",
+      "id": "6b0202cc2c6b04c8d8a6336c",
       "type": "milestone",
-      "startTime": 1795122000,
-      "endTime": 1795208400,
+      "startTime": 1795294800,
+      "endTime": 1795381200,
       "name": "Briseur de volontés - Plan de bataille du mois 1",
       "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
       "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
@@ -3450,6 +3383,63 @@
               "methods": [
                 {
                   "description": "Jouer n’importe quel combat",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 4
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b0202cd2c6b04c8d8a6336f",
+      "type": "milestone",
+      "startTime": 1795294800,
+      "endTime": 1795381200,
+      "name": "Nuit des Sentinelles",
+      "subName": "Fêtez l'anniversaire de la série animée des X-Men !",
+      "details": "Fêtez l'anniversaire de la série animée des X-Men !",
+      "locationHints": [
+        "lohub_feeder"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Fêtez l'anniversaire de la série animée des X-Men !",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 10,
+              "methods": [
+                {
+                  "description": "Dépenser de l'énergie préhistorique dans la campagne Terre Sauvage",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 2
+            },
+            {
+              "cap": 600,
+              "methods": [
+                {
+                  "description": "Dépenser de l'énergie préhistorique dans la campagne Terre Sauvage",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 3
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec n’importe quel personnage au palier d’équipement 21",
                   "points": 1
                 }
               ],
@@ -4439,6 +4429,111 @@
       }
     },
     {
+      "id": "6b0206502c6b04c8d8a63377",
+      "type": "pickYourPoison",
+      "startTime": 1795467600,
+      "endTime": 1796072400,
+      "name": "NOVA",
+      "subName": "Gagnez des éclats de Nova",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Mephisto_Scourge_Nova_Card_645d8e28529e515b2145a1e2173588b41454.jpg",
+      "pickYourPoison": {
+        "typeName": "Fléau",
+        "brackets": [
+          {
+            "id": "victor"
+          },
+          {
+            "id": "6star"
+          },
+          {
+            "id": "5star"
+          },
+          {
+            "id": "4star"
+          },
+          {
+            "id": "3star"
+          },
+          {
+            "id": "2star"
+          },
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b0206502c6b04c8d8a63379",
+      "type": "pickYourPoison",
+      "startTime": 1795467600,
+      "endTime": 1796072400,
+      "name": "CHATTE NOIRE",
+      "subName": "Éclats de la Chatte noire",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Black_Cat_Scourge_Card_64df9d98de0cbf3f9cd9c81b879ab471012b.jpg",
+      "pickYourPoison": {
+        "typeName": "Fléau",
+        "brackets": [
+          {
+            "id": "victor"
+          },
+          {
+            "id": "6star"
+          },
+          {
+            "id": "5star"
+          },
+          {
+            "id": "4star"
+          },
+          {
+            "id": "3star"
+          },
+          {
+            "id": "2star"
+          },
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b0206502c6b04c8d8a63378",
+      "type": "pickYourPoison",
+      "startTime": 1795467600,
+      "endTime": 1796072400,
+      "name": "BOUFFON VERT (CLASSIQUE)",
+      "subName": "Éclats du Bouffon vert (Classique)",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Green_Goblin_Scourge_Card_65458088cfce81c6c0484001135997a3c57a.jpg",
+      "pickYourPoison": {
+        "typeName": "Fléau",
+        "brackets": [
+          {
+            "id": "victor"
+          },
+          {
+            "id": "6star"
+          },
+          {
+            "id": "5star"
+          },
+          {
+            "id": "4star"
+          },
+          {
+            "id": "3star"
+          },
+          {
+            "id": "2star"
+          },
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
       "id": "6afb6ed0fb365c004bfbcca1",
       "type": "milestone",
       "startTime": 1794949200,
@@ -4819,10 +4914,10 @@
       }
     },
     {
-      "id": "6b00b14c2c6b04c8d8a62d23",
+      "id": "6b0202cc2c6b04c8d8a63368",
       "type": "milestone",
-      "startTime": 1795208400,
-      "endTime": 1795294800,
+      "startTime": 1795294800,
+      "endTime": 1795381200,
       "name": "Sauvez le monde !",
       "subName": "Dépensez de l’énergie de campagne",
       "details": "Dépensez de l’énergie de campagne pour obtenir des récompenses de phase.",
@@ -4849,10 +4944,10 @@
       }
     },
     {
-      "id": "6aff5fcd2c6b04c8d8a626f7",
+      "id": "6b00b14c2c6b04c8d8a62d23",
       "type": "milestone",
-      "startTime": 1795122000,
-      "endTime": 1795208400,
+      "startTime": 1795208400,
+      "endTime": 1795294800,
       "name": "Sauvez le monde !",
       "subName": "Dépensez de l’énergie de campagne",
       "details": "Dépensez de l’énergie de campagne pour obtenir des récompenses de phase.",
@@ -5094,22 +5189,22 @@
       "endTime": 1795377600
     },
     {
-      "id": "6afcdc70fb365c004bfbd65c",
+      "id": "6afe2df0fb365c004bfbdb7a",
       "type": "donation",
-      "startTime": 1794960000,
-      "endTime": 1795046400
+      "startTime": 1795046400,
+      "endTime": 1795132800
+    },
+    {
+      "id": "6b00d0f02c6b04c8d8a62e3d",
+      "type": "donation",
+      "startTime": 1795219200,
+      "endTime": 1795305600
     },
     {
       "id": "6aff7f702c6b04c8d8a62755",
       "type": "donation",
       "startTime": 1795132800,
       "endTime": 1795219200
-    },
-    {
-      "id": "6afe2df0fb365c004bfbdb7a",
-      "type": "donation",
-      "startTime": 1795046400,
-      "endTime": 1795132800
     },
     {
       "id": "6580b1fe9746d7f21414ca51",
@@ -5264,12 +5359,12 @@
   ],
   "locale": "fr",
   "localizationStatus": "verified",
-  "localizedFields": 694,
-  "localizedAt": "2026-11-20T21:05:15.343Z",
+  "localizedFields": 696,
+  "localizedAt": "2026-11-21T21:05:19.438Z",
   "objectiveEligibility": {
     "source": "scopely-player-level110-reference",
     "bracket": "85_and_up",
-    "observedAt": "2026-11-20T21:05:15.343Z",
+    "observedAt": "2026-11-21T21:05:19.438Z",
     "eligibleEventIds": [
       "6ae8f64d80ca017386467c2d",
       "6ae8f64d80ca017386467c30",
@@ -5279,10 +5374,10 @@
       "6afb6b4dfb365c004bfbcc93",
       "6afb6b4dfb365c004bfbcc95",
       "6afb6b4dfb365c004bfbcc96",
-      "6b00b14d2c6b04c8d8a62d31",
-      "6b00b14d2c6b04c8d8a62d34",
-      "6b00b14d2c6b04c8d8a62d35"
+      "6b0202cc2c6b04c8d8a6336b",
+      "6b0202cc2c6b04c8d8a6336e",
+      "6b0202cd2c6b04c8d8a6336f"
     ]
   },
-  "lastChangedAt": "2026-11-20T21:05:15.343Z"
+  "lastChangedAt": "2026-11-21T21:05:19.438Z"
 }
