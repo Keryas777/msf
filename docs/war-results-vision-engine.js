@@ -6,7 +6,7 @@
   const DIGIT_READER = window.WarResultsDigitReader;
   const IDENTITY_ENGINE = window.WarResultsIdentityEngine;
   const RESULT_ENGINE = window.WarResultsResultEngine;
-  const VERSION = "6.0-three-engines";
+  const VERSION = "6.1-numeric-lab";
   let workerPromise = null;
   let worker = null;
   let activeProgress = () => {};
@@ -337,10 +337,12 @@
       const sparse = await run("comparison-sparse-psm11", analysisCanvas, 11);
       const sparseWords = parse(sparse, prepared.scale);
       const localized = CORE.locateZones(sparseWords, source.width, source.height);
+      const requestedFields = Array.isArray(options.fields) ? options.fields : ["localTrophies", "opponentTrophies"];
       const fields = [
         { key: "localTrophies", side: "left", label: "Trophées LoSP" },
         { key: "opponentTrophies", side: "right", label: "Trophées adverses" }
-      ];
+      ].filter((field) => requestedFields.includes(field.key));
+      if (!fields.length) throw new Error("Sélectionne au moins un champ de trophées pour le comparateur A/B.");
       const results = [];
       for (const [index, field] of fields.entries()) {
         onProgress({ status: `Comparaison des découpes — ${field.label}…`, progress: .42 + index * .22 });
@@ -470,11 +472,113 @@
     }
   }
 
+  // Laboratory entry point: locate proportional field zones without a full-image
+  // OCR pass, then submit only the selected fields to their owning engine.
+  async function locateLaboratoryField(file, field) {
+    if (!CORE || !FIELD_SIDES[field]) throw new Error("Champ du laboratoire inconnu.");
+    const source = await decode(file);
+    try {
+      const localized = CORE.locateZones([], source.width, source.height);
+      const rect = normalizeRect(localized.zones[field === "result" ? "resultBand" : field], source.width, source.height);
+      if (!rect || rect.width < 2 || rect.height < 2) throw new Error("Zone proportionnelle indisponible pour ce champ.");
+      return { rect, dimensions: { width: source.width, height: source.height }, method: localized.method, layout: localized.layout,
+        geometryConfidence: localized.zones.geometryConfidence || "fallback", anchorsFound: localized.anchorsFound };
+    } finally { source.close?.(); }
+  }
+
+  async function analyzeNumericFields(file, fields, onProgress = () => {}, options = {}) {
+    const expected = { localScore: 6, opponentScore: 6, localTrophies: 4, opponentTrophies: 4 };
+    const selected = [...new Set(Array.isArray(fields) ? fields : [])].filter((field) => Object.hasOwn(expected, field));
+    if (!selected.length) throw new Error("Sélectionne au moins un champ numérique.");
+    if (!CORE) throw new Error("Le module de reconnaissance partagé n’est pas chargé.");
+    activeProgress = onProgress;
+    const started = performance.now();
+    const source = await decode(file);
+    const calls = [], diagnostics = {};
+    try {
+      const localized = CORE.locateZones([], source.width, source.height);
+      const engine = await getWorker();
+      const marginPercent = [0, 18, 30].includes(Number(options.marginPercent)) ? Number(options.marginPercent) : 18;
+      const variantId = String(options.variantId || "adaptive");
+      const locatorOptions = { paddingByGlyphHeight: marginPercent / 100, minimumPaddingPixels: marginPercent === 0 ? 0 : 2,
+        ...(variantId.includes("edge-safe") || variantId.includes("combined") ? { edgeSafePaddingByGlyphHeight: .3 } : {}),
+        iconAware: variantId.includes("icon-aware") || variantId.includes("combined") };
+      const readBandImageData = (bandRect) => {
+        const bandCanvas = crop(source, bandRect, 1, false);
+        if (!bandCanvas) return null;
+        try { return bandCanvas.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, bandCanvas.width, bandCanvas.height); }
+        finally { bandCanvas.width = bandCanvas.height = 1; }
+      };
+      for (const [index, field] of selected.entries()) {
+        const fieldStarted = performance.now();
+        onProgress({ status: `Moteur numérique — ${field} (${index + 1}/${selected.length})`, progress: .08 + index / selected.length * .85 });
+        const initialRect = normalizeRect(localized.zones[field], source.width, source.height);
+        let rect = initialRect, locator = { method: localized.method, variantId: "proportional-layout-fallback", marginPercent: null, reason: null };
+        if (field.endsWith("Trophies") && initialRect && TROPHY_LOCATOR && DIGIT_READER) {
+          const side = field === "localTrophies" ? "left" : "right";
+          const verticalRect = { x: 0, y: initialRect.y, width: 0, height: initialRect.height };
+          const verticalRecovery = variantId !== "adaptive";
+          const band = TROPHY_LOCATOR.proportionalBand(source.width, source.height, verticalRect, side, locatorOptions);
+          const located = verticalRecovery
+            ? TROPHY_LOCATOR.locateWithVerticalRecovery(readBandImageData, source.width, source.height, verticalRect, side, DIGIT_READER, locatorOptions)
+            : band ? TROPHY_LOCATOR.locateBand(readBandImageData(band), band, source.width, source.height, DIGIT_READER, locatorOptions)
+              : { rect: null, reason: "invalid-search-band" };
+          if (!located.reason && located.rect) rect = normalizeRect(located.rect, source.width, source.height);
+          locator = { method: located.recovery?.method || (located.reason ? "proportional-layout-fallback" : "adaptive-components"), variantId,
+            marginPercent, initialRect, selectedRect: rect, reason: located.reason || located.segmented?.warnings?.join(",") || null,
+            recovery: located.recovery || null, segmentation: located.segmented || null,
+            edgeSafePadding: located.edgeSafePadding || null,
+            iconRejection: located.iconRejection || located.segmented?.iconRejection || null };
+        }
+        if (!rect || rect.width < 2 || rect.height < 2) {
+          diagnostics[field] = { field, initialRect, rect: null, locator, raw: "", value: "", confidence: null, ms: Math.round(performance.now() - fieldStarted),
+            warning: "zone-not-located", uncertainty: "localisation" };
+          continue;
+        }
+        const original = crop(source, initialRect || rect, 1, false);
+        const originalPreview = original?.toDataURL("image/jpeg", .86) || "";
+        if (original) original.width = original.height = 1;
+        const preprocessed = crop(source, rect, 3, true);
+        if (!preprocessed) {
+          diagnostics[field] = { field, initialRect, rect, locator, raw: "", value: "", confidence: null, ms: Math.round(performance.now() - fieldStarted),
+            originalPreview, warning: "crop-unavailable", uncertainty: "decoupage" };
+          continue;
+        }
+        const output = await (async () => {
+          await engine.setParameters({ tessedit_pageseg_mode: "7", preserve_interword_spaces: "1", tessedit_char_whitelist: "0123456789" });
+          const t0 = performance.now();
+          const result = await engine.recognize(preprocessed);
+          const ms = Math.round(performance.now() - t0);
+          calls.push({ field, ms, confidence: result.data?.confidence ?? null });
+          return { result, ms };
+        })();
+        const raw = String(output.result.data?.text || "").replace(/\s+/g, " ").trim();
+        const rawDigits = raw.replace(/\D/g, ""), candidate = numericRead(raw), valid = candidate.length === expected[field];
+        const warnings = [];
+        if (locator.reason) warnings.push(`locator-fallback:${locator.reason}`);
+        else if (locator.method === "proportional-layout-fallback") warnings.push("proportional-layout-fallback");
+        if (!valid) warnings.push(rawDigits ? "unexpected-digit-count" : "no-numeric-read");
+        if ((output.result.data?.confidence ?? 0) < 60) warnings.push("low-ocr-confidence");
+        const warning = warnings.join("; ") || null;
+        diagnostics[field] = { field, initialRect, rect, locator, originalPreview,
+          preview: preprocessed.toDataURL("image/jpeg", .86), raw, candidate, value: valid ? candidate : "",
+          confidence: output.result.data?.confidence ?? null, ms: Math.round(performance.now() - fieldStarted), ocrMs: output.ms,
+          preprocessing: { scale: 3, grayscale: true, contrast: 1.7, whitelist: "0123456789", psm: 7 },
+          warning, warnings, uncertainty: warnings.some((item) => item.startsWith("locator-") || item === "proportional-layout-fallback") ? "localisation"
+            : warnings.length ? (warnings.includes("no-numeric-read") || warnings.includes("unexpected-digit-count") ? "validation-numerique" : "lecture-ocr") : null };
+        preprocessed.width = preprocessed.height = 1;
+      }
+      return { engine: "numeric", fields: diagnostics, dimensions: { width: source.width, height: source.height },
+        metrics: { engine: "Tesseract.js v5 local numeric-only laboratory", totalMs: Math.round(performance.now() - started), calls,
+          selectedFields: selected, anchors: "none", locator: localized.method, variantId, marginPercent } };
+    } finally { source.close?.(); }
+  }
+
   async function release() {
     activeProgress = () => {};
     if (worker) { await worker.terminate(); worker = null; }
     workerPromise = null;
   }
-  window.WarResultsVisionEngine = { analyze, analyzeField, compareTrophyLocators, release, version: VERSION };
+  window.WarResultsVisionEngine = { analyze, analyzeField, locateLaboratoryField, analyzeNumericFields, compareTrophyLocators, release, version: VERSION };
 })();
 
