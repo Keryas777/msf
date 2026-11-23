@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex,nofollow">
   <title>MSF War Results Vision</title>
   <link rel="stylesheet" href="./war-counter-lab.css?v=r7-entry-5">
-  <link rel="stylesheet" href="./war-results-vision.css?v=6-numeric-geometry-lab">
+  <link rel="stylesheet" href="./war-results-vision.css?v=6.1-numeric-ocr-lab">
 </head>
 <body>
   <main class="app-shell">
@@ -80,6 +80,26 @@
         <p class="muted">Les résultats sont sauvegardés temporairement dans cette session de navigateur après chaque capture. Réimporte une capture terminée pour retrouver son résultat sans la retraiter. Utilise « Effacer le diagnostic » pour supprimer ces mesures.</p>
         <p id="locatorCompareStatus" class="analysis-status" role="status" aria-live="polite"></p>
         <div id="locatorComparisonResults" class="locator-comparison-results"></div>
+        <section class="ocr-experiment-panel" aria-labelledby="ocrExperimentTitle">
+          <h2 id="ocrExperimentTitle">Comparateur OCR numérique (expérimental)</h2>
+          <p class="muted">Les trophées sont localisés une fois avec « groupes de chiffres dans les pixels », la variante combinée et une marge de 18 %. Le rectangle final est figé pour toutes les lectures. La référence PSM 7 reste toujours incluse. Les valeurs attendues ne sont pas enregistrées dans la page.</p>
+          <fieldset id="ocrStrategyOptions" class="ocr-strategy-options"><legend>Lectures à comparer sur la même découpe</legend>
+            <label><input type="checkbox" value="reference" checked> Référence actuelle · PSM 7</label>
+            <label><input type="checkbox" value="grayscale" checked> Niveaux de gris</label>
+            <label><input type="checkbox" value="otsu" checked> Seuillage global Otsu</label>
+            <label><input type="checkbox" value="adaptive" checked> Seuillage local adaptatif</label>
+            <label><input type="checkbox" value="psm8" checked> Tesseract PSM 8</label>
+            <label><input type="checkbox" value="psm13" checked> Tesseract PSM 13</label>
+            <label><input type="checkbox" value="glyphs" checked> Un appel Tesseract par chiffre · PSM 10</label>
+          </fieldset>
+          <button id="compareNumericOcrButton" class="secondary-button" type="button" disabled>Comparer l’OCR des trophées chargés</button>
+          <button id="clearNumericOcrButton" class="secondary-button" type="button" disabled>Effacer les résultats OCR</button>
+          <button id="copyNumericOcrButton" class="secondary-button" type="button" disabled>Copier le rapport OCR JSON</button>
+          <button id="exportNumericOcrButton" class="secondary-button" type="button" disabled>Télécharger le rapport OCR JSON</button>
+          <p class="muted">Essais séquentiels avec le Worker Tesseract déjà partagé par la page. Les mesures partielles sont conservées dans la session; les captures et leurs pixels ne sont pas stockés.</p>
+          <p id="numericOcrStatus" class="analysis-status" role="status" aria-live="polite"></p>
+          <div id="numericOcrResults" class="numeric-ocr-results"></div>
+        </section>
       </div>
     </details>
     <p class="muted results-footnote">La date de guerre doit être saisie manuellement. Chaque fiche reste à vérifier avant sa validation locale. Aucun envoi, historique officiel ou export automatique.</p>
@@ -88,12 +108,13 @@
   <script src="./war-results-digit-reader.js?v=0.3.0-icon-aware" defer></script>
   <script src="./war-results-numeric-locator-experiment.js?v=0.1.0-experimental" defer></script>
   <script src="./war-results-trophy-locator-experiment.js?v=0.6.0-combined" defer></script>
+  <script src="./war-results-ocr-experiment.js?v=0.1.0-experimental" defer></script>
   <script src="./war-results-locator-comparison-store.js?v=1.3.0" defer></script>
   <script src="./war-results-identity-engine.js?v=1.0.0" defer></script>
   <script src="./war-results-result-engine.js?v=1.0.0" defer></script>
   <script src="./war-results-vision-engine.js?v=6.2-numeric-geometry-lab" defer></script>
   <script src="./war-results-vision-data.js?v=2-rich-name" defer></script>
-  <script src="./war-results-vision.js?v=4.6-numeric-geometry-lab" defer></script>
+  <script src="./war-results-vision.js?v=4.7-numeric-ocr-lab" defer></script>
 </body>
 </html>
 

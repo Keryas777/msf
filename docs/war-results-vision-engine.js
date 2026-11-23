@@ -4,6 +4,7 @@
   const CORE = window.WarResultRecognition;
   const TROPHY_LOCATOR = window.WarResultsTrophyLocatorExperiment;
   const DIGIT_READER = window.WarResultsDigitReader;
+  const OCR_EXPERIMENT = window.WarResultsOcrExperiment;
   const NUMERIC_LOCATOR = window.WarResultsNumericLocatorExperiment;
   const IDENTITY_ENGINE = window.WarResultsIdentityEngine;
   const RESULT_ENGINE = window.WarResultsResultEngine;
@@ -587,13 +588,25 @@
           ? crop(source, correctedRect, 1, false) : null;
         const correctedPreview = corrected?.toDataURL("image/jpeg", .86) || "";
         if (corrected) corrected.width = corrected.height = 1;
+        const sourceCrop = options.compareOcr ? crop(source, rect, 1, false) : null;
         const preprocessed = crop(source, rect, 3, true);
         if (!preprocessed) {
           diagnostics[field] = { field, initialRect, rect, locator, raw: "", value: "", confidence: null, ms: Math.round(performance.now() - fieldStarted),
             originalPreview, warning: "crop-unavailable", uncertainty: "decoupage" };
           continue;
         }
+        let ocrComparison = null;
         const output = await (async () => {
+          if (options.compareOcr) {
+            if (!OCR_EXPERIMENT) throw new Error("Le comparateur OCR expérimental n’est pas chargé.");
+            try {
+              ocrComparison = await OCR_EXPERIMENT.compare(sourceCrop, preprocessed, engine, DIGIT_READER,
+                (step) => onProgress({ status: `Comparaison OCR — ${field} · ${step.strategy} (${step.index}/${step.total})`, progress: .08 + (index + step.index / step.total) / selected.length * .85 }), options.ocrStrategies);
+              for (const item of ocrComparison.strategies) calls.push({ field, strategy: item.strategy, ms: item.ms, confidence: item.confidence ?? null });
+              const reference = ocrComparison.strategies.find((item) => item.strategy === "reference");
+              return { result: { data: { text: reference?.raw || "", confidence: reference?.confidence ?? null } }, ms: reference?.ms || 0 };
+            } finally { if (sourceCrop) sourceCrop.width = sourceCrop.height = 1; }
+          }
           await engine.setParameters({ tessedit_pageseg_mode: "7", preserve_interword_spaces: "1", tessedit_char_whitelist: "0123456789" });
           const t0 = performance.now();
           const result = await engine.recognize(preprocessed);
@@ -612,6 +625,7 @@
         diagnostics[field] = { field, initialRect, correctedRect, rect, locator, originalPreview, correctedPreview,
           preview: preprocessed.toDataURL("image/jpeg", .86), raw, candidate, value: valid ? candidate : "",
           confidence: output.result.data?.confidence ?? null, ms: Math.round(performance.now() - fieldStarted), ocrMs: output.ms,
+          ...(ocrComparison ? { ocrComparison, ocrSourcePreview: ocrComparison.strategies.find((item) => item.strategy === "reference")?.preview || "", ocrRectFrozen: true } : {}),
           preprocessing: { scale: 3, grayscale: true, contrast: 1.7, whitelist: "0123456789", psm: 7 },
           warning, warnings, uncertainty: warnings.some((item) => item.startsWith("locator-") || item === "proportional-layout-fallback") ? "localisation"
             : warnings.length ? (warnings.includes("no-numeric-read") || warnings.includes("unexpected-digit-count") ? "validation-numerique" : "lecture-ocr") : null };

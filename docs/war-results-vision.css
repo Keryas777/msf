@@ -104,6 +104,30 @@
 .trophy-margin-select{min-height:44px;max-width:100%;padding:9px 12px;background:#101a32;color:#fff;border:1px solid #42618b;border-radius:10px;font:inherit}
 .locator-ab-panel>label{display:block;margin:10px 0 6px;font-weight:600}
 
+.ocr-experiment-panel{margin-top:16px;padding:12px;border:1px solid #5a4b86;border-radius:12px;background:rgba(28,20,50,.62)}
+.ocr-experiment-panel h2{margin:0 0 8px;color:#dbc4ff;font-size:1rem}
+.ocr-experiment-panel button{min-height:46px;margin:4px 6px 4px 0}
+.ocr-strategy-options{display:grid;grid-template-columns:1fr;gap:6px;margin:12px 0;padding:10px;border:1px solid #40365f;border-radius:10px}
+.ocr-strategy-options legend{padding:0 6px;color:#d8caee;font-weight:700}
+.ocr-strategy-options label{display:flex;align-items:center;gap:9px;min-height:42px;color:#e6def4}
+.ocr-strategy-options input{width:21px;height:21px;accent-color:#ad80ff}
+.numeric-ocr-results{display:grid;gap:12px;margin-top:12px}
+.numeric-ocr-card{min-width:0;padding:12px;border:1px solid #51466e;border-radius:12px;background:#0d1120;overflow-wrap:anywhere}
+.numeric-ocr-card h3{margin:0 0 8px;color:#e5d6ff;font-size:.98rem}
+.numeric-ocr-card>p{margin:6px 0;color:#bcc4d8;font-size:.8rem;line-height:1.4}
+.numeric-ocr-card strong{color:#fff;font-variant-numeric:tabular-nums}
+.numeric-ocr-variant-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px}
+.numeric-ocr-variant{min-width:0;padding:9px;border:1px solid #34334a;border-radius:9px;background:#080b15}
+.numeric-ocr-variant h4{margin:0 0 6px;color:#d8c6fa;font-size:.84rem}
+.numeric-ocr-variant>a img,.numeric-ocr-variant>img{display:block;width:100%;height:92px;object-fit:contain;background:#03050a;border-radius:6px}
+.numeric-ocr-variant>p{margin:6px 0 0;color:#bec5d6;font-size:.77rem;line-height:1.35;overflow-wrap:anywhere}
+.numeric-glyph-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-top:6px}
+.numeric-glyph-grid figure{min-width:0;margin:0;padding:3px;border:1px solid #34334a;border-radius:5px}
+.numeric-glyph-grid img{display:block;width:100%;height:50px;object-fit:contain}
+.numeric-glyph-grid figcaption{font-size:.65rem;color:#c5cadd;overflow-wrap:anywhere}
+@media(min-width:560px){.ocr-strategy-options{grid-template-columns:repeat(2,minmax(0,1fr))}.numeric-ocr-variant-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:900px){.numeric-ocr-variant-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
 .recognition-lab{border-color:#3f6597;background:linear-gradient(145deg,rgba(20,34,67,.96),rgba(9,15,31,.96))}
 .lab-engine-label,.lab-options>label{display:block;margin:10px 0 6px;font-weight:700;color:#dce8ff}
 .lab-engine-select{width:100%;min-height:48px;padding:10px 12px;border:1px solid #5579aa;border-radius:11px;background:#0b1428;color:#fff;font:inherit}
