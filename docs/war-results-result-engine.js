@@ -1,4 +1,4 @@
-/* Lightweight title-color decision engine. It never shares grayscale OCR crops. */
+/* Lightweight title-color decision engine. Confidence uses the app-wide 0–100 convention. */
 (function (root, factory) {
   const api = factory();
   if (typeof module === "object" && module.exports) module.exports = api;
@@ -7,6 +7,8 @@
   "use strict";
 
   const now = () => typeof performance !== "undefined" && performance.now ? performance.now() : Date.now();
+  const MIN_COLOR_EVIDENCE_PIXELS = 16;
+  const MIN_COLOR_EVIDENCE_RATIO = 0.005;
 
   function hueOf(r, g, b) {
     const max = Math.max(r, g, b), min = Math.min(r, g, b), delta = max - min;
@@ -20,7 +22,7 @@
 
   function analyzePixels(imageData) {
     const data = imageData?.data, width = Number(imageData?.width) || 0, height = Number(imageData?.height) || 0;
-    if (!data || width < 1 || height < 1) return { value: null, confidence: 0, blue: 0, red: 0, other: 0, active: 0, blueRatio: 0, redRatio: 0, reason: "empty-pixel-region" };
+    if (!data || width < 1 || height < 1 || data.length < width * height * 4) return { value: null, confidence: 0, blue: 0, red: 0, other: 0, active: 0, blueRatio: 0, redRatio: 0, reason: "invalid-pixel-region" };
     let blue = 0, red = 0, other = 0;
     for (let i = 0; i < data.length; i += 4) {
       if ((data[i + 3] ?? 255) < 96) continue;
@@ -37,18 +39,25 @@
     const winner = blueRatio >= redRatio ? "win" : "loss";
     const dominance = Math.max(blueRatio, redRatio);
     const margin = Math.abs(blueRatio - redRatio);
-    const decisive = active >= 4 && dominance >= 0.68 && margin >= 0.35;
-    const reason = active < 4 ? "too-few-blue-or-red-pixels" : decisive ? null : "mixed-or-weak-color-dominance";
-    return { value: decisive ? winner : null, confidence: decisive ? Math.min(0.99, 0.62 + margin * 0.27 + Math.min(1, active / 80) * 0.1) : 0,
-      blue, red, other, active, blueRatio: Number(blueRatio.toFixed(4)), redRatio: Number(redRatio.toFixed(4)), dominance: Number(dominance.toFixed(4)), margin: Number(margin.toFixed(4)), reason };
+    const pixelCount = Math.floor(data.length / 4);
+    const activeRatio = pixelCount ? active / pixelCount : 0;
+    const minimumEvidence = Math.max(MIN_COLOR_EVIDENCE_PIXELS, Math.ceil(pixelCount * MIN_COLOR_EVIDENCE_RATIO));
+    const decisive = active >= minimumEvidence && dominance >= 0.68 && margin >= 0.35;
+    const reason = active < MIN_COLOR_EVIDENCE_PIXELS ? "too-few-color-evidence-pixels"
+      : activeRatio < MIN_COLOR_EVIDENCE_RATIO ? "color-evidence-too-sparse"
+        : decisive ? null : "mixed-or-weak-color-dominance";
+    const confidence = decisive ? Math.round(Math.min(0.99, 0.62 + margin * 0.27 + Math.min(1, active / 80) * 0.1) * 1000) / 10 : 0;
+    return { value: decisive ? winner : null, confidence,
+      blue, red, other, active, activeRatio: Number(activeRatio.toFixed(4)), blueRatio: Number(blueRatio.toFixed(4)), redRatio: Number(redRatio.toFixed(4)), dominance: Number(dominance.toFixed(4)), margin: Number(margin.toFixed(4)), reason };
   }
 
   function normalizeRect(rect, width, height) {
-    if (!rect || width < 1 || height < 1) return null;
-    const x = Math.max(0, Math.min(width - 1, Math.floor(Number(rect.x) || 0)));
-    const y = Math.max(0, Math.min(height - 1, Math.floor(Number(rect.y) || 0)));
-    const right = Math.max(x + 1, Math.min(width, Math.ceil((Number(rect.x) || 0) + (Number(rect.width) || 0))));
-    const bottom = Math.max(y + 1, Math.min(height, Math.ceil((Number(rect.y) || 0) + (Number(rect.height) || 0))));
+    const rx = Number(rect?.x), ry = Number(rect?.y), rw = Number(rect?.width), rh = Number(rect?.height);
+    if (![rx, ry, rw, rh, width, height].every(Number.isFinite) || width < 1 || height < 1 || rw <= 0 || rh <= 0 || rx >= width || ry >= height || rx + rw <= 0 || ry + rh <= 0) return null;
+    const x = Math.max(0, Math.min(width - 1, Math.floor(rx)));
+    const y = Math.max(0, Math.min(height - 1, Math.floor(ry)));
+    const right = Math.max(x + 1, Math.min(width, Math.ceil(rx + rw)));
+    const bottom = Math.max(y + 1, Math.min(height, Math.ceil(ry + rh)));
     return { x, y, width: right - x, height: bottom - y };
   }
 
@@ -89,7 +98,7 @@
     let coloredSubregions = [];
     let uniqueSubregionValues = [];
     const bannerConflict = Boolean(primary.value && banner?.value && primary.value !== banner.value);
-    const subregionConflict = uniqueSubregionValues.length > 1;
+    let subregionConflict = false;
     let targetedBannerConflict = false;
     let value = null, confidence = 0, method = "uncertain", reason = null, fallbackUsed = false, ocrUsed = false;
     let textFallback = null;
@@ -97,17 +106,19 @@
     if (primary.value && !bannerConflict) {
       value = primary.value;
       if (banner?.value === primary.value) { confidence = Math.max(primary.confidence, banner.confidence) * 0.5 + Math.min(primary.confidence, banner.confidence) * 0.5; method = "title-and-banner-color"; }
-      else { confidence = Math.min(0.9, primary.confidence); method = "title-color"; }
+      else { confidence = Math.min(90, primary.confidence); method = "title-color"; }
     } else {
       fallbackUsed = true;
       subregions = Array.isArray(input.subregions) ? input.subregions.map(analyzePixels) : splitTitle(input.title).map(analyzePixels);
       coloredSubregions = subregions.filter((item) => item.value);
       uniqueSubregionValues = [...new Set(coloredSubregions.map((item) => item.value))];
-      if (bannerConflict || subregionConflict) reason = "title-banner-color-contradiction";
+      subregionConflict = uniqueSubregionValues.length > 1;
+      if (bannerConflict) reason = "title-banner-color-contradiction";
+      else if (subregionConflict) reason = "contradictory-title-subregions";
       else if (uniqueSubregionValues.length === 1 && coloredSubregions.length >= 2) {
         const targetedValue = uniqueSubregionValues[0];
         if (banner?.value && banner.value !== targetedValue) { targetedBannerConflict = true; reason = "targeted-title-banner-color-contradiction"; }
-        else { value = targetedValue; confidence = Math.min(0.84, coloredSubregions.reduce((sum, item) => sum + item.confidence, 0) / coloredSubregions.length); method = "targeted-title-subregions"; }
+        else { value = targetedValue; confidence = Math.min(84, coloredSubregions.reduce((sum, item) => sum + item.confidence, 0) / coloredSubregions.length); method = "targeted-title-subregions"; }
       } else if (primary.value && bannerConflict) reason = "persistent-title-banner-contradiction";
       else reason = primary.reason || "color-cue-ambiguous";
 
@@ -118,7 +129,7 @@
         const textValue = parseTitleText(typeof textFallback === "string" ? textFallback : textFallback?.data?.text ?? textFallback?.text);
         const textConfidence = Number(textFallback?.data?.confidence ?? textFallback?.confidence);
         if (textValue && Number.isFinite(textConfidence) && textConfidence >= 50 && (!primary.value || textValue === primary.value) && (!banner?.value || textValue === banner.value)) {
-          value = textValue; confidence = 0.74; method = "targeted-title-ocr-fallback"; reason = null;
+          value = textValue; confidence = 74; method = "targeted-title-ocr-fallback"; reason = null;
         } else reason = textValue
           ? (!Number.isFinite(textConfidence) ? "ocr-confidence-unavailable" : textConfidence < 50 ? "low-confidence-ocr-fallback" : "ocr-color-contradiction")
           : "color-and-ocr-uncertain";
@@ -128,7 +139,7 @@
     return {
       value,
       confidence: value ? Number(confidence.toFixed(3)) : null,
-      uncertain: !value || confidence < 0.8,
+      uncertain: !value || confidence < 80,
       source: method,
       diagnostics: {
         zone: input.zone || null,
