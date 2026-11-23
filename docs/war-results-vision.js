@@ -16,6 +16,8 @@
   const LAB_FIELDS = { identity: ["localAlliance", "opponentAlliance"], numeric: ["localScore", "opponentScore", "localTrophies", "opponentTrophies"], result: ["result"] };
   const LAB_ENGINE_LABELS = { identity: "Identité", numeric: "Numérique", result: "Résultat" };
   const copyLocatorComparisonButton = $("#copyLocatorComparisonButton");
+  const numericOcrSummary = [];
+  const NUMERIC_OCR_KEY = "msf-war-results-numeric-ocr-v1";
   const status = $("#analysisStatus"), progress = $("#analysisProgress"), badge = $("#batchBadge");
   const KEY = "msf-war-results-vision-drafts-v1";
   const LOCATOR_COMPARISON_KEY = "msf-war-results-locator-ab-v2";
@@ -34,6 +36,7 @@
   restoreDrafts();
   restoreLocatorComparison();
   restoreLaboratory();
+  restoreNumericOcrResults();
   renderLaboratoryFields();
   input.addEventListener("change", () => addFiles([...input.files || []]));
   analyzeButton.addEventListener("click", () => {
@@ -53,6 +56,10 @@
   runLabButton.addEventListener("click", () => runRecognitionLaboratory().catch(showGlobalError));
   $("#copyLabJsonButton").addEventListener("click", () => copyLaboratoryJson().catch(showGlobalError));
   $("#exportLabJsonButton").addEventListener("click", exportLaboratoryJson);
+  $("#compareNumericOcrButton").addEventListener("click", () => compareNumericOcr().catch(showGlobalError));
+  $("#clearNumericOcrButton").addEventListener("click", clearNumericOcrResults);
+  $("#copyNumericOcrButton").addEventListener("click", () => copyNumericOcrJson().catch(showGlobalError));
+  $("#exportNumericOcrButton").addEventListener("click", exportNumericOcrJson);
   window.addEventListener("error", (event) => {
     showGlobalError(event.error || event.message || "Erreur JavaScript non détaillée.");
   });
@@ -150,6 +157,10 @@
     runLabButton.disabled = analyzing || !fields.length || !records.some((record) => record.file);
     $("#copyLabJsonButton").disabled = !laboratorySummary.length;
     $("#exportLabJsonButton").disabled = !laboratorySummary.length;
+    $("#compareNumericOcrButton").disabled = analyzing || !records.some((record) => record.file);
+    $("#clearNumericOcrButton").disabled = !numericOcrSummary.length;
+    $("#copyNumericOcrButton").disabled = !numericOcrSummary.length;
+    $("#exportNumericOcrButton").disabled = !numericOcrSummary.length;
   }
 
   async function runRecognitionLaboratory() {
@@ -273,6 +284,88 @@
     catch (_) { const area = document.createElement("textarea"); area.value = json; area.setAttribute("readonly", ""); area.style.position = "fixed"; area.style.opacity = "0"; document.body.appendChild(area); area.select(); const copied = document.execCommand("copy"); area.remove(); labStatus.textContent = copied ? "Diagnostics copiés. Les images et découpes ne figurent pas dans le JSON." : "Copie refusée; télécharge le JSON local."; }
   }
   function exportLaboratoryJson() { if (laboratorySummary.length) download(laboratoryPayload(), `war-results-laboratory-${new Date().toISOString().slice(0, 10)}.json`); }
+
+  function restoreNumericOcrResults() {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(NUMERIC_OCR_KEY) || "[]");
+      if (Array.isArray(saved)) numericOcrSummary.push(...saved.filter((item) => item && item.captureId && item.field && item.variants).map((item) => ({ ...item, compact: item })));
+      if (numericOcrSummary.length) renderNumericOcrResults("Mesures OCR textuelles restaurées. Réimporte les captures pour relancer les lectures ou afficher les découpes.");
+    } catch (_) { sessionStorage.removeItem(NUMERIC_OCR_KEY); }
+  }
+
+  function compactNumericOcrEntry(entry) {
+    const { diagnostic: d } = entry;
+    return { captureId: entry.captureId, field: entry.field, dimensions: entry.dimensions, rect: d.rect, initialRect: d.initialRect,
+      correctedRect: d.correctedRect, rectFrozen: d.ocrRectFrozen === true,
+      variants: (d.ocrComparison?.strategies || []).map((item) => ({ strategy: item.strategy, label: item.label, psm: item.psm,
+        preprocessing: item.preprocessing, raw: item.raw, value: item.value, digits: item.digits, digitCount: item.digitCount,
+        confidence: item.confidence, ms: item.ms, ocrMs: item.ocrMs, warnings: item.warnings, segmentation: item.segmentation,
+        glyphs: item.glyphs?.map((glyph) => ({ bounds: glyph.bounds, raw: glyph.raw, value: glyph.value, digits: glyph.digits,
+          digitCount: glyph.digitCount, confidence: glyph.confidence, ms: glyph.ms, warnings: glyph.warnings })) || undefined })),
+      consensus: d.ocrComparison?.consensus || null, totalMs: d.ocrComparison?.totalMs ?? null, warning: d.warning || null };
+  }
+
+  async function compareNumericOcr() {
+    if (analyzing) return;
+    const batch = records.filter((record) => record.file);
+    const selected = [...document.querySelectorAll("#ocrStrategyOptions input:checked")].map((input) => input.value);
+    if (!batch.length) { $("#numericOcrStatus").textContent = "Charge une ou plusieurs captures dans le laboratoire."; return; }
+    if (!selected.length) { $("#numericOcrStatus").textContent = "Sélectionne au moins une stratégie OCR."; return; }
+    analyzing = true;
+    $("#compareNumericOcrButton").disabled = true;
+    $("#numericOcrStatus").textContent = "Localisation fixe des trophées, puis comparaisons OCR séquentielles…";
+    try {
+      for (const [index, record] of batch.entries()) {
+        const fields = ["localTrophies", "opponentTrophies"];
+        const result = await WarResultsVisionEngine.analyzeNumericFields(record.file, fields, (message) => {
+          if (message.status) $("#numericOcrStatus").textContent = `${record.fileName} — ${message.status}`;
+        }, { geometryMode: "pixel-content", variantId: "vertical-recovery-combined", marginPercent: 18, compareOcr: true, ocrStrategies: selected });
+        for (const field of fields) {
+          const diagnostic = result.fields[field];
+          const item = { captureId: `Capture ${index + 1}`, file: record.fileName, field, dimensions: result.dimensions, diagnostic };
+          const key = `${record.fileKey || record.fileName}:${field}`;
+          const prior = numericOcrSummary.findIndex((entry) => entry.key === key || (entry.captureId === `Capture ${index + 1}` && entry.field === field));
+          const stored = { key, ...item, compact: compactNumericOcrEntry(item) };
+          if (prior >= 0) numericOcrSummary[prior] = stored; else numericOcrSummary.push(stored);
+          try { sessionStorage.setItem(NUMERIC_OCR_KEY, JSON.stringify(numericOcrSummary.map((entry) => entry.compact))); }
+          catch (_) { $("#numericOcrStatus").textContent = "Le stockage temporaire est saturé; les résultats restent visibles dans cette page. Exporte le JSON avant de quitter."; }
+          renderNumericOcrResults(`${record.fileName} terminé · capture ${index + 1}/${batch.length}. Les rectangles sont figés à 18 %.`);
+          await new Promise((resolve) => setTimeout(resolve, 0));
+        }
+      }
+    } finally {
+      analyzing = false;
+      updateLaboratoryControls();
+    }
+  }
+
+  function renderNumericOcrResults(statusText) {
+    const target = $("#numericOcrResults");
+    const rows = numericOcrSummary.map((entry) => {
+      const d = entry.diagnostic || {}, data = entry.compact || compactNumericOcrEntry(entry);
+      const strategies = d.ocrComparison?.strategies || data.variants || [];
+      const family = (item) => `<article class="numeric-ocr-variant"><h4>${escapeHtml(item.label || item.strategy)}</h4>${item.preview ? `<a href="${escapeAttr(item.preview)}" target="_blank" rel="noopener"><img src="${escapeAttr(item.preview)}" alt="Prétraitement ${escapeAttr(item.label || item.strategy)}" loading="lazy"></a>` : ""}<p>Brut : <strong>${escapeHtml(item.raw || "—")}</strong> · valeur à 4 chiffres : ${escapeHtml(item.value || "—")}<br>Chiffres : ${Number.isFinite(item.digitCount) ? item.digitCount : "—"} · confiance : ${Number.isFinite(item.confidence) ? `${Math.round(item.confidence)} %` : "—"} · temps total ${Number.isFinite(item.ms) ? `${item.ms} ms` : "—"}${Number.isFinite(item.ocrMs) ? ` (${item.ocrMs} ms Tesseract)` : ""}<br>PSM ${Number.isFinite(item.psm) ? item.psm : "—"} · ${escapeHtml(item.preprocessing || "—")}${item.warnings?.length ? `<br>Avertissements : ${escapeHtml(item.warnings.join(", "))}` : ""}</p>${item.glyphs?.length ? `<div class="numeric-glyph-grid">${item.glyphs.map((glyph, i) => `<figure>${glyph.preview ? `<img src="${escapeAttr(glyph.preview)}" alt="Glyphe ${i + 1}" loading="lazy">` : ""}<figcaption>${i + 1}. ${escapeHtml(glyph.raw || "—")} · ${glyph.confidence ?? "—"} %</figcaption></figure>`).join("")}</div>` : ""}</article>`;
+      const consensus = d.ocrComparison?.consensus || data.consensus;
+      return `<article class="numeric-ocr-card"><h3>${escapeHtml(entry.captureId || "Capture")} · ${escapeHtml(LABELS[entry.field] || entry.field)}</h3><p>Image ${Number(entry.dimensions?.width) || "?"} × ${Number(entry.dimensions?.height) || "?"} · rectangle fixe : ${escapeHtml(JSON.stringify(d.rect || data.rect || null))} · combinaison, marge 18 % · rectangle conservé pour toutes les stratégies : ${data.rectFrozen ? "oui" : "diagnostic restauré"}</p><p>Consensus expérimental : <strong>${escapeHtml(consensus?.value || "lecture divergente")}</strong>${consensus?.warnings?.length ? ` · ${escapeHtml(consensus.warnings.join(", "))}` : ""} · temps total ${Number(d.ocrComparison?.totalMs ?? data.totalMs) || 0} ms</p><div class="numeric-ocr-variant-grid">${strategies.map(family).join("")}</div></article>`;
+    }).join("");
+    target.innerHTML = rows;
+    $("#numericOcrStatus").textContent = statusText || `${numericOcrSummary.length} lecture(s) conservée(s) dans cette session.`;
+    $("#clearNumericOcrButton").disabled = !numericOcrSummary.length;
+    $("#copyNumericOcrButton").disabled = !numericOcrSummary.length;
+    $("#exportNumericOcrButton").disabled = !numericOcrSummary.length;
+  }
+
+  function numericOcrPayload() {
+    return { schemaVersion: "1.0.0", scope: "numeric-laboratory-only", engine: "Tesseract.js v5 local", locator: "pixel-content + vertical-recovery-combined", marginPercent: 18,
+      privacy: "No source image pixels, crops, Base64 data, or expected benchmark values are included.", entries: numericOcrSummary.map((entry) => entry.compact || compactNumericOcrEntry(entry)) };
+  }
+  async function copyNumericOcrJson() {
+    const json = JSON.stringify(numericOcrPayload(), null, 2);
+    try { await navigator.clipboard.writeText(json); $("#numericOcrStatus").textContent = "Rapport OCR JSON copié sans images ni valeurs attendues."; }
+    catch (_) { const area = document.createElement("textarea"); area.value = json; area.setAttribute("readonly", ""); area.style.position = "fixed"; area.style.opacity = "0"; document.body.appendChild(area); area.select(); const copied = document.execCommand("copy"); area.remove(); $("#numericOcrStatus").textContent = copied ? "Rapport OCR JSON copié sans images ni valeurs attendues." : "Copie refusée; utilise le téléchargement JSON."; }
+  }
+  function exportNumericOcrJson() { if (numericOcrSummary.length) download(numericOcrPayload(), `war-results-numeric-ocr-${new Date().toISOString().slice(0, 10)}.json`); }
+  function clearNumericOcrResults() { numericOcrSummary.splice(0); sessionStorage.removeItem(NUMERIC_OCR_KEY); $("#numericOcrResults").innerHTML = ""; renderNumericOcrResults("Résultats du comparateur OCR effacés."); }
 
   function cardHtml(r, index) {
     const stateText = { queued: "En attente", analyzing: "Analyse en cours", review: "À vérifier", validated: "Validée localement", error: "Erreur" }[r.state];
@@ -670,7 +763,7 @@
   }
   function download(data, name) { const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
   function safeName(name) { return String(name || "capture").replace(/[^\p{L}\p{N}-]+/gu, "-").replace(/^-|-$/g, "").slice(0, 64) || "capture"; }
-  function clearSession() { if (!confirm("Effacer les brouillons, le laboratoire, les diagnostics A/B et les captures de cette session ?")) return; records.forEach(r => r.url && URL.revokeObjectURL(r.url)); records = []; locatorComparisonSummary = []; laboratorySummary = []; liveLabDiagnostics.clear(); locatorComparisonResults.innerHTML = ""; labResults.innerHTML = ""; sessionStorage.removeItem(KEY); sessionStorage.removeItem(LOCATOR_COMPARISON_KEY); sessionStorage.removeItem(LEGACY_LOCATOR_COMPARISON_KEY); sessionStorage.removeItem(LABORATORY_KEY); status.textContent = "Session effacée."; updateLocatorComparisonButtons(); updateLaboratoryControls(); render(); }
+  function clearSession() { if (!confirm("Effacer les brouillons, le laboratoire, les diagnostics A/B et les captures de cette session ?")) return; records.forEach(r => r.url && URL.revokeObjectURL(r.url)); records = []; locatorComparisonSummary = []; laboratorySummary = []; numericOcrSummary.splice(0); liveLabDiagnostics.clear(); locatorComparisonResults.innerHTML = ""; labResults.innerHTML = ""; $("#numericOcrResults").innerHTML = ""; sessionStorage.removeItem(KEY); sessionStorage.removeItem(LOCATOR_COMPARISON_KEY); sessionStorage.removeItem(LEGACY_LOCATOR_COMPARISON_KEY); sessionStorage.removeItem(LABORATORY_KEY); sessionStorage.removeItem(NUMERIC_OCR_KEY); status.textContent = "Session effacée."; updateLocatorComparisonButtons(); updateLaboratoryControls(); render(); }
 
   function saveDrafts() {
     try { sessionStorage.setItem(KEY, JSON.stringify(records.map(r => ({ fileName: r.fileName, state: r.state, output: r.output || null, values: r.values, fields: r.fields, date: r.date, corrected: r.corrected, zoneOverrides: r.zoneOverrides || {}, confirmed: false, analysis: r.analysis ? { metrics: r.analysis.metrics, warnings: r.analysis.warnings } : null, rawText: r.rawText, warnings: r.warnings })))); }
