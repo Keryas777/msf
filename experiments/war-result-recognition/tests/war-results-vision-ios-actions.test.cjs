@@ -72,6 +72,21 @@ function click(app, action, id='capture-1') {
   assert.deepEqual(mainButton.engineCalls,['main-button.png'],'main button click event does not become a capture id');
   assert.match(mainButton.status.textContent,/Analyse terminée/,'main button shows a completed status');
 
+  const correctedResult=makeApp();
+  correctedResult.setFiles([{name:'result-correction.png',type:'image/png',size:10}]);
+  correctedResult.handlers['#captureInput:change']();
+  click(correctedResult,'analyze-one');
+  await new Promise(resolve=>setImmediate(resolve));
+  const correctionFieldState={textContent:''}, correctionConfirmControl={checked:true};
+  const correctionWrapper={classList:{add(){},remove(){}},querySelector(){return correctionFieldState;}};
+  const correctionCard={querySelector(){return correctionConfirmControl;}};
+  const resultSelect={dataset:{id:'capture-1',field:'result'},value:'loss',closest(selector){return selector==='.result-field'?correctionWrapper:correctionCard;}};
+  correctedResult.handlers['#captureResults:input']({target:resultSelect});
+  click(correctedResult,'analyze-one');
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.deepEqual(correctedResult.engineCalls,['result-correction.png','result-correction.png'],'manual result survives a fresh engine proposal');
+  assert.match(correctedResult.list.innerHTML,/<option value="loss" selected>Défaite LoSP<\/option>/,'reanalysis preserves the manually selected result');
+
   const removable=makeApp();
   removable.setFiles([{name:'remove.png',type:'image/png',size:10}]);
   removable.handlers['#captureInput:change']();

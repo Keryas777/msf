@@ -28,6 +28,8 @@ assert.equal(resultEngine.analyzePixels(pixels([blue, [70, 145, 232, 255], [40, 
   "a tiny region remains indeterminate despite strong color dominance");
 assert.equal(resultEngine.analyzePixels(pixels(Array.from({ length: 200 }, (_, i) => i < 170 ? [32, 82, 138, 255] : [45, 91, 150, 255]), 20, 10)).value, "win",
   "darkened blue remains recognizable");
+assert.equal(resultEngine.analyzePixels(pixels(Array.from({ length: 1000 }, (_, i) => i < 60 ? [27, 77, 127, 255] : [12, 15, 20, 255]), 100, 10)).value, "win",
+  "blue result text on a dark background remains detectable");
 assert.equal(resultEngine.analyzePixels({ width: 10, height: 10, data: new Uint8ClampedArray(16) }).reason, "invalid-pixel-region");
 assert.equal(resultEngine.normalizeRect({ x: 80, y: 0, width: 30, height: 10 }, 100, 100).width, 20,
   "a partially clipped title rectangle is bounded to the source image");
@@ -47,6 +49,8 @@ assert.equal(resultEngine.normalizeRect({ x: 0, y: 0, width: 0, height: 10 }, 10
   assert.equal(bothBlue.diagnostics.ocrUsed, false, "a decisive color result skips OCR");
   assert.equal(bothBlue.diagnostics.fallbackUsed, false, "a decisive title does not analyze fallback subregions");
   assert.equal(unnecessaryOcrCalls, 0);
+  const titleWithoutBanner = await resultEngine.analyzeRegions({ title: all(blue) });
+  assert.equal(titleWithoutBanner.value, "win", "a missing separate banner crop does not invalidate clear title color");
 
   const conflict = await resultEngine.analyzeRegions({ title: all(blue), banner: all(red), recognize: async () => { ocrCalls++; return "VICTOIRE"; } });
   assert.equal(conflict.value, null, "contradictory title and banner colors remain unresolved");

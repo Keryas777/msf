@@ -39,7 +39,7 @@ Cette micro-mesure synthétique n’est ni un benchmark des cinq captures ni une
 - Tests ciblés complets : 32/32 réussis; syntaxe JavaScript et `git diff --check` réussis.
 - Le contrôle GitHub Actions `test` du commit `9d1d5803666dee7c4445913e9df3de6e0a337215` a échoué dans `tests/scoped-roster-pages.test.mjs:74`: le test attend `joueur.js?v=7`, alors que `main` contient `joueur.js?v=8`. Cette assertion échoue également sur la base inchangée; ni le fichier de page ni ce test ne figurent dans le diff de cette PR. Le log indique une assertion en échec dans ce workflow général.
 
-Les tests d’intégration existants confirment que le laboratoire conserve l’exécution indépendante, que le secours OCR n’est pas requis quand la couleur suffit, et que les actions de correction iOS restent routées. Aucun code d’interface, d’Identité, de Numérique, de résultat de guerre ou de correction manuelle n’a été modifié.
+Les tests d’intégration confirment que le laboratoire conserve l’exécution indépendante, que le secours OCR n’est pas requis quand la couleur suffit, que les actions de correction iOS restent routées et qu’une correction manuelle du résultat survit à une nouvelle proposition du moteur. Aucun code d’interface, d’Identité, de Numérique, de résultat de guerre ou de correction manuelle n’a été modifié.
 
 ## Limites restantes
 
