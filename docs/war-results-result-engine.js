@@ -106,7 +106,7 @@
     if (primary.value && !bannerConflict) {
       value = primary.value;
       if (banner?.value === primary.value) { confidence = Math.max(primary.confidence, banner.confidence) * 0.5 + Math.min(primary.confidence, banner.confidence) * 0.5; method = "title-and-banner-color"; }
-      else { confidence = Math.min(0.9, primary.confidence); method = "title-color"; }
+      else { confidence = Math.min(90, primary.confidence); method = "title-color"; }
     } else {
       fallbackUsed = true;
       subregions = Array.isArray(input.subregions) ? input.subregions.map(analyzePixels) : splitTitle(input.title).map(analyzePixels);

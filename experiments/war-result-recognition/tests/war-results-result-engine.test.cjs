@@ -52,6 +52,11 @@ assert.equal(resultEngine.normalizeRect({ x: 0, y: 0, width: 0, height: 10 }, 10
   assert.equal(bothBlue.diagnostics.ocrUsed, false, "a decisive color result skips OCR");
   assert.equal(bothBlue.diagnostics.fallbackUsed, false, "a decisive title does not analyze fallback subregions");
   assert.equal(unnecessaryOcrCalls, 0);
+  const titleOnly = await resultEngine.analyzeRegions({ title: all(blue), banner: all(white) });
+  assert.equal(titleOnly.value, "win", "a decisive title remains sufficient when the banner has no color evidence");
+  assert.equal(titleOnly.source, "title-color");
+  assert.equal(titleOnly.confidence, 90, "title-only confidence keeps percentage units after its cap");
+  assert.equal(titleOnly.uncertain, false);
   const titleWithoutBanner = await resultEngine.analyzeRegions({ title: all(blue) });
   assert.equal(titleWithoutBanner.value, "win", "a missing separate banner crop does not invalidate clear title color");
 
