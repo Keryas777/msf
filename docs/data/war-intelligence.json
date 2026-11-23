@@ -175,6 +175,24 @@
       "name": "HYDRA",
       "richName": null,
       "createdAt": "2026-11-18T18:54:27.442Z"
+    },
+    {
+      "id": "wi-e7ea1024-bf16-4a50-8043-50280d9b9bda",
+      "name": "Legion of Gregs",
+      "richName": null,
+      "createdAt": "2026-11-20T14:47:31.205Z"
+    },
+    {
+      "id": "wi-2d576f27-449c-4f7d-b486-ddf713d6be77",
+      "name": "LEAGUEofPYMPS",
+      "richName": null,
+      "createdAt": "2026-11-20T17:51:08.520Z"
+    },
+    {
+      "id": "wi-502d43fc-df5f-47a6-82de-532445e16e0b",
+      "name": "PoH PWX",
+      "richName": null,
+      "createdAt": "2026-11-20T17:52:51.126Z"
     }
   ],
   "observations": [
@@ -728,6 +746,63 @@
       "status": "published",
       "createdAt": "2026-11-18T18:55:25.470Z",
       "publishedAt": "2026-11-18T18:55:25.470Z"
+    },
+    {
+      "id": "wir-656f1a51-b4cf-4894-98d0-6e184875bd23",
+      "allianceId": "wi-e7ea1024-bf16-4a50-8043-50280d9b9bda",
+      "date": "2026-11-19",
+      "layout": [
+        "infirmary",
+        "tech",
+        "reactor",
+        "security",
+        "hangar",
+        "armory",
+        "barracks",
+        "bridge",
+        "soute"
+      ],
+      "status": "published",
+      "createdAt": "2026-11-20T14:48:30.642Z",
+      "publishedAt": "2026-11-20T14:48:30.642Z"
+    },
+    {
+      "id": "wir-d3362a46-c525-4aef-be76-b666b73241b5",
+      "allianceId": "wi-2d576f27-449c-4f7d-b486-ddf713d6be77",
+      "date": "2026-11-19",
+      "layout": [
+        "hangar",
+        "armory",
+        "reactor",
+        "security",
+        "tech",
+        "infirmary",
+        "bridge",
+        "barracks",
+        "soute"
+      ],
+      "status": "published",
+      "createdAt": "2026-11-20T17:52:20.738Z",
+      "publishedAt": "2026-11-20T17:52:20.738Z"
+    },
+    {
+      "id": "wir-6739da80-a029-4d27-9980-6187c64e096f",
+      "allianceId": "wi-502d43fc-df5f-47a6-82de-532445e16e0b",
+      "date": "2026-11-19",
+      "layout": [
+        "soute",
+        "hangar",
+        "infirmary",
+        "security",
+        "armory",
+        "tech",
+        "barracks",
+        "reactor",
+        "bridge"
+      ],
+      "status": "published",
+      "createdAt": "2026-11-20T17:53:37.144Z",
+      "publishedAt": "2026-11-20T17:53:37.144Z"
     }
   ]
 }

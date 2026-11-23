@@ -18,27 +18,24 @@
   </script>
   <script src="./auth-guard.js?v=4"></script>
   <link rel="stylesheet" href="./style.css?v=4">
-  <link rel="stylesheet" href="./evenements.css?v=20">
+  <link rel="stylesheet" href="./evenements.css?v=24">
   <link rel="manifest" href="./manifest.webmanifest">
   </head>
 <body class="ev-body">
   <main class="app ev-page" aria-label="Événements et objectifs MSF">
     <header class="header ev-header" aria-label="Événements MSF">
       <a class="homeBtn" href="./home.html" aria-label="Accueil LoSP">⌂</a>
-      <div class="headerLeft">
-        <h1 class="title">Événements MSF</h1>
-        <p class="subtitle">Objectifs et événements en cours</p>
-      </div>
+      <h1 class="ev-header-banner"><img src="./HeaderObjectifs.webp" alt="Résumé Objectifs"></h1>
     </header>
     <div hidden aria-hidden="true"><span id="source-line"></span><span id="source-provenance"></span></div>
     <nav class="ev-overview" role="tablist" aria-label="Vues des événements">
       <button class="ev-stat ev-stat--objectives" id="tab-objectives" type="button" role="tab" aria-controls="section-objectives" aria-selected="true" tabindex="0"><strong id="stat-objectives">—</strong><span>Objectifs</span></button>
       <button class="ev-stat ev-stat--current" id="tab-current" type="button" role="tab" aria-controls="section-current" aria-selected="false" tabindex="-1"><strong id="stat-current">—</strong><span>En cours</span></button>
     </nav>
-    <section class="ev-section ev-section--objectives" id="section-objectives" role="tabpanel" aria-labelledby="tab-objectives"><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">☑</span><div><h2 id="title-objectives">Objectifs à réaliser</h2><p class="ev-section-desc">Comment gagner des points, par mode de jeu</p></div></div><span class="ev-count" id="count-objectives">—</span></div><div class="ev-objectives" id="events-objectives"></div></section>
-    <section class="ev-section ev-section--current" id="section-current" role="tabpanel" aria-labelledby="tab-current" hidden><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">◉</span><div><h2 id="title-current">Événements en cours</h2><p class="ev-section-desc">Phases, Poste de commandement et Événements temporaires</p></div></div><span class="ev-count" id="count-current">—</span></div><div class="ev-groups" id="events-current"></div></section>
+    <section class="ev-section ev-section--objectives" id="section-objectives" role="tabpanel" aria-labelledby="tab-objectives"><div class="ev-objectives" id="events-objectives"></div></section>
+    <section class="ev-section ev-section--current" id="section-current" role="tabpanel" aria-labelledby="tab-current" hidden><div class="ev-groups" id="events-current"></div></section>
   </main>
   <dialog id="event-dialog" class="ev-dialog" aria-label="Détail de l'événement"><div id="event-dialog-content"></div></dialog>
-<script src="./evenements.js?v=38" defer></script>
+<script src="./evenements.js?v=49" defer></script>
   </body>
 </html>

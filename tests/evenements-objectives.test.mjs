@@ -161,19 +161,18 @@ test('Le profil niveau 110 affiche seulement les feeders autorisés par ID Scope
   assert.equal(selected.get('stat-objectives').textContent,'1');
   assert.ok(actions(selected).some(x=>x.includes('raid')));
   assert.ok(!actions(selected).some(x=>x.includes('guerre')));
-  assert.ok(selected.get('events-objectives').children[0].textContent.includes(
-    'Référence niveau 110 vérifiée'));
+  assert.equal(selected.get('events-objectives').children[0].textContent,
+    "Objectifs regroupés par catégorie pour simplifier la visualisation globale.\nAttention : la progression personnelle n'est pas synchronisée");
   const invalid=await makePage({includeBase:false,extraEvents:extra,
     eligibleIds:['unknown-event-id']});
   assert.equal(invalid.get('stat-objectives').textContent,'2');
-  assert.ok(invalid.get('events-objectives').children[0].textContent.includes(
-    'éligibilité personnelle des missions n’est pas vérifiée'));
+  assert.equal(invalid.get('events-objectives').children[0].textContent,
+    selected.get('events-objectives').children[0].textContent);
 });
 
 test('Le résumé rassemble les objectifs actifs, y compris les feeders, sans doublons',async()=>{
   const nodes=await makePage();
   assert.equal(nodes.get('stat-objectives').textContent,'3');
-  assert.equal(nodes.get('count-objectives').textContent,'3');
   assert.deepEqual(sections(nodes).map(x=>x.children[0].textContent),[
     '🛡️ RAID','⚔️ GUERRE','📋 DIVERS'
   ]);
@@ -459,12 +458,15 @@ test('Conclave de l’Ombre : les 5 membres sont visibles même sans objectifs i
   const details=objectiveNodes(nodes)[0].children[1].children.map(child=>child.textContent);
   assert.ok(details.some(value=>value.includes('25')));
   assert.ok(details.some(value=>value.includes('200')));
-  assert.match(css,/\.ev-objective-team-summary>\.ev-objective-team-roster\{/);
+  assert.match(css,/\.ev-objective-team-summary\{display:grid;grid-template-columns:minmax\(0,1fr\) auto;/);
+  assert.match(css,/\.ev-objective-team-summary strong\{[^}]*grid-column:1;grid-row:1;/);
+  assert.match(css,/\.ev-objective-team-summary>\.ev-objective-mini-count\{grid-column:1 \/ -1;grid-row:2\}/);
+  assert.match(css,/\.ev-objective-team-summary::after\{grid-column:2;grid-row:1;/);
+  assert.match(css,/\.ev-objective-team-summary>\.ev-objective-team-roster\{display:flex;grid-column:1 \/ -1;grid-row:3;/);
   assert.match(css,/\.ev-objective-heading\{[^}]*font-size:20px/);
   assert.match(css,/\.ev-objective-team-member\{[^}]*clamp\(32px,10\.5vw,44px\)/);
   assert.match(css,/\.ev-objective-team-member \.ev-objective-portrait\{[^}]*object-fit:contain/);
   assert.match(css,/flex-wrap:nowrap/);
-  assert.match(css,/order:1;flex:0 0 100%/);
   assert.match(css,/\.ev-objective-team-member-name\{position:absolute/);
 });
 
@@ -516,7 +518,7 @@ test('Une équipe avec 2 bonus individuels montre 5 membres sans inventer de mé
   assert.equal(nodes.get('stat-objectives').textContent,'3');
 });
 
-test('Événements distincts : combat avec toute une équipe et ses personnages restent associés',async()=>{
+test('Événements distincts : conditions avec mode imposé et combats généraux restent séparés',async()=>{
   const scenarios=[
     {
       team:"Combattre en guerre avec tous les membres du Conclave de l'Ombre",
@@ -550,17 +552,21 @@ test('Événements distincts : combat avec toute une équipe et ses personnages 
     assert.equal(nodes.get('stat-objectives').textContent,'3');
     assert.equal(objectiveNodes(nodes).length,3);
     assert.deepEqual(sections(nodes).map(section=>section.children[0].textContent),
-      ['⚔️ GUERRE']);
+      ['⚔️ GUERRE','⚡ CHOC']);
     const groups=objectiveDetails(nodes,'ev-objective-team');
-    assert.equal(groups.length,1);
-    const group=groups[0];
-    assert.equal(group.children[0].children[0].textContent,"Conclave de l'Ombre");
-    assert.equal(group.children[0].children[1].textContent,'5 personnages · 3 objectifs');
-    const roster=group.children[0].children.find(child=>
-      child.className==='ev-objective-team-roster');
-    assert.equal(roster.children.length,5);
-    assert.ok(!group.children[1].children.some(child=>
-      child.className==='ev-objective-team-roster'));
+    assert.equal(groups.length,2);
+    for(const group of groups){
+      assert.equal(group.children[0].children[0].textContent,"Conclave de l'Ombre");
+      const roster=group.children[0].children.find(child=>
+        child.className==='ev-objective-team-roster');
+      assert.equal(roster.children.length,5);
+      assert.ok(!group.children[1].children.some(child=>
+        child.className==='ev-objective-team-roster'));
+    }
+    const explicitTeam=scenario.team.includes('en guerre');
+    assert.deepEqual(groups.map(group=>group.children[0].children[1].textContent),
+      explicitTeam?['5 personnages · 1 objectif','5 personnages · 2 objectifs']:
+        ['5 personnages · 2 objectifs','5 personnages · 1 objectif']);
     const members=objectiveDetails(nodes,'ev-objective-character');
     assert.equal(members.length,2);
     const names=members.map(member=>
@@ -682,7 +688,7 @@ test('Objectifs généraux : équipe complète, personnages et Choc se retrouven
   assert.equal(objectiveNodes(nodes).length,Number(nodes.get('stat-objectives').textContent));
 });
 
-test('Les objectifs Raid et Guerre absorbent leurs combats généraux, sans inclure les non-combats',async()=>{
+test('Raid et Guerre gardent les combats imposés ; les combats généraux vont dans Choc',async()=>{
   const fixture=[
     ['Objectifs Raid','milestone',{milestone:{type:'solo',scoring:{
       methods:[{description:'Combattre en raid avec Crossbones',points:100}],
@@ -701,15 +707,53 @@ test('Les objectifs Raid et Guerre absorbent leurs combats généraux, sans incl
   assert.equal(nodes.get('stat-objectives').textContent,'5');
   assert.equal(objectiveNodes(nodes).length,5);
   assert.deepEqual(sections(nodes).map(s=>s.children[0].textContent),
-    ['🛡️ RAID','⚔️ GUERRE','📋 DIVERS']);
-  assert.equal(sections(nodes)[0].children[1].children.length,1);
-  assert.equal(sections(nodes)[1].children[1].children.length,1);
-  assert.equal(sections(nodes)[2].children[1].children.length,1);
+    ['🛡️ RAID','⚔️ GUERRE','⚡ CHOC','📋 DIVERS']);
+  assert.equal(sections(nodes)[0].children[0].children[0].textContent,'1 objectif');
+  assert.equal(sections(nodes)[1].children[0].children[0].textContent,'1 objectif');
+  assert.equal(sections(nodes)[2].children[0].children[0].textContent,'2 objectifs');
+  assert.equal(sections(nodes)[3].children[0].children[0].textContent,'1 objectif');
   const general=objectiveNodes(nodes).filter(row=>
     row.children[1].children.some(c=>c.textContent?.includes('Tous modes')));
   assert.equal(general.length,2);
-  assert.ok(!sections(nodes)[2].children[1].children.some(group=>
-    group.textContent?.includes('Combattre')));
+  const walk=(node)=>[node,...node.children.flatMap(walk)];
+  assert.ok(general.every(row=>walk(sections(nodes)[2]).includes(row)));
+  assert.ok(actions(nodes).includes('Dépenser des noyaux d’énergie'));
+});
+
+test('Les combats généraux actifs vont dans Choc même sans combat Choc explicite',async()=>{
+  const now=Math.floor(Date.now()/1000),day=86400;
+  const active={startTime:now-day,endTime:now+day};
+  const expired={startTime:now-2*day,endTime:now};
+  const future={startTime:now+day,endTime:now+2*day};
+  const combat=(description)=>({type:'solo',scoring:{
+    methods:[{description,points:1}],cappedScorings:[]}});
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Plan de bataille','milestone',{...active,locationHints:['lohub_wrapper']}],
+    ['Plan de bataille','milestone',{...active,locationHints:['lohub_feeder'],
+      milestone:combat('Combattre avec tous les membres des Avengers I.A.')}],
+    ['Plan de bataille','milestone',{...active,locationHints:['lohub_feeder'],
+      milestone:combat('Combattre avec tous les membres des Fantassins de fer')}],
+    ['Plan de bataille','milestone',{...expired,locationHints:['lohub_feeder'],
+      milestone:combat('Combattre avec tous les membres de Menace')}],
+    ['Plan de bataille','milestone',{...future,locationHints:['lohub_feeder'],
+      milestone:combat('Combattre avec tous les membres de Nightreaver')}],
+    ['Prêt au combat','milestone',{...active,
+      milestone:combat('Jouer avec Cyclope (Puissant)')}],
+    ['Divers','milestone',{...active,milestone:combat('Se connecter')}],
+    ['Épreuve','milestone',{...active,
+      milestone:combat('Combattre dans l’Épreuve cosmique avec les Guerriers audacieux')}]
+  ],eligibleIds:['fixture-1','fixture-2','fixture-4','fixture-5']});
+  assert.equal(nodes.get('stat-objectives').textContent,'4');
+  assert.equal(objectiveNodes(nodes).length,4);
+  assert.deepEqual(sections(nodes).map(section=>section.children[0].textContent),
+    ['⚡ CHOC','🔷 ÉPREUVE COSMIQUE','📋 DIVERS']);
+  assert.equal(sections(nodes)[0].children[0].children[0].textContent,'2 objectifs');
+  const walk=node=>[node,...node.children.flatMap(walk)];
+  const choc=walk(sections(nodes)[0]).filter(node=>node.className==='ev-objective-item');
+  assert.equal(choc.length,2);
+  assert.ok(choc.every(row=>row.children[1].children.some(c=>c.textContent?.includes('Tous modes'))));
+  assert.ok(actions(nodes).some(label=>label.includes('Avengers')));
+  assert.ok(!actions(nodes).some(label=>/Fantassins|Menace|Nightreaver/.test(label)));
 });
 
 test('Un combat transversal est compté une fois même si plusieurs modes lui conviennent',async()=>{
@@ -931,6 +975,102 @@ test('Jouer et combattre en guerre forment une seule action, sans fusionner les 
     '2 objectifs');
 });
 
+test('Les Guerriers audacieux multimodes sont une seule équipe par rubrique avec cinq portraits',async()=>{
+  const teamName='Guerriers Audacieux';
+  const source=realTeams.filter(team=>team.team===teamName);
+  assert.ok(source.length>=2);
+  const teams=[...realTeams,{...source[0],characters:[...source[0].characters].reverse()}];
+  const nodes=await makePage({includeBase:false,teams,extraEvents:[
+    ['Avènement des Guerriers audacieux','milestone',{
+      milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:50,methods:[{description:"Combattre dans l'Épreuve cosmique avec les Guerriers audacieux",points:5}]},
+        {cap:50,methods:[{description:'Combattre en choc avec les Guerriers audacieux',points:2}]}
+      ]}}
+    }]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'2');
+  assert.equal(objectiveNodes(nodes).length,2);
+  assert.deepEqual(sections(nodes).map(section=>section.children[0].textContent),
+    ['⚡ CHOC','🔷 ÉPREUVE COSMIQUE']);
+  const cards=objectiveDetails(nodes,'ev-objective-team');
+  assert.equal(cards.length,2);
+  for(const card of cards){
+    const summary=card.children[0];
+    assert.equal(summary.children[0].textContent,teamName);
+    assert.equal(summary.children[1].textContent,'5 personnages · 1 objectif');
+    const roster=summary.children.find(c=>c.className==='ev-objective-team-roster');
+    assert.equal(roster.children.length,5);
+    const expected=source[0].characters.map(id=>realCharacters.find(c=>c.id===id).portraitUrl);
+    assert.deepEqual(roster.children.map(member=>member.children.find(c=>c.tag==='img')?.src),expected);
+  }
+  assert.equal(objectiveDetails(nodes,'ev-objective-event-group').length,0);
+  const rows=objectiveNodes(nodes);
+  assert.ok(rows[0].children[1].children.some(c=>c.textContent==='25 actions comptabilisées en 3 jours'));
+  assert.ok(rows[1].children[1].children.some(c=>c.textContent==='10 actions comptabilisées en 3 jours'));
+});
+
+test('Deux compositions différentes portant le même nom restent ambiguës',async()=>{
+  const nodes=await makePage({includeBase:false,teams:[
+    {team:'Équipe Alpha',mode:'Guerre',characters:['Vision','Ultron']},
+    {team:'Équipe Alpha',mode:'Raid',characters:['Crossbones','Whiplash']}
+  ],extraEvents:[
+    ['Événement ambigu','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Combattre avec Équipe Alpha',points:1}],cappedScorings:[]
+    }}}]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'1');
+  assert.equal(objectiveNodes(nodes).length,1);
+  assert.equal(objectiveDetails(nodes,'ev-objective-team').length,0);
+  assert.ok(actions(nodes).includes('Combattre avec Équipe Alpha'));
+});
+
+test('Les combats explicites en Épreuve cosmique avec une équipe ne sont jamais routés vers Choc',async()=>{
+  const now=Math.floor(Date.now()/1000),day=86400;
+  const week={startTime:now-day,endTime:now+6*day};
+  const labels=[
+    "Combattre dans l'Épreuve cosmique avec les Guerriers audacieux",
+    'Combattre en choc avec les Guerriers audacieux',
+    'Combattre en Épreuve cosmique avec Vision',
+    'Combattre dans l’Epreuve cosmique avec Vision',
+    'Combattre en choc ou en Épreuve cosmique avec Vision'
+  ];
+  const nodes=await makePage({includeBase:false,teams:[],characters:[],extraEvents:[
+    ['Avènement des Guerriers audacieux','milestone',{
+      ...week,milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:50,methods:[{description:labels[0],points:5}]},
+        {cap:50,methods:[{description:labels[1],points:2}]}
+      ]}}
+    }],
+    ['Variantes','milestone',{
+      ...week,milestone:{type:'solo',scoring:{
+        methods:labels.slice(2).map(description=>({description,points:1})),
+        cappedScorings:[]
+      }}
+    }]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'5');
+  const sectionFor=title=>sections(nodes).find(s=>s.children[0].textContent===title);
+  const rows=section=>{
+    const results=[];
+    const walk=node=>{
+      if(node.className==='ev-objective-item')results.push(node);
+      for(const child of node.children||[])walk(child);
+    };
+    walk(section);
+    return results;
+  };
+  const choc=rows(sectionFor('⚡ CHOC'));
+  const crucible=rows(sectionFor('🔷 ÉPREUVE COSMIQUE'));
+  const mixed=rows(sectionFor('⚡ CHOC / ÉPREUVE COSMIQUE'));
+  assert.deepEqual(choc.map(row=>row.children[0].textContent),[labels[1]]);
+  assert.deepEqual(crucible.map(row=>row.children[0].textContent).sort(),
+    [labels[0],labels[2],labels[3]].sort());
+  assert.deepEqual(mixed.map(row=>row.children[0].textContent),[labels[4]]);
+  assert.ok(crucible.find(row=>row.children[0].textContent===labels[0])
+    .children[1].children.some(c=>c.textContent==='10 actions comptabilisées en 7 jours'));
+  assert.ok(choc[0].children[1].children.some(c=>c.textContent==='25 actions comptabilisées en 7 jours'));
+});
+
 test('Épreuve abrégée : classement en Épreuve cosmique, jamais sous Choc',async()=>{
   const nodes=await makePage({includeBase:false,extraEvents:[
     ['Choc','milestone',{milestone:{type:'solo',scoring:{
@@ -978,6 +1118,146 @@ test('Épreuve abrégée : classement en Épreuve cosmique, jamais sous Choc',as
   assert.ok(bounds.includes('(plafond 3 pts)'));
   assert.ok(bounds.includes('(plafond 6 pts)'));
   assert.ok(bounds.includes('(plafond 1 000 pts)')||bounds.includes('(plafond 1 000 pts)'));
+});
+
+test('Amélioration regroupe les progressions de personnages et ressources dédiées, pas les combats',async()=>{
+  const upgrade=[
+    "Faire monter n'importe quel personnage au niveau 101",
+    "Faire monter n'importe quel personnage au niveau 110",
+    "Faire monter n'importe quel personnage au palier d’équipement 19",
+    "Faire monter n'importe quel personnage au palier d’équipement 20",
+    "Faire monter n'importe quel personnage au palier d’équipement 21",
+    "Améliorer n'importe quel personnage à l’iso-8 P3 niveau 5",
+    "Améliorer n'importe quel personnage à l’iso-8 P4 niveau 3",
+    "Dépenser 1 ion palier 2 niveau 1",
+    "Dépenser 1 ion palier 3 niveau 4",
+    "Dépenser des ions palier 4 niveau 1",
+    "Dépenser des modules d'entraînement N4",
+    "Améliorer les capacités d’un personnage",
+    "Faire monter un personnage à 7 étoiles jaunes",
+    "Level Up Any Character to Level 111",
+    "Upgrade Any Character to Gear Tier 22",
+    "Spend 1 T2 Ion",
+    "Spend Training Modules",
+    "Dépenser de l’or",
+    "Spend 100 Gold",
+    "Dépenser 500 000 or",
+    "Spend 1 Tier 2 Level 4 Ion",
+    "Passer un personnage G22"
+  ];
+  const choc=["Combattre avec n’importe quel personnage au palier d’équipement 21",
+    "Combattre en choc avec Vision à 7 étoiles jaunes"];
+  const war=["Combattre en guerre avec Vision à l’iso-8 P4 niveau 3"];
+  const campaign=["Dépenser de l’énergie ISO-8"];
+  const other=["Obtenir de l’or","Obtenir des ions","Ouvrir un orbe ISO-8",
+    "Dépenser des noyaux d’énergie","Se connecter"];
+  const labels=[...upgrade,...choc,...war,...campaign,...other];
+  const nodes=await makePage({includeBase:false,extraEvents:labels.map((description,i)=>
+    ['Événement '+i,'milestone',{milestone:{type:'solo',scoring:{
+      methods:[],cappedScorings:[{cap:100,methods:[{description,points:5}]}]
+    }}}])});
+  assert.equal(nodes.get('stat-objectives').textContent,String(labels.length));
+  assert.equal(objectiveNodes(nodes).length,labels.length);
+  const walk=node=>[node,...node.children.flatMap(walk)];
+  const rows=title=>walk(sections(nodes).find(s=>s.children[0].textContent===title))
+    .filter(node=>node.className==='ev-objective-item');
+  assert.deepEqual(sections(nodes).map(s=>s.children[0].textContent),
+    ['⚔️ GUERRE','⚡ CHOC','📖 CAMPAGNE','⬆️ AMÉLIORATION','📋 DIVERS']);
+  const improvements=rows('⬆️ AMÉLIORATION');
+  const translated={
+    "Upgrade Any Character to Gear Tier 22":"Améliorer un personnage au palier G22",
+    "Spend 100 Gold":"Dépenser 100 or",
+    "Spend 1 Tier 2 Level 4 Ion":"Dépenser 1 ion(s) ISO-8 (palier 2, niveau 4)"
+  };
+  const expected=upgrade.map(label=>translated[label]||label.replace(/\s+/g,' '));
+  assert.deepEqual(improvements.map(r=>r.children[0].textContent).sort(),expected.sort());
+  const upgradeSection=sections(nodes).find(s=>s.children[0].textContent==='⬆️ AMÉLIORATION');
+  const groups=upgradeSection.children[1].children;
+  assert.deepEqual(groups.map(g=>g.children[0].children[0].textContent),
+    ['ISO','Modules & Or','Équipement','Autres améliorations']);
+  const byGroup=[
+    [5,6,7,8,9,15,20],
+    [0,1,10,13,16,17,18,19],
+    [2,3,4,14,21],
+    [11,12]
+  ];
+  for(const [index,group] of groups.entries()){
+    const groupRows=walk(group).filter(n=>n.className==='ev-objective-item');
+    const expectedLabels=byGroup[index].map(i=>translated[upgrade[i]]||upgrade[i].replace(/\s+/g,' '));
+    assert.deepEqual(groupRows.map(r=>r.children[0].textContent).sort(),expectedLabels.sort());
+    assert.equal(group.children[0].children[1].textContent,
+      byGroup[index].length+' objectifs');
+    assert.equal(group.tag,'section');
+    assert.equal(group.children[0].tag,'h4');
+    assert.equal(group.children[0].className,'ev-objective-upgrade-heading');
+    assert.equal(group.children[1].className,'ev-objective-events');
+    assert.equal(group.children[1].hidden,false);
+    assert.ok(group.children[1].children.length);
+  }
+  assert.match(css,/\.ev-objective-upgrade-heading\{[^}]*text-align:center/);
+  assert.equal(rows('⚡ CHOC').length,choc.length);
+  assert.equal(rows('⚔️ GUERRE').length,war.length);
+  assert.equal(rows('📖 CAMPAGNE').length,campaign.length);
+  assert.equal(rows('📋 DIVERS').length,other.length);
+  assert.ok(improvements.every(r=>r.children[1].children.some(c=>c.textContent==='+ 5 pts par action')));
+  assert.ok(improvements.every(r=>r.children[1].children.some(c=>c.textContent==='(plafond 100 pts)')));
+  assert.ok(improvements.every(r=>!r.children[1].children.some(c=>/Tous modes/.test(c.textContent))));
+});
+
+test('Les gains de jetons de guerre sont classés en Guerre sans être comptés comme des combats',async()=>{
+  const war=['Obtenir 1 jeton de guerre','Obtenir un jeton de guerre',
+    'Gagner des jetons de guerre','Obtenez 1 crédit de guerre',
+    'Earn War Credits','Collect 1 War Token'];
+  const other=["Ouvrir un orbe de guerre",'Dépenser 1 jeton de guerre',
+    "Obtenir 1 fragment d’orbe de ravitaillement allié XIII"];
+  const labels=[...war,...other];
+  const nodes=await makePage({includeBase:false,extraEvents:labels.map((description,i)=>
+    ['Événement '+i,'milestone',{milestone:{type:i===0?'alliance':'solo',
+      scoring:{methods:[{description,points:10}],cappedScorings:[]}}}])});
+  assert.equal(nodes.get('stat-objectives').textContent,String(labels.length));
+  assert.equal(objectiveNodes(nodes).length,labels.length);
+  const walk=node=>[node,...node.children.flatMap(walk)];
+  const rows=title=>walk(sections(nodes).find(s=>s.children[0].textContent===title))
+    .filter(node=>node.className==='ev-objective-item');
+  assert.deepEqual(rows('⚔️ GUERRE').map(row=>row.children[0].textContent).sort(),war.slice().sort());
+  assert.equal(rows('📋 DIVERS').length,other.length);
+  const token=rows('⚔️ GUERRE').find(row=>row.children[0].textContent===war[0]);
+  assert.ok(token.children[1].children.some(c=>c.textContent==='+ 10 pts par action'));
+  assert.ok(rows('⚔️ GUERRE').every(row=>!row.children[1].children.some(c=>/Tous modes|combats? comptabilis/.test(c.textContent))));
+});
+
+test('Les dépenses d’énergie vont dans Campagne sauf mode explicite ou monnaie',async()=>{
+  const campaign=[
+    "Dépenser de l'énergie de Doomsday dans Doomsday : Incursion",
+    'Dépenser de l’énergie',
+    'Dépensez 1 énergie',
+    'Dépenser 10 points d’énergie préhistorique',
+    'Spend Doomsday Energy',
+    'Dépenser de l’énergie ISO-8',
+    'Dépenser de l’énergie (campagne, iso ou incursion)'
+  ];
+  const raid=['Dépenser de l’énergie de raid','Spend Raid Energy'];
+  const war=['Dépenser de l’énergie de guerre','Spend War Energy'];
+  const other=['Dépenser 1 noyau d’énergie','Dépensez des noyaux d’énergie',
+    'Utiliser 1 noyau d’énergie','Spend Power Cores','Obtenir de l’énergie de Doomsday'];
+  const labels=[...campaign,...raid,...war,...other];
+  const nodes=await makePage({includeBase:false,extraEvents:labels.map((description,i)=>
+    ['Événement '+i,'milestone',{milestone:{type:'solo',scoring:{
+      methods:[],cappedScorings:[{cap:10,methods:[{description,points:1}]}]
+    }}}])});
+  assert.equal(nodes.get('stat-objectives').textContent,String(labels.length));
+  assert.equal(objectiveNodes(nodes).length,labels.length);
+  const rows=section=>{
+    const walk=node=>[node,...node.children.flatMap(walk)];
+    return walk(sections(nodes).find(s=>s.children[0].textContent===section))
+      .filter(node=>node.className==='ev-objective-item')
+      .map(row=>row.children[0].textContent).sort();
+  };
+  assert.deepEqual(rows('📖 CAMPAGNE'),campaign.slice().sort());
+  assert.deepEqual(rows('🛡️ RAID'),raid.slice().sort());
+  assert.deepEqual(rows('⚔️ GUERRE'),war.slice().sort());
+  assert.deepEqual(rows('📋 DIVERS'),other.map(label=>label==='Spend Power Cores'?
+    'Dépenser des noyaux d’énergie':label).sort());
 });
 
 test('Dépenser 1 point ou dépenser de l’énergie de campagne partage une seule action',async()=>{
@@ -1138,8 +1418,8 @@ test('Les libellés affichés utilisent objectif(s), y compris au singulier',asy
     return result;
   };
   const shown=visit(nodes.get('events-objectives')).join(' | ');
-  assert.ok(shown.includes('2 objectifs, regroupés par action'));
-  assert.equal(nodes.get('count-objectives').textContent,'2');
+  assert.equal(nodes.get('events-objectives').children[0].textContent,
+    "Objectifs regroupés par catégorie pour simplifier la visualisation globale.\nAttention : la progression personnelle n'est pas synchronisée");
   assert.equal(nodes.get('stat-objectives').textContent,'2');
   assert.deepEqual(sections(nodes).map(section=>section.children[0].textContent),
     ['🛡️ RAID','⚔️ GUERRE']);
@@ -1152,6 +1432,7 @@ test('Les libellés affichés utilisent objectif(s), y compris au singulier',asy
 
 test('Les textes essentiels des objectifs restent lisibles sans modifier le zoom',()=>{
   assert.ok(css.includes('.ev-objectives-note{font-size:15px;'));
+  assert.match(css,/\.ev-objectives-note\{[^}]*white-space:pre-line/);
   assert.ok(css.includes('.ev-objective-event-summary>.ev-objective-limit{order:1;flex:0 0 100%;font-size:15px;'));
   assert.ok(css.includes('.ev-objective-mini-count{font-size:14px;'));
   assert.ok(css.includes('.ev-objective-score,.ev-objective-cap,.ev-objective-premium{font-size:14px;'));
@@ -1165,7 +1446,16 @@ test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP co
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=20"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=24"/);
+  const header=html.match(/<header class="header ev-header"[^>]*>([\s\S]*?)<\/header>/)[1];
+  assert.match(header,/<h1 class="ev-header-banner"><img src="\.\/HeaderObjectifs\.webp" alt="Résumé Objectifs"><\/h1>/);
+  assert.doesNotMatch(header,/class="(?:title|subtitle|headerLeft)"|Objectifs et événements en cours/);
+  const banner=readFileSync(new URL('../docs/HeaderObjectifs.webp',import.meta.url));
+  assert.equal(banner.toString('ascii',0,4),'RIFF');
+  assert.equal(banner.toString('ascii',8,12),'WEBP');
+  assert.match(css,/\.ev-header-banner img\{display:block;width:100%;height:auto\}/);
+  assert.match(css,/\.ev-header\{min-height:0;padding:0;display:block;background:none;border:0;/);
+  assert.doesNotMatch(css,/\.ev-header\{padding-left:/);
   assert.doesNotMatch(css,/\.ev-toolbar\{|\.ev-filters\{|\.ev-date-controls\{/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -1183,18 +1473,22 @@ test('Le bandeau technique du catalogue est masqué sans supprimer le diagnostic
 });
 
 test('Les identifiants obligatoires de la vue Objectifs existent dans le HTML',()=>{
-  for(const id of ['section-objectives','events-objectives','stat-objectives','count-objectives']){
+  for(const id of ['section-objectives','events-objectives','stat-objectives']){
     assert.match(html,new RegExp('id="'+id+'"'));
   }
   assert.doesNotMatch(html,/section-future|events-future|stat-future/);
+  assert.doesNotMatch(html,/id="(?:title|count)-objectives"|Objectifs à réaliser|Comment gagner des points, par mode de jeu/);
+  assert.match(html,/<section[^>]*id="section-objectives"[^>]*><div class="ev-objectives" id="events-objectives"><\/div><\/section>/);
 });
 
 test('Objectifs est sélectionné au premier affichage, même avant chargement JS',()=>{
   assert.match(html,/id="tab-objectives"[^>]*aria-selected="true" tabindex="0"/);
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
-  assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=38/);
+  assert.match(html,/id="section-current"[^>]*hidden><div class="ev-groups" id="events-current"><\/div><\/section>/);
+  assert.doesNotMatch(html,/id="(?:title|count)-current"|Phases, Poste de commandement et Événements temporaires/);
+  assert.match(html,/id="stat-current"/);
+  assert.match(html,/evenements\.js\?v=49/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
@@ -1470,6 +1764,32 @@ test('Les événements terminés ne sont plus rendus dans les deux onglets',asyn
   assert.equal(nodes.get('stat-past'),undefined);
   assert.equal(nodes.get('events-past'),undefined);
   assert.equal(cards(nodes).length,0);
+});
+
+test('La présentation Scopely restitue les puces et paragraphes collés sans interpréter le HTML',async()=>{
+  const details="Phase <color=#fff568>Sang, gloire et fortune</color>Progressez dans cet événement en\u00a0:- Vous connectant chaque jour.- Dépensant des noyaux d'énergie.- Améliorant l’iso-8 P4 niveau 3.Obtenez des récompenses fantastiques.Faites-vous une place dans le classement !<br>Rendez-vous sur MarvelStrikeForce.com. S.T.R.I.K.E. et ISO-8.<p>Autre paragraphe.</p><ul><li>Premier point</li><li>Second point</li></ul>";
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Sang, gloire et fortune','milestone',{details,milestone:{type:'solo',scoring:{
+      methods:[{description:'Dépenser de l’or',points:5}],cappedScorings:[]
+    }}}]
+  ]});
+  const walk=node=>[node,...node.children.flatMap(walk)];
+  const button=walk(cards(nodes)[0]).find(n=>n.className==='ev-detail-btn');
+  assert.ok(button);button.handlers.get('click')();
+  assert.equal(nodes.get('event-dialog').open,true);
+  const dialog=nodes.get('event-dialog-content');
+  const presentation=walk(dialog).find(n=>n.className==='ev-dialog-section ev-presentation');
+  assert.ok(presentation);
+  assert.deepEqual(presentation.children.map(n=>n.tag),['h3','p','p','ul','p','p','p','p','ul']);
+  assert.deepEqual(presentation.children[3].children.map(n=>n.textContent),
+    ['Vous connectant chaque jour.',"Dépensant des noyaux d'énergie.",'Améliorant l’iso-8 P4 niveau 3.']);
+  assert.equal(presentation.children[1].textContent,'Phase Sang, gloire et fortune');
+  assert.equal(presentation.children[4].textContent,'Obtenez des récompenses fantastiques.');
+  assert.equal(presentation.children[6].textContent,'Rendez-vous sur MarvelStrikeForce.com. S.T.R.I.K.E. et ISO-8.');
+  assert.deepEqual(presentation.children[8].children.map(n=>n.textContent),['Premier point','Second point']);
+  assert.ok(walk(dialog).some(n=>n.textContent==='Comment gagner des points'));
+  assert.ok(walk(dialog).some(n=>n.textContent==='Dépenser de l’or : 5 point(s)'));
+  assert.ok(walk(presentation).every(n=>['section','h3','p','ul','li'].includes(n.tag)));
 });
 
 test('Tous les événements en cours sont rendus directement, même avec des archives',async()=>{

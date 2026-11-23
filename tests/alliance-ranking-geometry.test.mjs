@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { runInNewContext } from "node:vm";
 import { readFile } from "node:fs/promises";
 import { detectRankingRows } from "../docs/alliance-ranking-geometry.js";
 
@@ -83,11 +84,59 @@ test("keeps the experimental page out of public navigation and precaches version
     readFile(new URL("../docs/alliance-ranking-locator.html", import.meta.url), "utf8")
   ]);
   assert.doesNotMatch(menu, /alliance-ranking-locator/);
-  assert.match(worker, /losp-v30/);
+  assert.match(worker, /const CACHE = "losp-v\d+";/);
   assert.match(worker, /alliance-ranking-locator\.html/);
   assert.match(worker, /alliance-ranking-locator\.css\?v=1/);
   assert.match(worker, /alliance-ranking-locator\.js\?v=1/);
   assert.match(worker, /alliance-ranking-geometry\.js/);
   assert.match(page, /type="module"/);
   assert.doesNotMatch(page, /auth-guard|password|secret/i);
+});
+
+test("PWA upgrades the published menus and fetches Objectives assets and data fresh", async () => {
+  const source=await readFile(new URL("../docs/sw.js",import.meta.url),"utf8");
+  const handlers=new Map(), requests=[], deleted=[], precached=[];
+  let skipped=false, claimed=false;
+  let offline=false;
+  const cache={addAll:async values=>precached.push(...values),put:async()=>{}};
+  const response={ok:true,clone(){return this;}};
+  const context={
+    self:{location:{origin:"https://example.test"},addEventListener:(k,v)=>handlers.set(k,v),
+      skipWaiting:async()=>{skipped=true;},clients:{claim:async()=>{claimed=true;}}},
+    caches:{open:async key=>{assert.equal(key,"losp-v31");return cache;},
+      keys:async()=>["losp-v29","losp-v30","losp-v31","other-app-cache"],
+      delete:async key=>deleted.push(key),match:async()=>null},
+    Request:class{constructor(url,init={}){this.url=url;this.cache=init.cache;}},
+    URL,Date,Math,
+    fetch:async (request,options)=>{requests.push({url:request.url,cache:options?.cache});
+      if(offline)throw Error("offline");return response;}
+  };
+  runInNewContext(source,context);
+  let task;
+  handlers.get("install")({waitUntil:p=>{task=p;}});
+  await task;
+  assert.ok(skipped);
+  for(const path of ["./home.html","./war-choose.html"])
+    assert.ok(precached.some(r=>r.url===path&&r.cache==="reload"),path);
+  assert.ok(!precached.some(r=>r.url.includes("evenements-snapshot.json")));
+  handlers.get("activate")({waitUntil:p=>{task=p;}});
+  await task;
+  assert.ok(claimed);
+  assert.deepEqual(deleted,["losp-v29","losp-v30"]);
+  const simulate=path=>{
+    let result;
+    handlers.get("fetch")({request:{url:"https://example.test/msf/"+path,method:"GET",
+      mode:path.endsWith(".html")?"navigate":"cors"},respondWith:p=>{result=p;}});
+    assert.ok(result,path);return result;
+  };
+  for(const path of ["home.html","war-choose.html","evenements.html","evenements.js?v=49",
+    "evenements.css?v=24","HeaderObjectifs.webp","ResumeObjectifs.webp"]){
+    await simulate(path);
+    assert.equal(requests.at(-1).cache,"no-store",path);
+  }
+  await simulate("data/evenements-snapshot.json");
+  assert.equal(requests.at(-1).cache,"no-store");
+  assert.match(requests.at(-1).url,/[?&]_live=/);
+  offline=true;
+  await assert.rejects(simulate("data/evenements-snapshot.json"),/offline/);
 });

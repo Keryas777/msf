@@ -213,23 +213,61 @@
     ['raid','🛡️','RAID'],['war','⚔️','GUERRE'],['arena','🏟️','ARÈNE'],
     ['blitz','⚡','CHOC'],['crucible','🔷','ÉPREUVE COSMIQUE'],
     ['campaign','📖','CAMPAGNE'],['battleworld','🌌','BATTLEWORLD'],
-    ['divers','📋','DIVERS']
+    ['upgrade','⬆️','AMÉLIORATION'],['divers','📋','DIVERS']
   ];
   const MODE_BY_KEY=new Map(OBJECTIVE_MODES.map(([key,emoji,label])=>[key,{emoji,label}]));
+  const UPGRADE_GROUPS=[
+    ['iso','ISO'],['training','Modules & Or'],['gear','Équipement'],
+    ['other','Autres améliorations']
+  ];
+  function objectiveUpgradeGroup(description){
+    if(isBattleObjective(description))return null;
+    const text=eventNameKey(description).replace(/\s+/g,' ').trim();
+    const improvesCharacter=/^(?:amelior(?:er|ez)|faire monter|faites monter|monter|passer|faites passer|augment(?:er|ez)|entrain(?:er|ez)|promouvoir|upgrade|level up|gear up|rank up|train|promote|equip)\b/.test(text)&&
+      /\b(?:personnages?|characters?|niveau|levels?|equipements?|gear|g\d+|gt\d+|iso-?8|etoiles?|stars?|capacites?|abilities|ability|skills?|rang|rank|tier)\b/.test(text);
+    const spendsUpgradeMaterial=/^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+/.test(text)&&(
+      /^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+(?:(?:\d+|un|une|des|les|du|de|some|any|one)\s+)?(?:ions?|(?:iso-?8|t[1-9]|tier \d+|green|blue|purple|orange)(?:\s+level\s+\d+)?\s+ions?)\b/.test(text)||
+      /\b(?:modules? d'entrainement|training (?:modules?|materials?)|materiaux? de capacites?|ability materials?)\b/.test(text));
+    const spendsGold=/^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+(?:(?:\d[\d ,.]*)\s+|(?:de\s+l'|l'|de\s+|du\s+|some\s+|any\s+))?(?:or|gold)\b/.test(text);
+    const spends=/^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+/.test(text);
+    if(!(improvesCharacter||spendsUpgradeMaterial||spendsGold))return null;
+    if((improvesCharacter&&/\biso-?8\b/.test(text))||
+      (spends&&/\bions?\b/.test(text)))return 'iso';
+    if(improvesCharacter&&/\b(?:equipements?|gear|g\d+|gt\d+)\b/.test(text)&&
+      !/\b(?:capacites?|abilities|ability|skills?)\b/.test(text))return 'gear';
+    if(spendsGold||(spends&&/\b(?:modules? d'entrainement|training (?:modules?|materials?))\b/.test(text))||
+      (improvesCharacter&&/\b(?:niveau|levels?|entrain(?:er|ez)|train)\b/.test(text)&&
+        !/\b(?:etoiles?|stars?|capacites?|abilities|ability|skills?|rang|rank)\b/.test(text)))return 'training';
+    return 'other';
+  }
   function objectiveMode(description){
-    const text=strip(description).toLocaleLowerCase('fr');
+    // Normaliser les accents avant les frontières de mots JS (\b est ASCII).
+    const text=eventNameKey(description).replace(/\s+/g,' ').trim();
+    if(objectiveUpgradeGroup(description))return 'upgrade';
     const modes=[];
     if(/\braids?\b/.test(text))modes.push('raid');
-    if(/\b(?:alliance war|battle in war|in war|en guerre|guerre d.alliance)\b|^play war\b|\bwar or\b/.test(text))modes.push('war');
-    if(/\b(?:arena|arène)\b/.test(text))modes.push('arena');
+    // Les jetons gagnés en guerre sont un objectif de Guerre, sans
+    // assimiler chaque jeton à un combat ni les achats à des victoires.
+    const earnsWarTokens=/^(?:(?:obtenir|obtenez|gagner|gagnez|collecter|collectez|recevoir|recevez)\s+(?:(?:\d+|un|une|des|les|du)\s+)?(?:jetons?|credits?)\s+de guerre\b|(?:earn|gain|get|obtain|collect)\s+(?:(?:\d+|a|one|some|any)\s+)?(?:alliance )?war (?:tokens?|credits?)\b)/.test(text);
+    if(earnsWarTokens||/\b(?:alliance war|battle in war|in war|en guerre|guerre d.alliance)\b|^play war\b|\bwar or\b/.test(text))modes.push('war');
+    if(/\b(?:arena|arene)\b/.test(text))modes.push('arena');
     if(/\b(?:blitz|choc)\b/.test(text))modes.push('blitz');
     // Scopely abrège parfois « Épreuve cosmique » en « l'Épreuve ».
     // Ne reconnaître cette abréviation que dans « dans l'Épreuve »,
     // pas dans n'importe quelle épreuve ou événement du catalogue.
-    if(/\b(?:cosmic crucible|crucible|épreuve cosmique)\b|\bdans l[’']épreuve(?: cosmique)?(?=\s*(?:$|[,(]))/.test(text))
+    if(/\b(?:cosmic crucible|crucible|epreuve cosmique)\b|\bdans l'epreuve(?: cosmique)?(?=\s*(?:$|[,(]))/.test(text))
       modes.push('crucible');
     if(/\b(?:campaign|campagne)\b/.test(text))modes.push('campaign');
     if(/\bbattleworld\b/.test(text))modes.push('battleworld');
+    // Une dépense d'énergie de jeu sans autre mode identifié relève
+    // généralement d'une campagne (Doomsday, Terre Sauvage, Iso-8, etc.).
+    // Les noyaux d'énergie sont une monnaie distincte, pas de l'énergie.
+    const spendsEnergy=/^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+(?:(?:\d+|un|une|one)\s+(?:(?:points?|unites?|units?)\s+(?:d'|of\s+))?|(?:de\s+l'|de\s+la\s+|de\s+|l'|des\s+|some\s+|any\s+))?(?:energie|energy)\b/.test(text);
+    const spendsSpecialEnergy=/^(?:spend|use)\s+(?:(?:\d+|one|some|any)\s+)?(?:doomsday|incursion|prehistoric|iso-?8|war)\s+energy\b/.test(text);
+    if((spendsEnergy||spendsSpecialEnergy)&&!modes.length&&!/\b(?:noyaux?|cores?)\b/.test(text)){
+      if(/\b(?:war energy|energie de guerre|energie d'alliance)\b/.test(text))modes.push('war');
+      else modes.push('campaign');
+    }
     return modes.length?modes.join('+'):'divers';
   }
   function objectiveLabel(raw){
@@ -359,45 +397,20 @@
     const text=strip(description);
     // « Jouer » désigne aussi un combat pour les formulations sans
     // restriction. Ne pas assimiler les objectifs multimodes ou qualifiés.
-    return /^(?:combattre\b|combattez\b|faire un combat\b|jouer n[’']?importe quel combat\b|battle\b|play (?:any battle|alliance |raid|war|blitz|arena|crucible|with ))/i.test(text)||
+    return /^(?:combattre\b|combattez\b|faire (?:un |des )?combats?\b|gagner (?:un |des )?combats?\b|remporter (?:un |des )?combats?\b|jouer avec\b|jouer n[’']?importe quel combat\b|battle\b|play (?:any battle|alliance |raid|war|blitz|arena|crucible|with ))/i.test(text)||
       /^jouer (?:en (?:raid|guerre|arène|épreuve cosmique)|dans l[’']arène|(?:un |1 )?combat (?:d[’']arène|en (?:raid|guerre)))$/i.test(text);
   }
   function isFullTeamObjective(description){
     return /\b(?:tous les membres|all (?:members|characters))\b/i.test(description);
   }
-  function battleCompatible(general,specific){
-    if(!general.isBattle||!specific.isBattle)return false;
-    if(general.character){
-      if(specific.character)return general.character.id===specific.character.id;
-      return Boolean(specific.team?.characters.includes(general.character.id));
-    }
-    if(general.team){
-      if(specific.team)return general.team.team===specific.team.team;
-      return Boolean(specific.character&&
-        general.team.characters.includes(specific.character.id));
-    }
-    // « Jouer n'importe quel combat » englobe toute bataille, mais jamais
-    // une connexion, un achat, une amélioration ou une dépense d'énergie.
-    return !general.character&&!general.team;
-  }
   function routeBattleObjectives(items){
-    const specific=items.filter(item=>item.isBattle&&item.mode!=='divers');
     for(const item of items){
       item.originalMode=item.mode;
-      item.relatedModes=[];
-      if(item.mode!=='divers'||!item.isBattle)continue;
-      const scores=new Map();
-      for(const candidate of specific){
-        if(!battleCompatible(item,candidate))continue;
-        scores.set(candidate.mode,(scores.get(candidate.mode)||0)+1);
-      }
-      if(!scores.size)continue;
-      const ranked=[...scores].sort((a,b)=>b[1]-a[1]||
-        a[0].localeCompare(b[0],'fr'));
-      // Une méthode générale est montrée UNE seule fois, dans le contexte
-      // le plus pertinent. Elle reste valable dans tous les modes autorisés.
-      item.mode=ranked[0][0];
-      item.relatedModes=ranked.map(([mode])=>mode);
+      // Choc est la rubrique de référence LoSP pour les combats sans
+      // mode imposé. Ne pas déduire un mode à partir des autres événements
+      // ni du mode de prédilection d'une équipe. Les combats restent
+      // créditables dans tous les modes compatibles avec leur condition.
+      if(item.mode==='divers'&&item.isBattle)item.mode='blitz';
     }
     return items;
   }
@@ -659,11 +672,92 @@
     routeBattleObjectives(items);
     return items;
   }
+  function renderObjectiveCards(entries,eventList){
+    // On groupe d'abord les exigences d'équipe et leurs personnages,
+    // même lorsqu'elles proviennent d'événements différents.
+    const {teams,individual,other}=objectiveTeams(entries);
+    for(const team of teams){
+      const teamBlock=create('details','ev-objective-team');
+      const summary=create('summary','ev-objective-team-summary');
+      summary.append(create('strong','',team.name));
+      const total=team.goals.length+
+        team.characters.reduce((sum,member)=>sum+member.items.length,0);
+      summary.append(create('span','ev-objective-mini-count',
+        fmtNumber.format(team.roster.length)+' personnages · '+
+        objectiveCount(total)));
+      if(team.roster.length)summary.append(objectiveTeamRoster(team.roster));
+      const people=create('div','ev-objective-people');
+      if(team.goals.length){
+        people.append(create('h4','ev-objective-subhead',
+          team.goals.some(item=>item.teamComplete)?
+            'Conditions d’équipe complète / collectives':'Conditions d’équipe'));
+        people.append(objectiveList(team.goals));
+      }
+      for(const member of team.characters)people.append(objectiveCharacterCard(member));
+      teamBlock.append(summary,people);eventList.append(teamBlock);
+    }
+    if(individual.length){
+      const singles=create('div','ev-objective-singles');
+      singles.append(create('h4','ev-objective-subhead','Personnages'));
+      const people=create('div','ev-objective-people');
+      for(const member of individual)people.append(objectiveCharacterCard(member));
+      singles.append(people);eventList.append(singles);
+    }
+    // Les méthodes sans équipe ni personnage sont regroupées par action,
+    // et non par événement : un combat peut faire progresser plusieurs
+    // jalons, chacun conservant ses propres points et plafonds.
+    const byAction=new Map();
+    for(const item of other){
+      const orbOpening=isOrbOpeningObjective(item);
+      const label=orbOpening?'Ouverture d’orbes':objectiveActionLabel(item);
+      const key=item.mode+'|'+(orbOpening?'orb-openings':eventNameKey(label));
+      if(!byAction.has(key))byAction.set(key,{label,items:[],orbOpening});
+      byAction.get(key).items.push(item);
+    }
+    for(const {label,items:methods,orbOpening} of byAction.values()){
+      // Les menus restent fermés au chargement, même pour une action unique.
+      const actionBlock=create('details','ev-objective-event-group');
+      const actionTitle=create('summary','ev-objective-event-summary');
+      actionTitle.append(create('strong','',label));
+      actionTitle.append(create('span','ev-objective-mini-count',
+        objectiveCount(methods.length)));
+      // Les types d'orbes ont des plafonds indépendants : ne pas
+      // afficher de limite agrégée trompeuse dans l'en-tête commun.
+      for(const hint of (orbOpening?[]:objectiveActionHints(methods)))
+        actionTitle.append(create('span','ev-objective-limit',hint));
+      const body=create('div','ev-objective-event-content');
+      const bySource=new Map();
+      for(const item of methods){
+        const parent=state.events.find(candidate=>
+          (calendarGroup(candidate)==='phases'||calendarGroup(candidate)==='command')&&
+          eventNameKey(candidate.name)===eventNameKey(item.event.name)&&
+          candidate.startTime<item.event.endTime&&
+          candidate.endTime>item.event.startTime)||item.event;
+        const sourceKey=parent.id||objectiveGroup(parent)+'|'+eventNameKey(parent.name);
+        if(!bySource.has(sourceKey))bySource.set(sourceKey,{event:parent,items:[]});
+        bySource.get(sourceKey).items.push(item);
+      }
+      for(const {event,items:scorings} of bySource.values()){
+        const source=create('div','ev-objective-source');
+        const sourceHead=create('div','ev-objective-source-head');
+        const link=create('button','ev-objective-event',eventTitle(event));
+        link.type='button';link.title='Détails de l’événement';
+        link.addEventListener('click',()=>openDetail(event,link));
+        sourceHead.append(link);
+        sourceHead.append(create('span','ev-objective-scope',
+          event.milestone?.type==='alliance'?'Alliance':'Solo'));
+        // Dans une famille d'orbes, chaque méthode garde son type d'orbe :
+        // cacher les libellés ferait disparaître la différence entre orbes.
+        source.append(sourceHead,objectiveList(scorings,false,!orbOpening));
+        body.append(source);
+      }
+      actionBlock.append(actionTitle,body);eventList.append(actionBlock);
+    }
+  }
   function renderObjectives(reference){
     const host=$('events-objectives');host.replaceChildren();
     const items=objectiveEntries(reference);
     $('stat-objectives').textContent=fmtNumber.format(items.length);
-    $('count-objectives').textContent=fmtNumber.format(items.length);
     if(!items.length){
       const holder=create('div','ev-empty');
       holder.append(create('p','ev-empty-emoji','📋'));
@@ -672,12 +766,8 @@
       host.append(holder);return;
     }
     host.append(create('p','ev-objectives-note',
-      objectiveCount(items.length)+', regroupés par action et combats compatibles. '+
-      '« Tous modes » indique un objectif général, non limité au mode affiché. '+
-      (state.eligibleEventIds?
-        'Référence niveau 110 vérifiée : seules les missions éligibles sont affichées. ':
-        'Catalogue général : l’éligibilité personnelle des missions n’est pas vérifiée. ')+
-      'Points et plafonds distincts ; progression personnelle non synchronisée.'));
+      'Objectifs regroupés par catégorie pour simplifier la visualisation globale.\n'+
+      "Attention : la progression personnelle n'est pas synchronisée"));
     const grouped=new Map();
     for(const item of items){
       if(!grouped.has(item.mode))grouped.set(item.mode,[]);
@@ -700,86 +790,19 @@
       heading.append(create('span','ev-objective-count',
         objectiveCount(entries.length)));
       const eventList=create('div','ev-objective-events');
-      // On groupe d'abord les exigences d'équipe et leurs personnages,
-      // même lorsqu'elles proviennent d'événements différents.
-      const {teams,individual,other}=objectiveTeams(entries);
-      for(const team of teams){
-        const teamBlock=create('details','ev-objective-team');
-        const summary=create('summary','ev-objective-team-summary');
-        summary.append(create('strong','',team.name));
-        const total=team.goals.length+
-          team.characters.reduce((sum,member)=>sum+member.items.length,0);
-        summary.append(create('span','ev-objective-mini-count',
-          fmtNumber.format(team.roster.length)+' personnages · '+
-          objectiveCount(total)));
-        if(team.roster.length)summary.append(objectiveTeamRoster(team.roster));
-        const people=create('div','ev-objective-people');
-        if(team.goals.length){
-          people.append(create('h4','ev-objective-subhead',
-            team.goals.some(item=>item.teamComplete)?
-              'Conditions d’équipe complète / collectives':'Conditions d’équipe'));
-          people.append(objectiveList(team.goals));
+      if(key==='upgrade'){
+        for(const [group,label] of UPGRADE_GROUPS){
+          const subset=entries.filter(item=>objectiveUpgradeGroup(item.description)===group);
+          if(!subset.length)continue;
+          const block=create('section','ev-objective-upgrade-group');
+          const title=create('h4','ev-objective-upgrade-heading');
+          title.append(create('strong','',label));
+          title.append(create('span','ev-objective-mini-count',objectiveCount(subset.length)));
+          const body=create('div','ev-objective-events');
+          renderObjectiveCards(subset,body);
+          block.append(title,body);eventList.append(block);
         }
-        for(const member of team.characters)people.append(objectiveCharacterCard(member));
-        teamBlock.append(summary,people);eventList.append(teamBlock);
-      }
-      if(individual.length){
-        const singles=create('div','ev-objective-singles');
-        singles.append(create('h4','ev-objective-subhead','Personnages'));
-        const people=create('div','ev-objective-people');
-        for(const member of individual)people.append(objectiveCharacterCard(member));
-        singles.append(people);eventList.append(singles);
-      }
-      // Les méthodes sans équipe ni personnage sont regroupées par action,
-      // et non par événement : un combat peut faire progresser plusieurs
-      // jalons, chacun conservant ses propres points et plafonds.
-      const byAction=new Map();
-      for(const item of other){
-        const orbOpening=isOrbOpeningObjective(item);
-        const label=orbOpening?'Ouverture d’orbes':objectiveActionLabel(item);
-        const key=item.mode+'|'+(orbOpening?'orb-openings':eventNameKey(label));
-        if(!byAction.has(key))byAction.set(key,{label,items:[],orbOpening});
-        byAction.get(key).items.push(item);
-      }
-      for(const {label,items:methods,orbOpening} of byAction.values()){
-        // Les menus restent fermés au chargement, même pour une action unique.
-        const actionBlock=create('details','ev-objective-event-group');
-        const actionTitle=create('summary','ev-objective-event-summary');
-        actionTitle.append(create('strong','',label));
-        actionTitle.append(create('span','ev-objective-mini-count',
-          objectiveCount(methods.length)));
-        // Les types d'orbes ont des plafonds indépendants : ne pas
-        // afficher de limite agrégée trompeuse dans l'en-tête commun.
-        for(const hint of (orbOpening?[]:objectiveActionHints(methods)))
-          actionTitle.append(create('span','ev-objective-limit',hint));
-        const body=create('div','ev-objective-event-content');
-        const bySource=new Map();
-        for(const item of methods){
-          const parent=state.events.find(candidate=>
-            (calendarGroup(candidate)==='phases'||calendarGroup(candidate)==='command')&&
-            eventNameKey(candidate.name)===eventNameKey(item.event.name)&&
-            candidate.startTime<item.event.endTime&&
-            candidate.endTime>item.event.startTime)||item.event;
-          const sourceKey=parent.id||objectiveGroup(parent)+'|'+eventNameKey(parent.name);
-          if(!bySource.has(sourceKey))bySource.set(sourceKey,{event:parent,items:[]});
-          bySource.get(sourceKey).items.push(item);
-        }
-        for(const {event,items:scorings} of bySource.values()){
-          const source=create('div','ev-objective-source');
-          const sourceHead=create('div','ev-objective-source-head');
-          const link=create('button','ev-objective-event',eventTitle(event));
-          link.type='button';link.title='Détails de l’événement';
-          link.addEventListener('click',()=>openDetail(event,link));
-          sourceHead.append(link);
-          sourceHead.append(create('span','ev-objective-scope',
-            event.milestone?.type==='alliance'?'Alliance':'Solo'));
-          // Dans une famille d'orbes, chaque méthode garde son type d'orbe :
-          // cacher les libellés ferait disparaître la différence entre orbes.
-          source.append(sourceHead,objectiveList(scorings,false,!orbOpening));
-          body.append(source);
-        }
-        actionBlock.append(actionTitle,body);eventList.append(actionBlock);
-      }
+      }else renderObjectiveCards(entries,eventList);
       modeSection.append(heading,eventList);host.append(modeSection);
     }
   }
@@ -799,12 +822,10 @@
       for(const key of Object.keys(SECTIONS)){
         $('events-'+key).replaceChildren(create('p','ev-empty',
           'Événements temporairement indisponibles : données non vérifiées.'));
-        $('count-'+key).textContent='—';
         $('stat-'+key).textContent='—';
       }
       $('events-objectives').replaceChildren(create('p','ev-empty',
         'Objectifs temporairement indisponibles : données non vérifiées.'));
-      $('count-objectives').textContent='—';
       $('stat-objectives').textContent='—';
       return;
     }
@@ -812,7 +833,6 @@
     renderObjectives(reference);
     for(const key of Object.keys(SECTIONS)){
       const items=grouped[key],host=$(`events-${key}`);host.replaceChildren();
-      $(`count-${key}`).textContent=fmtNumber.format(items.length);
       $(`stat-${key}`).textContent=fmtNumber.format(items.length);
       if(!items.length)host.append(emptyState());
       for(const category of GAME_GROUPS){
@@ -832,6 +852,35 @@
     }
   }
   function listFor(parent,rows){const ul=create('ul','ev-detail-list');for(const row of rows){const li=create('li','');li.textContent=row;ul.append(li);}parent.append(ul);}
+  // Les descriptions Scopely peuvent contenir des balises Unity ou des
+  // séparations de paragraphes perdues. Tout reste rendu en textContent.
+  function renderPresentation(parent,raw){
+    const lines=String(raw??'')
+      .replace(/\r\n?/g,'\n')
+      .replace(/<br\s*\/?>|<\/(?:p|div|li|h[1-6])\s*>/gi,'\n')
+      .replace(/<li\b[^>]*>/gi,'\n- ')
+      .replace(/<\/color\s*>(?=[A-ZÀ-ÖØ-Þ][a-zà-öø-ÿ])/g,'\n')
+      .replace(/<[^>]*>/g,'')
+      .replace(/&nbsp;|&#160;|\u00a0|\u202f/g,' ')
+      // Restaurer le passage du titre de phase à son introduction.
+      .replace(/^(Phase [^\n]+?)(?=(?:Progressez|Profitez|Déchaînez|Progress|Make progress)\b)/i,'$1\n')
+      // Puces de la forme « : - texte. - texte » ; ne pas couper ISO-8.
+      .replace(/([:.!?])\s*[-•]\s+(?=\S)/g,'$1\n- ')
+      // Phrases collées sans espace : ne pas couper les sigles, les
+      // décimales, les adresses web ou les traits d'union des noms.
+      .replace(/([.!?])(?=[A-ZÀ-ÖØ-Þ][a-zà-öø-ÿ])/g,'$1\n')
+      .split(/\n+/).map(line=>line.replace(/[ \t]+/g,' ').trim()).filter(Boolean);
+    let list=null;
+    for(const line of lines){
+      const bullet=line.match(/^[-•]\s+(.+)$/);
+      if(bullet){
+        if(!list){list=create('ul','ev-detail-list ev-presentation-list');parent.append(list);}
+        list.append(create('li','',bullet[1]));
+      }else{
+        list=null;parent.append(create('p','',line));
+      }
+    }
+  }
   function detailSection(parent,title){const section=create('section','ev-dialog-section');section.append(create('h3','',title));parent.append(section);return section;}
   function openDetail(e,trigger){
     state.lastButton=trigger;const dialog=$('event-dialog'),host=$('event-dialog-content');host.replaceChildren();
@@ -851,7 +900,7 @@
       box.append(create('span','ev-dialog-label',label),create('strong','',value));info.append(box);
     }
     body.append(info);
-    const description=strip(e.details||e.subName);if(description){const sec=detailSection(body,'Présentation');sec.append(create('p','',description));}
+    const description=e.details||e.subName;if(strip(description)){const sec=detailSection(body,'Présentation');sec.className+=' ev-presentation';renderPresentation(sec,description);}
     const scoring=e.milestone?.scoring;const methods=Array.isArray(scoring?.methods)?scoring.methods:[];
     const caps=Array.isArray(scoring?.cappedScorings)?scoring.cappedScorings:[];
     if(methods.length){const sec=detailSection(body,'Comment gagner des points');listFor(sec,methods.map(x=>`${strip(x.description)||'Action'} : ${fmtNumber.format(x.points||0)} point(s)`));}
@@ -928,8 +977,18 @@
     }));
     const teams=results[0].status==='fulfilled'?results[0].value:null;
     const characters=results[1].status==='fulfilled'?results[1].value:null;
-    state.teams=Array.isArray(teams)?teams.filter(team=>team&&
-      typeof team.team==='string'&&Array.isArray(team.characters)):[];
+    // Le catalogue LoSP contient une ligne par équipe et mode de jeu.
+    // Ici seule l'identité (nom + composition) importe : les modes des
+    // objectifs sont déterminés indépendamment par leur libellé officiel.
+    // Conserver les compositions réellement différentes comme ambiguës.
+    const uniqueTeams=new Map();
+    for(const team of Array.isArray(teams)?teams:[]){
+      if(!team||typeof team.team!=='string'||!Array.isArray(team.characters))continue;
+      const roster=[...new Set(team.characters)].sort();
+      const key=JSON.stringify([eventNameKey(team.team).trim(),roster]);
+      if(!uniqueTeams.has(key))uniqueTeams.set(key,team);
+    }
+    state.teams=[...uniqueTeams.values()];
     state.characters=Array.isArray(characters)?characters.filter(character=>
       character&&typeof character.id==='string'):[];
     state.characterAliases=characterAliases(state.characters);

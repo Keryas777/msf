@@ -4,10 +4,10 @@
 html{scroll-behavior:smooth}
 body.ev-body{margin:0;min-height:100vh;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow-x:hidden}
 .ev-page{width:100%;max-width:800px;margin:0 auto;padding:12px 12px calc(28px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
-.ev-header{min-height:90px;padding:17px 56px;align-items:center;box-shadow:var(--shadow)}
-.ev-header .headerLeft{min-width:0}
-.ev-header .title{font-size:clamp(22px,5vw,28px)}
-.ev-header .subtitle{margin-top:7px;font-size:14px;line-height:1.35}
+.ev-header{min-height:0;padding:0;display:block;background:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;border-radius:0}
+.ev-header-banner{margin:0;width:100%;min-width:0}
+.ev-header-banner img{display:block;width:100%;height:auto}
+.ev-header .homeBtn{top:8px;right:8px}
 .ev-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
 .ev-stat{min-width:0;padding:13px 11px 12px;border:1px solid var(--border);border-radius:16px;background:var(--panel);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:7px;text-decoration:none;font:inherit;color:inherit;text-align:left;cursor:pointer;appearance:none;-webkit-tap-highlight-color:transparent}
 .ev-stat[aria-selected="true"]{border-color:rgba(255,255,255,.34);background:rgba(42,46,54,.9)}
@@ -76,6 +76,9 @@ body.ev-body{margin:0;min-height:100vh;color:var(--text);font-family:system-ui,-
 .ev-dialog-data strong{color:#f4f7fe;font-size:13px;line-height:1.4}
 .ev-dialog-section h3{font-size:14px;letter-spacing:-.01em;color:var(--text);margin:0 0 8px}
 .ev-dialog-section p{font-size:13px;line-height:1.7;color:var(--muted);margin:0}
+.ev-presentation{display:flex;flex-direction:column;gap:10px;overflow-wrap:anywhere}
+.ev-presentation h3{margin:0}
+.ev-presentation .ev-presentation-list{font-size:13px;line-height:1.7;gap:6px;padding-left:20px}
 .ev-detail-list{margin:0;padding-left:17px;display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--muted);line-height:1.5}
 .ev-detail-list strong{color:#fff}
 .ev-detail-sublist{border:1px solid var(--border);background:var(--panel2);border-radius:12px;padding:11px 12px}
@@ -84,7 +87,7 @@ body.ev-body{margin:0;min-height:100vh;color:var(--text);font-family:system-ui,-
 
 /* Objectifs exploitables : liste compacte, groupée par mode de jeu. */
 .ev-objectives{display:flex;flex-direction:column;gap:17px;min-width:0}
-.ev-objectives-note{font-size:15px;line-height:1.55;color:var(--muted);margin:0 2px}
+.ev-objectives-note{font-size:15px;line-height:1.55;color:var(--muted);margin:0 2px;white-space:pre-line}
 .ev-objective-mode{display:flex;flex-direction:column;gap:8px;min-width:0}
 .ev-objective-heading{display:flex;align-items:center;gap:8px;margin:0 2px;color:var(--text);font-size:20px;font-weight:850;letter-spacing:.04em}
 .ev-objective-count{margin-left:auto;border:1px solid var(--border);border-radius:12px;padding:5px 9px;color:var(--muted);background:var(--toggle-on-bg);font-size:14px;font-variant-numeric:tabular-nums}
@@ -108,6 +111,9 @@ body.ev-body{margin:0;min-height:100vh;color:var(--text);font-family:system-ui,-
 .ev-objective-team .ev-objective-subhead{margin:5px 3px 0}
 /* Hiérarchie compacte des objectifs : mode > événement > équipe > personnage. */
 .ev-objective-events{display:flex;flex-direction:column;gap:9px;min-width:0}
+.ev-objective-upgrade-group{display:flex;flex-direction:column;gap:9px;min-width:0}
+.ev-objective-upgrade-heading{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;font-size:17px;line-height:1.4;color:var(--text);margin:10px 0 2px;overflow-wrap:anywhere}
+.ev-objective-upgrade-heading strong{font-size:inherit;color:inherit}
 .ev-objective-event-group{border:1px solid var(--border);border-radius:15px;background:var(--panel);overflow:hidden;min-width:0}
 .ev-objective-event-summary,.ev-objective-team-summary,.ev-objective-character-summary{
   display:flex;align-items:center;flex-wrap:wrap;gap:6px 9px;cursor:pointer;list-style:none;min-width:0}
@@ -128,11 +134,13 @@ details[open]>.ev-objective-character-summary::after{transform:rotate(180deg)}
 .ev-objective-source-head{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;min-width:0}
 .ev-objective-source .ev-objective-footer{margin-top:0}
 .ev-objective-team{border:1px solid var(--border);border-radius:12px;background:var(--panel2);min-width:0}
-.ev-objective-team-summary{padding:12px;gap:7px 10px;min-width:0}
-.ev-objective-team-summary strong{font-size:16px;color:var(--text)}
+.ev-objective-team-summary{display:grid;grid-template-columns:minmax(0,1fr) auto;padding:12px;gap:7px 10px;min-width:0}
+.ev-objective-team-summary strong{font-size:16px;color:var(--text);grid-column:1;grid-row:1;min-width:0;overflow-wrap:anywhere}
+.ev-objective-team-summary>.ev-objective-mini-count{grid-column:1 / -1;grid-row:2}
+.ev-objective-team-summary::after{grid-column:2;grid-row:1;justify-self:end}
 .ev-objective-people{display:flex;flex-direction:column;gap:7px;min-width:0;padding:9px}
 /* Cinq portraits sur une ligne, toujours visibles dans l'en-tête replié. */
-.ev-objective-team-summary>.ev-objective-team-roster{display:flex;order:1;flex:0 0 100%;align-items:center;flex-wrap:nowrap;gap:6px;min-width:0;max-width:100%;margin-top:3px}
+.ev-objective-team-summary>.ev-objective-team-roster{display:flex;grid-column:1 / -1;grid-row:3;align-items:center;flex-wrap:nowrap;gap:6px;min-width:0;max-width:100%;margin-top:3px}
 .ev-objective-team-member{position:relative;display:flex;align-items:center;justify-content:center;flex:0 1 clamp(32px,10.5vw,44px);min-width:0;aspect-ratio:1;border:1px solid var(--border);border-radius:9px;background:rgba(0,0,0,.2);overflow:hidden}
 .ev-objective-team-member .ev-objective-portrait{position:absolute;inset:2px;width:calc(100% - 4px);height:calc(100% - 4px);object-fit:contain;border-radius:6px}
 .ev-objective-team-member-fallback{font-size:13px;font-weight:800;color:var(--muted)}
@@ -156,5 +164,5 @@ details[open]>.ev-objective-character-summary::after{transform:rotate(180deg)}
 .ev-section--objectives .ev-empty p{font-size:14px}
 @media(min-width:610px){.ev-objective-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.ev-objective-item{padding:14px}}
 @media(min-width:610px){.ev-page{padding-left:22px;padding-right:22px;gap:18px}.ev-overview{gap:13px}.ev-stat{padding:17px}.ev-stat strong{font-size:33px}.ev-stat span{font-size:12px}.ev-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ev-card{min-height:165px}.ev-cover{width:130px;flex-basis:130px;min-height:165px}.ev-card-copy{padding:14px}.ev-card h3{font-size:16px}}
-@media(max-width:365px){.ev-card{min-height:143px}.ev-cover{width:89px;flex-basis:89px;min-height:143px}.ev-card-copy{padding:10px}.ev-card h3{font-size:14px}.ev-sub{font-size:10px}.ev-header{padding-left:54px;padding-right:54px}.ev-stat strong{font-size:22px}}
+@media(max-width:365px){.ev-card{min-height:143px}.ev-cover{width:89px;flex-basis:89px;min-height:143px}.ev-card-copy{padding:10px}.ev-card h3{font-size:14px}.ev-sub{font-size:10px}.ev-stat strong{font-size:22px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.ev-card{transition:none}}
