@@ -29,7 +29,7 @@ Sur le lien de prévisualisation du commit, dans Safari iOS :
 
 1. Importer les cinq captures depuis Photos/Fichiers.
 2. Choisir « Numérique » et lancer d'abord la méthode proportionnelle sur les quatre champs.
-3. Réimporter les mêmes fichiers, choisir « Expérimentale — groupes de chiffres dans les pixels » et conserver la variante trophées « Reprise + corrections combinées » à 18 %.
+3. Garder les captures chargées, choisir « Expérimentale — groupes de chiffres dans les pixels » et relancer le laboratoire; conserver la variante trophées « Reprise + corrections combinées » à 18 %.
 4. Pour chaque champ, inspecter les contours jaune/cyan/vert/rouge et les trois découpes; classer la localisation avant de regarder la valeur OCR.
 5. Comparer les dix trophées, puis les dix scores. Consigner exactitude géométrique, champs partiellement coupés, champs manqués, valeurs OCR exactes malgré localisation correcte, valeurs rejetées et durées.
 6. Vérifier en particulier IMG_0052, IMG_2178 et la capture Kronos. Garder les images et leurs découpes sur l'appareil; ne pas les joindre au dépôt.
