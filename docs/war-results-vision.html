@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex,nofollow">
   <title>MSF War Results Vision</title>
   <link rel="stylesheet" href="./war-counter-lab.css?v=r7-entry-5">
-  <link rel="stylesheet" href="./war-results-vision.css?v=6-numeric-lab">
+  <link rel="stylesheet" href="./war-results-vision.css?v=6-numeric-geometry-lab">
 </head>
 <body>
   <main class="app-shell">
@@ -41,8 +41,10 @@
       <select id="labEngineSelect" class="lab-engine-select"><option value="identity">Identité</option><option value="numeric" selected>Numérique</option><option value="result">Résultat</option></select>
       <fieldset class="lab-fieldset"><legend>Champs à reconnaître</legend><div id="laboratoryFields" class="lab-field-options"></div></fieldset>
       <div id="labNumericOptions" class="lab-options">
+        <label for="labNumericLocatorSelect">Localisation initiale des quatre zones</label>
+        <select id="labNumericLocatorSelect" class="trophy-margin-select"><option value="proportional">Proportionnelle actuelle</option><option value="pixel-content">Expérimentale — groupes de chiffres dans les pixels</option></select>
         <label for="labTrophyLocatorSelect">Localisateur des trophées</label>
-        <select id="labTrophyLocatorSelect" class="trophy-margin-select"><option value="adaptive">Adaptatif</option><option value="vertical-recovery">Reprise verticale</option><option value="vertical-recovery-edge-safe">Reprise + marge de bord</option><option value="vertical-recovery-icon-aware">Reprise + exclusion de pictogramme</option><option value="vertical-recovery-combined">Reprise + corrections combinées</option></select>
+        <select id="labTrophyLocatorSelect" class="trophy-margin-select"><option value="adaptive">Adaptatif</option><option value="vertical-recovery">Reprise verticale</option><option value="vertical-recovery-edge-safe">Reprise + marge de bord</option><option value="vertical-recovery-icon-aware">Reprise + exclusion de pictogramme</option><option value="vertical-recovery-combined" selected>Reprise + corrections combinées (référence)</option></select>
         <label for="labTrophyMarginSelect">Marge des glyphes</label>
         <select id="labTrophyMarginSelect" class="trophy-margin-select"><option value="0">0 %</option><option value="18" selected>18 %</option><option value="30">30 %</option></select>
         <p class="muted">Le comparateur A/B conserve ses cinq variantes, ses mesures, sa sauvegarde et ses exports dans le panneau de diagnostic plus bas.</p>
@@ -84,13 +86,14 @@
   </main>
   <script src="./war-result-recognition-core.js?v=6-three-engines" defer></script>
   <script src="./war-results-digit-reader.js?v=0.3.0-icon-aware" defer></script>
+  <script src="./war-results-numeric-locator-experiment.js?v=0.1.0-experimental" defer></script>
   <script src="./war-results-trophy-locator-experiment.js?v=0.6.0-combined" defer></script>
   <script src="./war-results-locator-comparison-store.js?v=1.3.0" defer></script>
   <script src="./war-results-identity-engine.js?v=1.0.0" defer></script>
   <script src="./war-results-result-engine.js?v=1.0.0" defer></script>
-  <script src="./war-results-vision-engine.js?v=6.1-numeric-lab" defer></script>
+  <script src="./war-results-vision-engine.js?v=6.2-numeric-geometry-lab" defer></script>
   <script src="./war-results-vision-data.js?v=2-rich-name" defer></script>
-  <script src="./war-results-vision.js?v=4.5-numeric-lab" defer></script>
+  <script src="./war-results-vision.js?v=4.6-numeric-geometry-lab" defer></script>
 </body>
 </html>
 

@@ -127,6 +127,10 @@
 .lab-source-wrap{position:relative;width:100%;max-height:48vh;margin:8px 0;overflow:hidden;border:1px solid #34466a;border-radius:9px;background:#050914}
 .lab-source-wrap img,.lab-source-wrap svg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
 .lab-source-wrap rect{fill:rgba(255,181,71,.18);stroke:#ffb547;stroke-width:5;vector-effect:non-scaling-stroke}
+.lab-source-wrap .lab-rect-initial{fill:rgba(255,181,71,.10);stroke:#ffb547}
+.lab-source-wrap .lab-rect-corrected{fill:rgba(47,215,240,.10);stroke:#2fd7f0}
+.lab-source-wrap .lab-rect-final{fill:rgba(107,231,150,.10);stroke:#6be796}
+.lab-source-wrap .lab-rect-anchor{fill:rgba(255,91,91,.12);stroke:#ff5b5b;stroke-width:3}
 .lab-crop-grid{display:grid;grid-template-columns:1fr;gap:8px;margin:8px 0}
 .lab-crop-grid figure{min-width:0;margin:0;padding:6px;border:1px solid #283958;border-radius:8px;background:#050914}
 .lab-crop-grid img{display:block;width:100%;height:115px;object-fit:contain}
