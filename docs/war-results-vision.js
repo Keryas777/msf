@@ -12,6 +12,7 @@
   const labStatus = $("#labStatus"), labProgress = $("#labProgress"), runLabButton = $("#runRecognitionLabButton");
   const LABORATORY_KEY = "msf-war-results-laboratory-v1";
   const TROPHY_VARIANTS = ["adaptive", "vertical-recovery", "vertical-recovery-edge-safe", "vertical-recovery-icon-aware", "vertical-recovery-combined"];
+  const numericLocatorSelect = $("#labNumericLocatorSelect");
   const LAB_FIELDS = { identity: ["localAlliance", "opponentAlliance"], numeric: ["localScore", "opponentScore", "localTrophies", "opponentTrophies"], result: ["result"] };
   const LAB_ENGINE_LABELS = { identity: "Identité", numeric: "Numérique", result: "Résultat" };
   const copyLocatorComparisonButton = $("#copyLocatorComparisonButton");
@@ -129,8 +130,10 @@
   }
 
   function labVariant(engine, field) {
-    if (engine !== "numeric" || !field.endsWith("Trophies")) return engine === "numeric" ? "score-proportional" : "default";
-    return TROPHY_VARIANTS.includes($("#labTrophyLocatorSelect").value) ? $("#labTrophyLocatorSelect").value : "adaptive";
+    if (engine !== "numeric") return "default";
+    const locator = numericLocatorSelect?.value === "pixel-content" ? "pixel-content:" : "";
+    if (!field.endsWith("Trophies")) return locator ? "pixel-content" : "score-proportional";
+    return `${locator}${TROPHY_VARIANTS.includes($("#labTrophyLocatorSelect").value) ? $("#labTrophyLocatorSelect").value : "adaptive"}`;
   }
 
   function labMargin(engine, field) {
@@ -157,6 +160,7 @@
     analyzing = true; labProgress.hidden = false; labProgress.value = 0; labEngineSelect.disabled = true;
     labFields.querySelectorAll("input,button").forEach((control) => { control.disabled = true; });
     $("#labTrophyLocatorSelect").disabled = true; $("#labTrophyMarginSelect").disabled = true;
+    numericLocatorSelect.disabled = true;
     render();
     const desired = pending.flatMap((record) => fields.map((field) => laboratoryRecordKey(engine, field, record)));
     const completed = new Set(laboratorySummary.filter((entry) => !entry.diagnostic?.error).map(WarResultsLocatorComparisonStore.laboratoryRecordKey));
@@ -175,7 +179,7 @@
             result = await WarResultsVisionEngine.analyzeNumericFields(record.file, missing, (message) => {
               if (message.status) labStatus.textContent = `${record.fileName} — ${message.status}`;
               if (Number.isFinite(message.progress)) labProgress.value = Math.max(labProgress.value, Math.round((done + message.progress) / total * 100));
-            }, { variantId, marginPercent });
+            }, { variantId, marginPercent, geometryMode: numericLocatorSelect.value });
           } catch (error) { engineError = errorMessage(error); }
           for (const field of missing) {
             const diagnostic = result?.fields?.[field] || { field, ...(engineError ? { error: engineError, uncertain: true, uncertainty: "execution" } : { warning: "zone-not-located", uncertainty: "localisation" }) };
@@ -217,6 +221,7 @@
       analyzing = false; labProgress.hidden = true; labEngineSelect.disabled = false;
       labFields.querySelectorAll("input,button").forEach((control) => { control.disabled = false; });
       $("#labTrophyLocatorSelect").disabled = false; $("#labTrophyMarginSelect").disabled = false;
+      numericLocatorSelect.disabled = false;
       render(); updateLaboratoryControls();
     }
   }
@@ -242,10 +247,13 @@
     labResults.innerHTML = laboratorySummary.map((entry) => {
       const key = WarResultsLocatorComparisonStore.laboratoryRecordKey(entry), live = liveLabDiagnostics.get(key);
       const d = live?.diagnostic || entry.diagnostic || {}, rect = d.rect || d.locator?.rect || d.locator?.selectedRect;
-      const original = live?.sourceUrl ? `<details><summary>Voir la zone dans la capture source</summary><div class="lab-source-wrap" style="aspect-ratio:${Number(live.dimensions?.width)||16}/${Number(live.dimensions?.height)||9}"><img src="${escapeAttr(live.sourceUrl)}" alt="Capture source ${escapeAttr(entry.file)}"><svg viewBox="0 0 ${Number(live.dimensions?.width)||1600} ${Number(live.dimensions?.height)||900}" preserveAspectRatio="none">${rect ? `<rect x="${Number(rect.x)}" y="${Number(rect.y)}" width="${Number(rect.width)}" height="${Number(rect.height)}"/>` : ""}</svg></div></details>` : "";
-      const crops = live && (d.originalPreview || d.sourcePreview || d.preview) ? `<div class="lab-crop-grid">${(d.originalPreview || d.sourcePreview) ? `<figure><a href="${escapeAttr(d.originalPreview || d.sourcePreview)}" target="_blank" rel="noopener"><img src="${escapeAttr(d.originalPreview || d.sourcePreview)}" alt="Zone d’origine ${escapeAttr(LABELS[entry.field])}"></a><figcaption>Zone d’origine · toucher pour agrandir</figcaption></figure>` : ""}${d.preview ? `<figure><a href="${escapeAttr(d.preview)}" target="_blank" rel="noopener"><img src="${escapeAttr(d.preview)}" alt="Découpe OCR prétraitée ${escapeAttr(LABELS[entry.field])}"></a><figcaption>Découpe envoyée à l’OCR · toucher pour agrandir</figcaption></figure>` : ""}</div>` : "";
-      const warnings = [...(Array.isArray(d.warnings) ? d.warnings : []), ...(d.locatorWarning ? [d.locatorWarning] : []), ...(d.error ? [d.error] : [])];
-      const details = { zone: rect || null, localisateur: d.locator || d.locatorMethod || null, prétraitement: d.preprocessing || null,
+      const box = (item, className) => item ? `<rect class="${className}" x="${Number(item.x)}" y="${Number(item.y)}" width="${Number(item.width)}" height="${Number(item.height)}"/>` : "";
+      const original = live?.sourceUrl ? `<details><summary>Inspecter les rectangles sur la capture</summary><p class="muted">Jaune : estimation actuelle · cyan : zone localisée/rectifiée · vert : découpe finale OCR · rouge : repères pixel détectés.</p><div class="lab-source-wrap" style="aspect-ratio:${Number(live.dimensions?.width)||16}/${Number(live.dimensions?.height)||9}"><img src="${escapeAttr(live.sourceUrl)}" alt="Capture source ${escapeAttr(entry.file)}"><svg viewBox="0 0 ${Number(live.dimensions?.width)||1600} ${Number(live.dimensions?.height)||900}" preserveAspectRatio="none">${box(d.initialRect,"lab-rect-initial")}${box(d.correctedRect,"lab-rect-corrected")}${box(rect,"lab-rect-final")}${(d.locator?.anchors || []).map((anchor)=>box(anchor,"lab-rect-anchor")).join("")}</svg></div></details>` : "";
+      const crops = live && (d.originalPreview || d.correctedPreview || d.preview) ? `<div class="lab-crop-grid">${d.originalPreview ? `<figure><a href="${escapeAttr(d.originalPreview)}" target="_blank" rel="noopener"><img src="${escapeAttr(d.originalPreview)}" alt="Zone estimée ${escapeAttr(LABELS[entry.field])}"></a><figcaption>Estimation actuelle · toucher pour agrandir</figcaption></figure>` : ""}${d.correctedPreview ? `<figure><a href="${escapeAttr(d.correctedPreview)}" target="_blank" rel="noopener"><img src="${escapeAttr(d.correctedPreview)}" alt="Zone rectifiée ${escapeAttr(LABELS[entry.field])}"></a><figcaption>Zone localisée avant raffinement · toucher pour agrandir</figcaption></figure>` : ""}${d.preview ? `<figure><a href="${escapeAttr(d.preview)}" target="_blank" rel="noopener"><img src="${escapeAttr(d.preview)}" alt="Découpe OCR prétraitée ${escapeAttr(LABELS[entry.field])}"></a><figcaption>Découpe finale envoyée à l’OCR · toucher pour agrandir</figcaption></figure>` : ""}</div>` : "";
+      const warnings = [...(Array.isArray(d.warnings) ? d.warnings : []), ...(d.warning ? [d.warning] : []), ...(d.locator?.reason ? [d.locator.reason] : []), ...(d.locatorWarning ? [d.locatorWarning] : []), ...(d.error ? [d.error] : [])];
+      const details = { zone_initiale: d.initialRect || null, repères: d.locator?.anchors || [], zone_corrigée: d.correctedRect || null,
+        découpe_finale_ocr: rect || null, méthode_localisation: d.locator?.method || d.locatorMethod || null,
+        localisateur: d.locator || d.locatorMethod || null, prétraitement: d.preprocessing || null,
         OCR_brut: d.raw ?? null, candidat: d.candidate ?? d.value ?? null, valeur_retenue: d.value ?? null, durée_ms: d.ms ?? null,
         confiance: d.confidence ?? null, incertitude: d.uncertainty || (d.uncertain ? "à vérifier" : null), avertissements: warnings.length ? warnings : d.warning || null,
         diagnostics_moteur: d.identityDiagnostics || d.resultDiagnostics || null };

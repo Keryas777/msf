@@ -4,9 +4,10 @@
   const CORE = window.WarResultRecognition;
   const TROPHY_LOCATOR = window.WarResultsTrophyLocatorExperiment;
   const DIGIT_READER = window.WarResultsDigitReader;
+  const NUMERIC_LOCATOR = window.WarResultsNumericLocatorExperiment;
   const IDENTITY_ENGINE = window.WarResultsIdentityEngine;
   const RESULT_ENGINE = window.WarResultsResultEngine;
-  const VERSION = "6.1-numeric-lab";
+  const VERSION = "6.2-numeric-geometry-lab";
   let workerPromise = null;
   let worker = null;
   let activeProgress = () => {};
@@ -497,7 +498,21 @@
     const calls = [], diagnostics = {};
     try {
       const localized = CORE.locateZones([], source.width, source.height);
-      const engine = await getWorker();
+      const geometryMode = options.geometryMode === "pixel-content" ? "pixel-content" : "proportional";
+      let geometry = null;
+      if (geometryMode === "pixel-content") {
+        if (!NUMERIC_LOCATOR) throw new Error("Le localisateur expérimental des pixels n’est pas chargé.");
+        const prepared = makeCanvas(source, 2500000), context = prepared.canvas.getContext("2d", { willReadFrequently: true });
+        try {
+          const imageData = context.getImageData(0, 0, prepared.canvas.width, prepared.canvas.height);
+          geometry = NUMERIC_LOCATOR.locate(imageData, selected);
+          const scaleX = source.width / prepared.canvas.width, scaleY = source.height / prepared.canvas.height;
+          const toSource = (rect) => rect && normalizeRect({ x: rect.x * scaleX, y: rect.y * scaleY, width: rect.width * scaleX, height: rect.height * scaleY }, source.width, source.height);
+          geometry.fields = Object.fromEntries(Object.entries(geometry.fields).map(([field, rect]) => [field, toSource(rect)]));
+          geometry.anchors = Object.fromEntries(Object.entries(geometry.anchors).map(([field, anchors]) => [field, (anchors || []).map((anchor) => toSource(anchor))]));
+          geometry.analysisDimensions = { width: prepared.canvas.width, height: prepared.canvas.height };
+        } finally { prepared.canvas.width = prepared.canvas.height = 1; }
+      }
       const marginPercent = [0, 18, 30].includes(Number(options.marginPercent)) ? Number(options.marginPercent) : 18;
       const variantId = String(options.variantId || "adaptive");
       const locatorOptions = { paddingByGlyphHeight: marginPercent / 100, minimumPaddingPixels: marginPercent === 0 ? 0 : 2,
@@ -513,10 +528,20 @@
         const fieldStarted = performance.now();
         onProgress({ status: `Moteur numérique — ${field} (${index + 1}/${selected.length})`, progress: .08 + index / selected.length * .85 });
         const initialRect = normalizeRect(localized.zones[field], source.width, source.height);
-        let rect = initialRect, locator = { method: localized.method, variantId: "proportional-layout-fallback", marginPercent: null, reason: null };
-        if (field.endsWith("Trophies") && initialRect && TROPHY_LOCATOR && DIGIT_READER) {
+        const correctedRect = geometryMode === "pixel-content" ? geometry?.fields?.[field] || null : initialRect;
+        let rect = correctedRect;
+        let locator = { method: geometryMode === "pixel-content" ? geometry?.method || "full-image-color-components" : localized.method,
+          variantId: geometryMode === "pixel-content" ? "pixel-content" : "proportional-layout-fallback", marginPercent: null,
+          initialRect, correctedRect, anchors: geometry?.anchors?.[field] || [], reason: geometryMode === "pixel-content" ? geometry?.reasons?.[field] || null : null };
+        if (geometryMode === "pixel-content" && !correctedRect) {
+          diagnostics[field] = { field, initialRect, correctedRect: null, rect: null, locator, raw: "", value: "", confidence: null,
+            ms: Math.round(performance.now() - fieldStarted), warning: `zone-not-located:${geometry?.reasons?.[field] || geometry?.reason || "no-reliable-pixel-run"}`,
+            uncertainty: "localisation", ocrSkipped: true };
+          continue;
+        }
+        if (field.endsWith("Trophies") && correctedRect && TROPHY_LOCATOR && DIGIT_READER) {
           const side = field === "localTrophies" ? "left" : "right";
-          const verticalRect = { x: 0, y: initialRect.y, width: 0, height: initialRect.height };
+          const verticalRect = { x: 0, y: correctedRect.y, width: 0, height: correctedRect.height };
           const verticalRecovery = variantId !== "adaptive";
           const band = TROPHY_LOCATOR.proportionalBand(source.width, source.height, verticalRect, side, locatorOptions);
           const located = verticalRecovery
@@ -524,20 +549,25 @@
             : band ? TROPHY_LOCATOR.locateBand(readBandImageData(band), band, source.width, source.height, DIGIT_READER, locatorOptions)
               : { rect: null, reason: "invalid-search-band" };
           if (!located.reason && located.rect) rect = normalizeRect(located.rect, source.width, source.height);
-          locator = { method: located.recovery?.method || (located.reason ? "proportional-layout-fallback" : "adaptive-components"), variantId,
-            marginPercent, initialRect, selectedRect: rect, reason: located.reason || located.segmented?.warnings?.join(",") || null,
+          locator = { ...locator, method: located.recovery?.method || (located.reason ? locator.method : "adaptive-components"), variantId,
+            marginPercent, initialRect, correctedRect, selectedRect: rect, reason: located.reason || locator.reason || located.segmented?.warnings?.join(",") || null,
             recovery: located.recovery || null, segmentation: located.segmented || null,
             edgeSafePadding: located.edgeSafePadding || null,
             iconRejection: located.iconRejection || located.segmented?.iconRejection || null };
         }
         if (!rect || rect.width < 2 || rect.height < 2) {
-          diagnostics[field] = { field, initialRect, rect: null, locator, raw: "", value: "", confidence: null, ms: Math.round(performance.now() - fieldStarted),
-            warning: "zone-not-located", uncertainty: "localisation" };
+          diagnostics[field] = { field, initialRect, correctedRect, rect: null, locator, raw: "", value: "", confidence: null, ms: Math.round(performance.now() - fieldStarted),
+            warning: `zone-not-located:${locator.reason || "invalid-rectangle"}`, uncertainty: "localisation", ocrSkipped: true };
           continue;
         }
+        const engine = await getWorker();
         const original = crop(source, initialRect || rect, 1, false);
         const originalPreview = original?.toDataURL("image/jpeg", .86) || "";
         if (original) original.width = original.height = 1;
+        const corrected = correctedRect && (correctedRect.x !== initialRect?.x || correctedRect.y !== initialRect?.y || correctedRect.width !== initialRect?.width || correctedRect.height !== initialRect?.height)
+          ? crop(source, correctedRect, 1, false) : null;
+        const correctedPreview = corrected?.toDataURL("image/jpeg", .86) || "";
+        if (corrected) corrected.width = corrected.height = 1;
         const preprocessed = crop(source, rect, 3, true);
         if (!preprocessed) {
           diagnostics[field] = { field, initialRect, rect, locator, raw: "", value: "", confidence: null, ms: Math.round(performance.now() - fieldStarted),
@@ -560,7 +590,7 @@
         if (!valid) warnings.push(rawDigits ? "unexpected-digit-count" : "no-numeric-read");
         if ((output.result.data?.confidence ?? 0) < 60) warnings.push("low-ocr-confidence");
         const warning = warnings.join("; ") || null;
-        diagnostics[field] = { field, initialRect, rect, locator, originalPreview,
+        diagnostics[field] = { field, initialRect, correctedRect, rect, locator, originalPreview, correctedPreview,
           preview: preprocessed.toDataURL("image/jpeg", .86), raw, candidate, value: valid ? candidate : "",
           confidence: output.result.data?.confidence ?? null, ms: Math.round(performance.now() - fieldStarted), ocrMs: output.ms,
           preprocessing: { scale: 3, grayscale: true, contrast: 1.7, whitelist: "0123456789", psm: 7 },
@@ -570,7 +600,8 @@
       }
       return { engine: "numeric", fields: diagnostics, dimensions: { width: source.width, height: source.height },
         metrics: { engine: "Tesseract.js v5 local numeric-only laboratory", totalMs: Math.round(performance.now() - started), calls,
-          selectedFields: selected, anchors: "none", locator: localized.method, variantId, marginPercent } };
+          selectedFields: selected, anchors: geometryMode === "pixel-content" ? "colored glyph component boxes" : "none", locator: geometryMode === "pixel-content" ? geometry?.method : localized.method,
+          geometryMode, analysisDimensions: geometry?.analysisDimensions || null, variantId, marginPercent } };
     } finally { source.close?.(); }
   }
 
