@@ -28,8 +28,14 @@ function fixture(width = 1400, height = 1900, options = {}) {
   };
   const leftX = options.leftX ?? Math.round(width * .16), rightX = options.rightX ?? Math.round(width * .68);
   const trophyY = options.trophyY ?? Math.round(height * .28), scoreY = options.scoreY ?? Math.round(height * .69);
-  write("3014", leftX, trophyY, [220, 190, 175]);
-  if (!options.missingOpponentTrophy) write("2789", rightX, trophyY, [220, 190, 175]);
+  const trophyInk = [170, 170, 230];
+  const paintCup = (x, y) => {
+    paint(x + 1, y, trophyInk, 16, 18);
+  };
+  if (options.trophyIcons) { paintCup(leftX - 20, trophyY); paintCup(rightX - 20, trophyY); }
+  write("3014", leftX, trophyY, trophyInk);
+  if (!options.missingOpponentTrophy) write("2789", rightX, trophyY, trophyInk);
+  if (options.distractor) write("7227", leftX + 90, trophyY, trophyInk);
   write("411597", leftX, scoreY, [230, 200, 120]);
   write("257149", rightX, scoreY, [230, 200, 120]);
   return { width, height, data, expected: { leftX, rightX, trophyY, scoreY } };
@@ -63,4 +69,13 @@ assert.ok(partial.fields.localScore && partial.fields.opponentScore, "score loca
 const blank = locator.locate({ width: 1200, height: 800, data: new Uint8ClampedArray(1200 * 800 * 4) });
 assert.ok(blank.reason.startsWith("not-localized:"), "blank input reports an explicit safe failure");
 assert.ok(Object.values(blank.fields).every((rect) => rect === null), "blank input does not return proportional guesses");
+
+const iconEvidence = fixture(1400, 1900, { trophyIcons: true, distractor: true });
+const anchored = locator.locate(iconEvidence);
+for (const field of ["localTrophies", "opponentTrophies"]) {
+  assert.ok(anchored.fields[field], `${field}: icon-adjacent glyph sequence is selected`);
+  assert.ok(anchored.candidates[field].some((candidate) => candidate.selected && candidate.iconAnchor), `${field}: selected candidate records its trophy icon evidence`);
+}
+assert.ok(anchored.fields.localTrophies.x < iconEvidence.expected.leftX + 90, "a competing four-glyph run without a trophy icon does not displace the anchored value");
+assert.ok(anchored.candidates.localTrophies.some((candidate) => !candidate.selected), "candidate diagnostics retain alternatives");
 console.log("Experimental numeric pixel locator geometry: OK");

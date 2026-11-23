@@ -510,6 +510,9 @@
           const toSource = (rect) => rect && normalizeRect({ x: rect.x * scaleX, y: rect.y * scaleY, width: rect.width * scaleX, height: rect.height * scaleY }, source.width, source.height);
           geometry.fields = Object.fromEntries(Object.entries(geometry.fields).map(([field, rect]) => [field, toSource(rect)]));
           geometry.anchors = Object.fromEntries(Object.entries(geometry.anchors).map(([field, anchors]) => [field, (anchors || []).map((anchor) => toSource(anchor))]));
+          geometry.candidates = Object.fromEntries(Object.entries(geometry.candidates || {}).map(([field, candidates]) => [field, (candidates || []).map((candidate) => ({
+            ...candidate, rect: toSource(candidate.rect), iconAnchor: toSource(candidate.iconAnchor)
+          }))]));
           geometry.analysisDimensions = { width: prepared.canvas.width, height: prepared.canvas.height };
         } finally { prepared.canvas.width = prepared.canvas.height = 1; }
       }
@@ -532,7 +535,11 @@
         let rect = correctedRect;
         let locator = { method: geometryMode === "pixel-content" ? geometry?.method || "full-image-color-components" : localized.method,
           variantId: geometryMode === "pixel-content" ? "pixel-content" : "proportional-layout-fallback", marginPercent: null,
-          initialRect, correctedRect, anchors: geometry?.anchors?.[field] || [], reason: geometryMode === "pixel-content" ? geometry?.reasons?.[field] || null : null };
+          initialRect, correctedRect, anchors: geometry?.anchors?.[field] || [], candidates: geometry?.candidates?.[field] || [],
+          selectedCandidate: (geometry?.candidates?.[field] || []).find((candidate) => candidate.selected) || null,
+          coordinateTransform: geometry?.analysisDimensions ? { from: "image-data-pixels", to: "source-image-pixels",
+            scaleX: source.width / geometry.analysisDimensions.width, scaleY: source.height / geometry.analysisDimensions.height } : null,
+          reason: geometryMode === "pixel-content" ? geometry?.reasons?.[field] || null : null };
         if (geometryMode === "pixel-content" && !correctedRect) {
           diagnostics[field] = { field, initialRect, correctedRect: null, rect: null, locator, raw: "", value: "", confidence: null,
             ms: Math.round(performance.now() - fieldStarted), warning: `zone-not-located:${geometry?.reasons?.[field] || geometry?.reason || "no-reliable-pixel-run"}`,
@@ -540,6 +547,7 @@
           continue;
         }
         if (field.endsWith("Trophies") && correctedRect && TROPHY_LOCATOR && DIGIT_READER) {
+          let refinementAccepted = false;
           const side = field === "localTrophies" ? "left" : "right";
           const verticalRect = { x: 0, y: correctedRect.y, width: 0, height: correctedRect.height };
           const verticalRecovery = variantId !== "adaptive";
@@ -548,10 +556,21 @@
             ? TROPHY_LOCATOR.locateWithVerticalRecovery(readBandImageData, source.width, source.height, verticalRect, side, DIGIT_READER, locatorOptions)
             : band ? TROPHY_LOCATOR.locateBand(readBandImageData(band), band, source.width, source.height, DIGIT_READER, locatorOptions)
               : { rect: null, reason: "invalid-search-band" };
-          if (!located.reason && located.rect) rect = normalizeRect(located.rect, source.width, source.height);
+          if (!located.reason && located.rect) {
+            const refinedRect = normalizeRect(located.rect, source.width, source.height);
+            const centerDistanceX = refinedRect && Math.abs(refinedRect.x + refinedRect.width / 2 - (correctedRect.x + correctedRect.width / 2));
+            const centerDistanceY = refinedRect && Math.abs(refinedRect.y + refinedRect.height / 2 - (correctedRect.y + correctedRect.height / 2));
+            const staysWithCandidate = geometryMode !== "pixel-content" || (refinedRect &&
+              centerDistanceX <= Math.max(correctedRect.width * .75, correctedRect.height * 1.5) &&
+              centerDistanceY <= Math.max(correctedRect.height * 1.5, correctedRect.width * .35));
+            if (staysWithCandidate) rect = refinedRect;
+            else locator.reason = "refinement-rejected-outside-selected-candidate";
+            refinementAccepted = Boolean(staysWithCandidate);
+          }
           locator = { ...locator, method: located.recovery?.method || (located.reason ? locator.method : "adaptive-components"), variantId,
             marginPercent, initialRect, correctedRect, selectedRect: rect, reason: located.reason || locator.reason || located.segmented?.warnings?.join(",") || null,
             recovery: located.recovery || null, segmentation: located.segmented || null,
+            refinementAccepted,
             edgeSafePadding: located.edgeSafePadding || null,
             iconRejection: located.iconRejection || located.segmented?.iconRejection || null };
         }
