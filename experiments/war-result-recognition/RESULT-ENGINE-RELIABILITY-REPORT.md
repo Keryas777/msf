@@ -37,6 +37,7 @@ Cette micro-mesure synthétique n’est ni un benchmark des cinq captures ni une
 - `docs/war-results-result-engine.js` : contrat de confiance 0–100; rejet des données pixels incomplètes et des zones entièrement hors image; minimum de 16 pixels chromatiques pour décider; calcul des contradictions de sous-régions après leur analyse et motif explicite; OCR de secours à 74 %, donc toujours marqué à vérifier.
 - `experiments/war-result-recognition/tests/war-results-result-engine.test.cjs` : couverture synthétique de couleurs bleues/rouges, bruit, couleurs sombres, ambiguïté, trop peu de pixels, régions invalides/partiellement coupées, contradictions, déclenchement et qualité minimale du secours OCR, ainsi que les unités de confiance.
 - Tests ciblés complets : 32/32 réussis; syntaxe JavaScript et `git diff --check` réussis.
+- Le contrôle GitHub Actions `test` du commit `9d1d5803666dee7c4445913e9df3de6e0a337215` a échoué dans `tests/scoped-roster-pages.test.mjs:74`: le test attend `joueur.js?v=7`, alors que `main` contient `joueur.js?v=8`. Cette assertion échoue également sur la base inchangée; ni le fichier de page ni ce test ne figurent dans le diff de cette PR. Le log indique une assertion en échec dans ce workflow général.
 
 Les tests d’intégration existants confirment que le laboratoire conserve l’exécution indépendante, que le secours OCR n’est pas requis quand la couleur suffit, et que les actions de correction iOS restent routées. Aucun code d’interface, d’Identité, de Numérique, de résultat de guerre ou de correction manuelle n’a été modifié.
 
@@ -45,4 +46,4 @@ Les tests d’intégration existants confirment que le laboratoire conserve l’
 - Rejouer le moteur avant/après sur les cinq captures privées et comparer les cinq résultats attendus, les diagnostics et les durées.
 - Vérifier l’affichage et le temps de traitement sur iPhone Safari réel. Aucun appareil Safari n’a été utilisé pour ce changement.
 - Confirmer sur le corpus réel que le seuil de 16 pixels et les plages HSV restent adaptés aux captures compressées, assombries ou partielles. Les tests synthétiques ne certifient pas cette généralisation.
-- Contrôler les résultats des workflows CI de la PR après son ouverture.
+- Mettre à jour ou corriger cette assertion générale du dépôt dans un chantier séparé si souhaité; elle n’est pas liée au moteur Résultat.
