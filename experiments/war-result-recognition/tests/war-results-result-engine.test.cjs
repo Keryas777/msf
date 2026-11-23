@@ -24,6 +24,9 @@ assert.equal(resultEngine.analyzePixels(mixed).value, null, "mixed dominance is 
 assert.equal(resultEngine.analyzePixels(all(green)).value, null, "non-blue and non-red colors are not converted into a result");
 assert.equal(resultEngine.analyzePixels(pixels(Array.from({ length: 10000 }, (_, i) => i < 8 ? blue : white), 100, 100)).value, null,
   "a handful of isolated color pixels cannot decide a large title region");
+const sparseColor = resultEngine.analyzePixels(pixels(Array.from({ length: 10000 }, (_, i) => i < 20 ? blue : white), 100, 100));
+assert.equal(sparseColor.value, null, "sparse color evidence remains insufficient even above the absolute pixel minimum");
+assert.equal(sparseColor.reason, "color-evidence-too-sparse");
 assert.equal(resultEngine.analyzePixels(pixels([blue, [70, 145, 232, 255], [40, 125, 215, 255], red], 4, 1)).value, null,
   "a tiny region remains indeterminate despite strong color dominance");
 assert.equal(resultEngine.analyzePixels(pixels(Array.from({ length: 200 }, (_, i) => i < 170 ? [32, 82, 138, 255] : [45, 91, 150, 255]), 20, 10)).value, "win",

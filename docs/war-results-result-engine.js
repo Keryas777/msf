@@ -8,6 +8,7 @@
 
   const now = () => typeof performance !== "undefined" && performance.now ? performance.now() : Date.now();
   const MIN_COLOR_EVIDENCE_PIXELS = 16;
+  const MIN_COLOR_EVIDENCE_RATIO = 0.005;
 
   function hueOf(r, g, b) {
     const max = Math.max(r, g, b), min = Math.min(r, g, b), delta = max - min;
@@ -38,11 +39,16 @@
     const winner = blueRatio >= redRatio ? "win" : "loss";
     const dominance = Math.max(blueRatio, redRatio);
     const margin = Math.abs(blueRatio - redRatio);
-    const decisive = active >= MIN_COLOR_EVIDENCE_PIXELS && dominance >= 0.68 && margin >= 0.35;
-    const reason = active < MIN_COLOR_EVIDENCE_PIXELS ? "too-few-color-evidence-pixels" : decisive ? null : "mixed-or-weak-color-dominance";
+    const pixelCount = Math.floor(data.length / 4);
+    const activeRatio = pixelCount ? active / pixelCount : 0;
+    const minimumEvidence = Math.max(MIN_COLOR_EVIDENCE_PIXELS, Math.ceil(pixelCount * MIN_COLOR_EVIDENCE_RATIO));
+    const decisive = active >= minimumEvidence && dominance >= 0.68 && margin >= 0.35;
+    const reason = active < MIN_COLOR_EVIDENCE_PIXELS ? "too-few-color-evidence-pixels"
+      : activeRatio < MIN_COLOR_EVIDENCE_RATIO ? "color-evidence-too-sparse"
+        : decisive ? null : "mixed-or-weak-color-dominance";
     const confidence = decisive ? Math.round(Math.min(0.99, 0.62 + margin * 0.27 + Math.min(1, active / 80) * 0.1) * 1000) / 10 : 0;
     return { value: decisive ? winner : null, confidence,
-      blue, red, other, active, blueRatio: Number(blueRatio.toFixed(4)), redRatio: Number(redRatio.toFixed(4)), dominance: Number(dominance.toFixed(4)), margin: Number(margin.toFixed(4)), reason };
+      blue, red, other, active, activeRatio: Number(activeRatio.toFixed(4)), blueRatio: Number(blueRatio.toFixed(4)), redRatio: Number(redRatio.toFixed(4)), dominance: Number(dominance.toFixed(4)), margin: Number(margin.toFixed(4)), reason };
   }
 
   function normalizeRect(rect, width, height) {

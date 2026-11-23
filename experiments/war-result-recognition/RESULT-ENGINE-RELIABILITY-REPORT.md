@@ -27,15 +27,15 @@ Le seul comparatif exécutable ici est un échantillon synthétique de 100 × 10
 | Décision | `win` | `win` |
 | Confiance brute | `0.99` (fraction) | `99` (pourcentage) |
 | Valeur affichée par l’interface | `1 %` | `99 %` |
-| Médiane par appel dans cet environnement | 0,132 ms | 0,146 ms |
-| Étendue des médianes par série | 0,128–0,182 ms | 0,137–0,214 ms |
+| Médiane par appel dans cet environnement | 0,126 ms | 0,122 ms |
+| Étendue des médianes par série | 0,125–0,164 ms | 0,119–0,167 ms |
 
 Cette micro-mesure synthétique n’est ni un benchmark des cinq captures ni une mesure Safari iOS. L’écart de durée est de l’ordre du bruit de mesure et ne permet pas d’inférer les performances mobiles.
 
 ## Modifications et vérifications
 
-- `docs/war-results-result-engine.js` : contrat de confiance 0–100; rejet des données pixels incomplètes et des zones entièrement hors image; minimum de 16 pixels chromatiques pour décider; calcul des contradictions de sous-régions après leur analyse et motif explicite; OCR de secours à 74 %, donc toujours marqué à vérifier.
-- `experiments/war-result-recognition/tests/war-results-result-engine.test.cjs` : couverture synthétique de couleurs bleues/rouges, bruit, couleurs sombres, ambiguïté, trop peu de pixels, régions invalides/partiellement coupées, contradictions, déclenchement et qualité minimale du secours OCR, ainsi que les unités de confiance.
+- `docs/war-results-result-engine.js` : contrat de confiance 0–100; rejet des données pixels incomplètes et des zones entièrement hors image; preuves colorées minimales de 16 pixels et 0,5 % de la région; calcul des contradictions de sous-régions après leur analyse et motif explicite; OCR de secours à 74 %, donc toujours marqué à vérifier.
+- `experiments/war-result-recognition/tests/war-results-result-engine.test.cjs` : couverture synthétique de couleurs bleues/rouges, bruit, fond sombre, ambiguïté, pixels insuffisants ou trop clairsemés, régions invalides/partiellement coupées, contradictions, déclenchement et qualité minimale du secours OCR, ainsi que les unités de confiance.
 - Tests ciblés complets : 32/32 réussis; syntaxe JavaScript et `git diff --check` réussis.
 - Le contrôle GitHub Actions `test` du commit fonctionnel `f5f6fe1fae2a01f35dcb90230c7df09f8a60e67c` a échoué dans `tests/scoped-roster-pages.test.mjs:74`: 106 tests réussis, un échec. Le test attend `joueur.js?v=7`, alors que `main` contient `joueur.js?v=8`. Cette assertion échoue également localement contre la base inchangée; ni le fichier de page ni ce test ne figurent dans le diff de cette PR.
 
