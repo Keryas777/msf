@@ -131,6 +131,9 @@
 .lab-source-wrap .lab-rect-corrected{fill:rgba(47,215,240,.10);stroke:#2fd7f0}
 .lab-source-wrap .lab-rect-final{fill:rgba(107,231,150,.10);stroke:#6be796}
 .lab-source-wrap .lab-rect-anchor{fill:rgba(255,91,91,.12);stroke:#ff5b5b;stroke-width:3}
+.lab-source-wrap .lab-rect-candidate{fill:rgba(199,146,255,.04);stroke:#c792ff;stroke-width:2;stroke-dasharray:5 4}
+.lab-source-wrap .lab-rect-candidate-selected{fill:rgba(199,146,255,.08);stroke:#e2c4ff;stroke-width:3}
+.lab-source-wrap .lab-rect-icon-anchor{fill:rgba(255,225,112,.12);stroke:#ffe170;stroke-width:2;stroke-dasharray:3 3}
 .lab-crop-grid{display:grid;grid-template-columns:1fr;gap:8px;margin:8px 0}
 .lab-crop-grid figure{min-width:0;margin:0;padding:6px;border:1px solid #283958;border-radius:8px;background:#050914}
 .lab-crop-grid img{display:block;width:100%;height:115px;object-fit:contain}

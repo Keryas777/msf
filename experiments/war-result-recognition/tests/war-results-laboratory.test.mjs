@@ -81,7 +81,11 @@ test("experimental pixel geometry is isolated, recorded, and safely refuses miss
         WarResultRecognition: core,
         WarResultsNumericLocatorExperiment: { locate(_image, fields) {
           calls.push(`locate:${fields.join(",")}`);
-          return { method: "full-image-color-components", fields: locatorResult, anchors: { localScore: [{ x: 200, y: 300, width: 4, height: 12 }] }, reasons: { localScore: null } };
+          return { method: "full-image-color-components", fields: locatorResult,
+            anchors: { localScore: [{ x: 200, y: 300, width: 4, height: 12 }] },
+            candidates: { localScore: [{ rect: { x: 190, y: 290, width: 70, height: 22 }, selected: true,
+              score: 1.4, iconAnchor: { x: 170, y: 290, width: 16, height: 18 }, reason: "trophy-icon-adjacency-and-four-glyph-run" }] },
+            reasons: { localScore: null } };
         } },
         WarResultsTrophyLocatorExperiment: null,
         WarResultsDigitReader: null,
@@ -102,6 +106,8 @@ test("experimental pixel geometry is isolated, recorded, and safely refuses miss
   assert.equal(result.fields.localScore.initialRect.x, 90);
   assert.equal(result.fields.localScore.correctedRect.x, 190);
   assert.equal(result.fields.localScore.locator.anchors.length, 1);
+  assert.equal(result.fields.localScore.locator.candidates[0].rect.x, 190, "candidate rectangles stay in source-image coordinates");
+  assert.equal(result.fields.localScore.locator.selectedCandidate.reason, "trophy-icon-adjacency-and-four-glyph-run");
   assert.equal(result.fields.localScore.value, "123456");
 
   calls.length = 0;
@@ -110,6 +116,48 @@ test("experimental pixel geometry is isolated, recorded, and safely refuses miss
   assert.equal(missing.fields.localScore.ocrSkipped, true);
   assert.equal(missing.fields.localScore.value, "");
   assert.ok(!calls.includes("worker"), "failed pixel localization does not initialize OCR");
+});
+
+test("the selected trophy candidate is the rectangle passed into refinement and OCR", async () => {
+  let refinementBand = null;
+  let refinedX = 190;
+  const worker = { async setParameters() {}, async recognize() { return { data: { text: "2738", confidence: 28 } }; }, async terminate() {} };
+  const context = {
+    console, performance: { now: () => 100 },
+    createImageBitmap: async () => ({ width: 1000, height: 700, close() {} }),
+    document: { head: { appendChild() {} }, createElement(tag) {
+      if (tag === "canvas") return { width: 1, height: 1, getContext: () => ({ drawImage() {}, getImageData: () => ({ data: new Uint8ClampedArray(4) }), putImageData() {} }), toDataURL: () => "data:image/jpeg;base64,preview" };
+      return {};
+    } },
+    URL: { createObjectURL: () => "blob:test", revokeObjectURL() {} },
+    window: {
+      WarResultRecognition: { locateZones: () => ({ zones: { localTrophies: { x: 100, y: 80, width: 130, height: 34 } }, method: "proportional" }) },
+      WarResultsNumericLocatorExperiment: { locate: () => ({ method: "icon-anchored-glyph-run", fields: { localTrophies: { x: 190, y: 290, width: 70, height: 22 } },
+        anchors: { localTrophies: [{ x: 190, y: 290, width: 14, height: 18 }] },
+        candidates: { localTrophies: [{ rect: { x: 190, y: 290, width: 70, height: 22 }, score: 1.5, selected: true, reason: "icon" }] }, reasons: { localTrophies: null } }) },
+      WarResultsTrophyLocatorExperiment: {
+        proportionalBand(_width, _height, rect) { refinementBand = rect; return { x: 80, y: rect.y, width: 300, height: rect.height }; },
+        locateWithVerticalRecovery(_read, _width, _height, rect) { refinementBand = rect; return { rect: { x: refinedX, y: rect.y, width: 70, height: 22 }, reason: null, recovery: null }; }
+      },
+      WarResultsDigitReader: {}, WarResultsIdentityEngine: { analyzeRegion() { throw new Error("identity engine called"); } },
+      WarResultsResultEngine: { analyze() { throw new Error("result engine called"); } },
+      Tesseract: { async createWorker() { return worker; } }
+    }
+  };
+  context.globalThis = context; vm.runInNewContext(engineSource, context);
+  const result = await context.window.WarResultsVisionEngine.analyzeNumericFields({ size: 1 }, ["localTrophies"], () => {}, { geometryMode: "pixel-content", variantId: "adaptive-vertical-recovery-combined", marginPercent: 18 });
+  const diagnostic = result.fields.localTrophies;
+  assert.equal(refinementBand.y, diagnostic.correctedRect.y);
+  assert.equal(diagnostic.locator.selectedRect.x, diagnostic.correctedRect.x);
+  assert.equal(diagnostic.locator.refinementAccepted, true);
+  assert.equal(diagnostic.rect.x, diagnostic.correctedRect.x);
+  assert.equal(diagnostic.value, "2738");
+
+  refinedX = 700;
+  const rejectedJump = await context.window.WarResultsVisionEngine.analyzeNumericFields({ size: 1 }, ["localTrophies"], () => {}, { geometryMode: "pixel-content", variantId: "adaptive-vertical-recovery-combined", marginPercent: 18 });
+  assert.equal(rejectedJump.fields.localTrophies.rect.x, 190, "a remote refinement cannot replace the selected numeric candidate");
+  assert.equal(rejectedJump.fields.localTrophies.locator.refinementAccepted, false);
+  assert.equal(rejectedJump.fields.localTrophies.locator.reason, "refinement-rejected-outside-selected-candidate");
 });
 
 test("A/B comparator keeps five variants and can restrict trophy fields", () => {
