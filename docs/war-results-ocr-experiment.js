@@ -18,6 +18,24 @@
     { id: "psm13", label: "Image de référence · PSM 13", group: "segmentation", psm: 13, prep: "reference", parameters: { scale: 3, smoothing: "high", grayscale: true, contrast: 1.7 } },
     { id: "glyphs", label: "Tesseract chiffre par chiffre · PSM 10", group: "glyph", psm: 10, prep: "glyphs", parameters: { glyphPadding: .18, scalePerGlyph: 4, grayscaleContrast: 1.7 } }
   ]);
+  const PSM_MODES = Object.freeze([7, 8, 13]);
+  const PREPROCESSING_MODES = Object.freeze([
+    { id: "reference", label: "Référence sans correction supplémentaire" },
+    { id: "grayscale", label: "Niveaux de gris" },
+    { id: "otsu", label: "Seuillage global Otsu" },
+    { id: "adaptive", label: "Seuillage local adaptatif" },
+    { id: "tight-crop", label: "Marge horizontale réduite" },
+    { id: "thin-strokes", label: "Amincissement morphologique" }
+  ]);
+  function buildCombinations(psms, preprocessings) {
+    const validPsms = [...new Set((psms || []).map(Number).filter((value) => PSM_MODES.includes(value)))];
+    const validPreps = [...new Set((preprocessings || []).filter((value) => PREPROCESSING_MODES.some((mode) => mode.id === value)))];
+    return validPreps.flatMap((prep) => validPsms.map((psm) => ({
+      id: `combo:${prep}:psm${psm}`,
+      label: `PSM ${psm} · ${PREPROCESSING_MODES.find((mode) => mode.id === prep).label}`,
+      group: prep === "reference" ? "baseline" : "preprocess", psm, prep, parameters: {}
+    })));
+  }
   const MAX_EDGE = 4096;
 
   function makeCanvas(width, height) {
@@ -201,7 +219,7 @@
 
   async function compare(sourceCrop, referenceCrop, worker, digitReader, onProgress = () => {}, requestedIds = null) {
     if (!sourceCrop || !referenceCrop || !worker) throw new Error("Découpe fixe ou Worker OCR indisponible.");
-    const chosen = STRATEGIES.filter((item) => !Array.isArray(requestedIds) || requestedIds.includes(item.id));
+    const chosen = Array.isArray(requestedIds) ? [...requestedIds.filter((item) => item && typeof item === "object" && Number.isFinite(item.psm) && typeof item.prep === "string"), ...STRATEGIES.filter((item) => requestedIds.includes(item.id))] : STRATEGIES;
     if (!chosen.some((item) => item.id === "reference")) chosen.unshift(STRATEGIES[0]);
     const started = performance.now(), results = [];
     try {
@@ -227,5 +245,5 @@
     } finally { /* Caller owns and releases the two frozen source crops. */ }
   }
 
-  return { version: "0.1.0-experimental", strategies: STRATEGIES, prepCanvas, normalizedRead, consensus, compare };
+  return { version: "0.2.0-experimental", strategies: STRATEGIES, psmModes: PSM_MODES, preprocessingModes: PREPROCESSING_MODES, buildCombinations, prepCanvas, normalizedRead, consensus, compare };
 });
