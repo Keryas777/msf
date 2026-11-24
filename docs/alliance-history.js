@@ -328,11 +328,17 @@
             stroke:color,class:'historyPlotLine'}));
         segment=[];
       };
+      let previous=null;
       for(const [i,p] of s.points.entries()){
         if(p.value===null){flush();continue;}
-        // Adjacent completed seasons must be connected to show
-        // how each alliance's ranking evolves between seasons.
-        segment.push({x:xAt(i),y:y(p.value)});
+        const current={x:xAt(i),y:y(p.value)};
+        if(previous&&i>previous.i+1){
+          refs.plot.append(svg('polyline',{
+            points:previous.point.x+','+previous.point.y+' '+current.x+','+current.y,
+            stroke:color,class:'historyPlotLine','stroke-dasharray':'6 6'}));
+        }
+        segment.push(current);
+        previous={i,point:current};
       }
       flush();
       for(const [i,p] of s.points.entries()){
