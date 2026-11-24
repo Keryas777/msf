@@ -36,6 +36,63 @@
       group: prep === "reference" ? "baseline" : "preprocess", psm, prep, parameters: {}
     })));
   }
+
+  function morphologyFeatures(bitmap, width = 20, height = 24) {
+    const ink = (x,y) => bitmap[y*width+x] ? 1 : 0;
+    const seen = new Uint8Array(width*height), holes=[];
+    for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+      const at=y*width+x;if(ink(x,y)||seen[at])continue;
+      const queue=[at];seen[at]=1;let area=0,sumY=0,touches=false;
+      for(let q=0;q<queue.length;q++){
+        const n=queue[q],nx=n%width,ny=(n-nx)/width;area++;sumY+=ny;
+        if(nx===0||ny===0||nx===width-1||ny===height-1)touches=true;
+        for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+          const xx=nx+dx,yy=ny+dy;if(xx<0||xx>=width||yy<0||yy>=height)continue;
+          const next=yy*width+xx;if(!ink(xx,yy)&&!seen[next]){seen[next]=1;queue.push(next);}
+        }
+      }
+      if(!touches&&area>=2)holes.push({area,centroidY:Number((sumY/area).toFixed(3))});
+    }
+    const rowProjection=Array.from({length:height},(_,y)=>{let n=0;for(let x=0;x<width;x++)n+=ink(x,y);return Number((n/width).toFixed(3));});
+    const columnProjection=Array.from({length:width},(_,x)=>{let n=0;for(let y=0;y<height;y++)n+=ink(x,y);return Number((n/height).toFixed(3));});
+    const inkCount=bitmap.reduce((n,v)=>n+(v?1:0),0);
+    const lowerInk=bitmap.reduce((n,v,i)=>n+(v&&Math.floor(i/width)>=Math.floor(height*.62)?1:0),0);
+    const upperHole=holes.some(h=>h.centroidY<height*.56);
+    const lowerTail=lowerInk/Math.max(1,inkCount);
+    const topBar=Math.max(...rowProjection.slice(1,Math.floor(height*.3)));
+    const midBar=Math.max(...rowProjection.slice(Math.floor(height*.38),Math.floor(height*.62)));
+    const bottomRight=bitmap.reduce((n,v,i)=>{const x=i%width,y=Math.floor(i/width);return n+(v&&x>=width*.52&&y>=height*.58?1:0);},0)/Math.max(1,inkCount);
+    const hypotheses=[
+      {digit:"9",score:holes.length===1&&upperHole&&lowerTail>.16?Math.min(.99,.7+lowerTail*.8):0},
+      {digit:"8",score:holes.length>=2?Math.min(.99,.84+Math.min(.15,(holes.length-2)*.08)):0},
+      {digit:"5",score:holes.length===0&&topBar>.28&&midBar>.25&&bottomRight>.08?Math.min(.94,.58+topBar*.2+midBar*.2+bottomRight*.2):0}
+    ].sort((a,b)=>b.score-a.score);
+    const margin=hypotheses[0].score-hypotheses[1].score;
+    return {holeCount:holes.length,holes,lowerInkRatio:Number(lowerTail.toFixed(3)),upperHole,topBar:Number(topBar.toFixed(3)),midBar:Number(midBar.toFixed(3)),bottomRightInkRatio:Number(bottomRight.toFixed(3)),rowProjection,columnProjection,
+      hypotheses:hypotheses.map(x=>({...x,score:Number(x.score.toFixed(3))})),confidence:Number(hypotheses[0].score.toFixed(3)),margin:Number(margin.toFixed(3)),
+      classification:hypotheses[0].score>=.78&&margin>=.3?hypotheses[0].digit:null};
+  }
+
+  async function readPsm8Morphology(sourceCrop, referenceCrop, worker, digitReader) {
+    const initial=await read(worker,referenceCrop,{id:"psm8-morphology",label:"PSM 8 + vérification morphologique 8/9/5",psm:8,prep:"reference",parameters:{candidateDigits:[8,9,5],loopTopology:true,rowAndColumnProjections:true}});
+    if(!digitReader||typeof digitReader.segment!=="function")return {...initial,morphology:null,proposedCorrection:null,warnings:[...initial.warnings,"morphology-segmenter-unavailable"]};
+    const imageData=sourceCrop.getContext("2d",{willReadFrequently:true}).getImageData(0,0,sourceCrop.width,sourceCrop.height);
+    const counts=[initial.digitCount,4,3,5,6].filter((n,i,a)=>Number.isInteger(n)&&n>=3&&n<=6&&a.indexOf(n)===i);
+    const alternatives=counts.map(count=>{const s=digitReader.segment(imageData,"trophy",count);return {count,reason:s.reason||null,confidence:s.confidence??null,bounds:s.bounds||[],metrics:s.metrics||null,glyphs:s.glyphs||[]};});
+    const usable=alternatives.filter(x=>!x.reason&&x.glyphs.length===x.count).sort((a,b)=>(b.confidence||0)-(a.confidence||0));
+    const chosen=usable[0]||null;
+    const glyphs=(chosen?.glyphs||[]).map((g,index)=>({index:index+1,bounds:g.rect,area:g.area,features:morphologyFeatures(g.bitmap)}));
+    let proposedCorrection=null;
+    if(initial.digitCount===4&&chosen?.count===4&&initial.digits.length===4){
+      const corrected=[...initial.digits];const evidence=[];
+      glyphs.forEach((g,i)=>{const current=initial.digits[i],candidate=g.features.classification;
+        if(candidate==="9"&&["8","5"].includes(current)){corrected[i]="9";evidence.push({position:i+1,from:current,to:"9",features:g.features});}});
+      if(evidence.length&&corrected.join("")!==initial.digits)proposedCorrection={from:initial.digits,to:corrected.join(""),evidence,automatic:false,
+        rationale:"Proposition seulement : chaque 9 proposé a une boucle supérieure unique, une projection de pixels dans la partie basse et une marge de score morphologique forte. La lecture OCR initiale reste inchangée."};
+    }
+    return {...initial,value:initial.value,morphology:{ocrDigitCount:initial.digitCount,segmentationAlternatives:alternatives.map(({glyphs,...x})=>x),selectedCount:chosen?.count||null,glyphs},
+      proposedCorrection,warnings:[...initial.warnings,...(!chosen?["morphology-segmentation-uncertain"]:[])]};
+  }
   const MAX_EDGE = 4096;
 
   function makeCanvas(width, height) {
@@ -220,12 +277,12 @@
   async function compare(sourceCrop, referenceCrop, worker, digitReader, onProgress = () => {}, requestedIds = null) {
     if (!sourceCrop || !referenceCrop || !worker) throw new Error("Découpe fixe ou Worker OCR indisponible.");
     const chosen = Array.isArray(requestedIds) ? [...requestedIds.filter((item) => item && typeof item === "object" && Number.isFinite(item.psm) && typeof item.prep === "string"), ...STRATEGIES.filter((item) => requestedIds.includes(item.id))] : STRATEGIES;
-    if (!chosen.some((item) => item.id === "reference")) chosen.unshift(STRATEGIES[0]);
+    if (!chosen.length) chosen.push(STRATEGIES[0]);
     const started = performance.now(), results = [];
     try {
       for (const [index, strategy] of chosen.entries()) {
         onProgress({ strategy: strategy.id, index: index + 1, total: chosen.length });
-        if (strategy.id === "glyphs") {
+        if (strategy.id === "psm8-morphology") {\n          try { results.push(await readPsm8Morphology(sourceCrop, referenceCrop, worker, digitReader)); }\n          catch (error) { results.push(failedRead(strategy, error, Math.round(performance.now() - started))); }\n        } else if (strategy.id === "glyphs") {
           try { results.push(await readGlyphs(sourceCrop, worker, digitReader)); }
           catch (error) { results.push(failedRead(strategy, error, Math.round(performance.now() - started))); }
         } else {
@@ -245,5 +302,5 @@
     } finally { /* Caller owns and releases the two frozen source crops. */ }
   }
 
-  return { version: "0.2.0-experimental", strategies: STRATEGIES, psmModes: PSM_MODES, preprocessingModes: PREPROCESSING_MODES, buildCombinations, prepCanvas, normalizedRead, consensus, compare };
+  return { version: "0.3.0-experimental", strategies: STRATEGIES, psmModes: PSM_MODES, preprocessingModes: PREPROCESSING_MODES, buildCombinations, morphologyFeatures, prepCanvas, normalizedRead, consensus, compare };
 });
