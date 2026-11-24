@@ -18,7 +18,7 @@
     { id: "psm13", label: "Image de référence · PSM 13", group: "segmentation", psm: 13, prep: "reference", parameters: { scale: 3, smoothing: "high", grayscale: true, contrast: 1.7 } },
     { id: "glyphs", label: "Tesseract chiffre par chiffre · PSM 10", group: "glyph", psm: 10, prep: "glyphs", parameters: { glyphPadding: .18, scalePerGlyph: 4, grayscaleContrast: 1.7 } }
   ]);
-  const PSM_MODES = Object.freeze([7, 8, 13]);
+  const HYBRID_STRATEGY = Object.freeze({id:"psm8-morphology",label:"PSM 8 + vérification morphologique 8/9/5",group:"morphology",psm:8,prep:"reference",parameters:{candidateDigits:[8,9,5]}});\n  const PSM_MODES = Object.freeze([7, 8, 13]);
   const PREPROCESSING_MODES = Object.freeze([
     { id: "reference", label: "Référence sans correction supplémentaire" },
     { id: "grayscale", label: "Niveaux de gris" },
@@ -276,7 +276,7 @@
 
   async function compare(sourceCrop, referenceCrop, worker, digitReader, onProgress = () => {}, requestedIds = null) {
     if (!sourceCrop || !referenceCrop || !worker) throw new Error("Découpe fixe ou Worker OCR indisponible.");
-    const chosen = Array.isArray(requestedIds) ? [...requestedIds.filter((item) => item && typeof item === "object" && Number.isFinite(item.psm) && typeof item.prep === "string"), ...STRATEGIES.filter((item) => requestedIds.includes(item.id))] : STRATEGIES;
+    const chosen = Array.isArray(requestedIds) ? [...requestedIds.filter((item) => item && typeof item === "object" && Number.isFinite(item.psm) && typeof item.prep === "string"), ...STRATEGIES.filter((item) => requestedIds.includes(item.id)), ...(requestedIds.includes("psm8-morphology") ? [HYBRID_STRATEGY] : [])] : STRATEGIES;
     if (!chosen.length) chosen.push(STRATEGIES[0]);
     const started = performance.now(), results = [];
     try {
@@ -305,5 +305,5 @@
     } finally { /* Caller owns and releases the two frozen source crops. */ }
   }
 
-  return { version: "0.3.0-experimental", strategies: STRATEGIES, psmModes: PSM_MODES, preprocessingModes: PREPROCESSING_MODES, buildCombinations, morphologyFeatures, prepCanvas, normalizedRead, consensus, compare };
+  return { version: "0.3.0-experimental", strategies: STRATEGIES, hybridStrategy: HYBRID_STRATEGY, psmModes: PSM_MODES, preprocessingModes: PREPROCESSING_MODES, buildCombinations, morphologyFeatures, prepCanvas, normalizedRead, consensus, compare };
 });
