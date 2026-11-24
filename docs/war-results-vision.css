@@ -181,3 +181,5 @@
 .numeric-ocr-table th{background:#201935;color:#e5d6ff}
 @media(min-width:620px){.ocr-combination-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:980px){.ocr-combination-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+.morphology-diagnostic{padding:8px;border-left:3px solid #a887ff;background:#1e1733}
