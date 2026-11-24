@@ -171,6 +171,6 @@ test("hybrid strategy runs PSM 8 and keeps the OCR value unchanged while recordi
 test("JSON diagnostics retain combination ID, morphology evidence and proposal explanation", () => {
  const ui=fs.readFileSync(path.join(root,"docs/war-results-vision.js"),"utf8");
  const engine=fs.readFileSync(path.join(root,"docs/war-results-ocr-experiment.js"),"utf8");
- assert.match(ui,/proposedCorrection: item\\.proposedCorrection/);assert.match(ui,/morphology: item\\.morphology/);
+ assert.ok(ui.includes("proposedCorrection: item.proposedCorrection"));assert.ok(ui.includes("morphology: item.morphology"));
  assert.match(ui,/ocrMorphologyOption/);assert.match(engine,/automatic:false/);
 });
