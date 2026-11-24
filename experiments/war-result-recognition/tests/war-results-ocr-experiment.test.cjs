@@ -27,7 +27,7 @@ function loadExperiment() {
 
 test("OCR strategies retain the current reference and add isolated preprocess and PSM modes", () => {
   const { api } = loadExperiment();
-  assert.deepEqual(Array.from(api.strategies, (item) => item.id), ["reference", "grayscale", "otsu", "adaptive", "psm8", "psm13", "glyphs"]);
+  assert.deepEqual(Array.from(api.strategies, (item) => item.id), ["reference", "grayscale", "otsu", "adaptive", "tight-crop", "thin-strokes", "psm8", "psm13", "glyphs"]);
   assert.equal(api.strategies[0].psm, 7);
   assert.equal(api.strategies.find((item) => item.id === "psm8").psm, 8);
   assert.equal(api.strategies.find((item) => item.id === "psm13").psm, 13);
