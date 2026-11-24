@@ -134,8 +134,8 @@ test("recommended seven-read set focuses corrections on PSM 8 and 13", () => {
 });
 test("numeric lab UI exposes preset, count, independent combinations and exports", () => {
  const html=fs.readFileSync(path.join(root,"docs/war-results-vision.html"),"utf8");
- for(const id of ["ocrCombinationOptions","applyRecommendedOcrPreset","ocrCombinationCount","ocrGlyphOption","copyNumericOcrButton","exportNumericOcrButton"]) assert.match(html,new RegExp(id));
- assert.match(html,/war-results-ocr-experiment\.js\?v=0\.3\.0-experimental/);
+ for(const id of ["ocrCombinationOptions","applyRecommendedOcrPreset","ocrCombinationCount","ocrGlyphOption","ocrMorphologyOption","copyNumericOcrButton","exportNumericOcrButton"]) assert.match(html,new RegExp(id));
+ assert.match(html,/war-results-ocr-experiment\.js\?v=0\.4\.0-experimental/);
 });
 
 test("combined OCR results keep the existing session key, details and JSON export actions", () => {
@@ -151,4 +151,26 @@ test("all three lab engines and the OCR result controls live inside the unified 
  assert.ok(start>=0&&end>start);
  const lab=html.slice(start,end);
  for(const text of ["identity","numeric","result","Scores et trophées","Localisation et découpe","Reconnaissance OCR","Résultats détaillés, diagnostics et exports"]) assert.ok(lab.includes(text),text);
+});
+
+test("morphology features distinguish a two-loop 8 from a single-loop 9 without auto-correction", () => {
+ const {api}=loadExperiment();
+ const ring=(two)=>{const a=new Uint8Array(20*24);for(let y=2;y<22;y++)for(let x=3;x<17;x++){if(x===3||x===16||y===2||y===21)a[y*20+x]=1;if(two&&(y===11||y===12))a[y*20+x]=1;}return a;};
+ const f8=api.morphologyFeatures(ring(true)),f9=api.morphologyFeatures(ring(false));
+ assert.equal(f8.holeCount,2);assert.equal(f8.classification,"8");
+ assert.equal(f9.holeCount,1);assert.ok(f9.upperHole);assert.equal(f9.classification,"9");
+});
+test("hybrid strategy runs PSM 8 and keeps the OCR value unchanged while recording morphology", async () => {
+ const {api}=loadExperiment();
+ const image={width:40,height:20,getContext:()=>({getImageData:()=>({width:40,height:20,data:new Uint8ClampedArray(40*20*4)})})};
+ const worker={setParameters:async p=>assert.equal(p.tessedit_pageseg_mode,"8"),recognize:async()=>({data:{text:"2580",confidence:96}})};
+ const reader={segment:(_data,_category,count)=>count===4?{confidence:.9,bounds:[],glyphs:[0,1,2,3].map(()=>({rect:{x:0,y:0,width:5,height:8},area:20,bitmap:new Uint8Array(480)}))}:{reason:"ambiguous-component-run",bounds:[],glyphs:[]}};
+ const result=await api.compare(image,{width:40,height:20,toDataURL:()=>"data:image/jpeg;base64,ref"},worker,reader,()=>{},["psm8-morphology"]);
+ const hybrid=result.strategies[0];assert.equal(hybrid.value,"2580");assert.equal(hybrid.psm,8);assert.equal(hybrid.morphology.selectedCount,4);assert.equal(hybrid.proposedCorrection,null);
+});
+test("JSON diagnostics retain combination ID, morphology evidence and proposal explanation", () => {
+ const ui=fs.readFileSync(path.join(root,"docs/war-results-vision.js"),"utf8");
+ const engine=fs.readFileSync(path.join(root,"docs/war-results-ocr-experiment.js"),"utf8");
+ assert.ok(ui.includes("proposedCorrection: item.proposedCorrection"));assert.ok(ui.includes("morphology: item.morphology"));
+ assert.match(ui,/ocrMorphologyOption/);assert.match(engine,/automatic:false/);
 });
