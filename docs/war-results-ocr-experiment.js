@@ -12,6 +12,8 @@
     { id: "grayscale", label: "Niveaux de gris · PSM 7", group: "preprocess", psm: 7, prep: "grayscale", parameters: { scale: 3, smoothing: "high", grayscale: true, contrast: 1 } },
     { id: "otsu", label: "Seuillage global Otsu · PSM 7", group: "preprocess", psm: 7, prep: "otsu", parameters: { scale: 3, smoothing: "high", threshold: "Otsu histogram" } },
     { id: "adaptive", label: "Seuillage local · PSM 7", group: "preprocess", psm: 7, prep: "adaptive", parameters: { scale: 3, smoothing: "high", threshold: "local mean - 8", radius: 6 } },
+    { id: "tight-crop", label: "Marge horizontale réduite · PSM 7", group: "geometry", psm: 7, prep: "tight-crop", parameters: { horizontalInset: .06, scale: 3, grayscale: true, contrast: 1.7 } },
+    { id: "thin-strokes", label: "Amincissement morphologique · PSM 7", group: "preprocess", psm: 7, prep: "thin-strokes", parameters: { scale: 3, threshold: "Otsu", operation: "3×3 erosion" } },
     { id: "psm8", label: "Image de référence · PSM 8", group: "segmentation", psm: 8, prep: "reference", parameters: { scale: 3, smoothing: "high", grayscale: true, contrast: 1.7 } },
     { id: "psm13", label: "Image de référence · PSM 13", group: "segmentation", psm: 13, prep: "reference", parameters: { scale: 3, smoothing: "high", grayscale: true, contrast: 1.7 } },
     { id: "glyphs", label: "Tesseract chiffre par chiffre · PSM 10", group: "glyph", psm: 10, prep: "glyphs", parameters: { glyphPadding: .18, scalePerGlyph: 4, grayscaleContrast: 1.7 } }
@@ -93,7 +95,27 @@
       data[i] = data[i + 1] = data[i + 2] = Math.round(value);
     }
     context.putImageData(image, 0, 0);
+    if (mode === "thin-strokes") {
+      const { canvas: eroded, context: erodedContext } = makeCanvas(canvas.width, canvas.height);
+      const sourceData = context.getImageData(0, 0, canvas.width, canvas.height), output = erodedContext.createImageData(canvas.width, canvas.height);
+      for (let y = 1; y < canvas.height - 1; y++) for (let x = 1; x < canvas.width - 1; x++) {
+        const i = (y * canvas.width + x) * 4; let value = 255;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) value = Math.min(value, sourceData.data[((y + dy) * canvas.width + x + dx) * 4]);
+        output.data[i] = output.data[i + 1] = output.data[i + 2] = value; output.data[i + 3] = 255;
+      }
+      erodedContext.putImageData(output, 0, 0); canvas.width = canvas.height = 1; return eroded;
+    }
     return canvas;
+  }
+
+  function tightCropCanvas(source, inset = .06, scale = 3) {
+    const side = Math.max(1, Math.floor(source.width * inset));
+    const { canvas, context } = makeCanvas(Math.min(MAX_EDGE, (source.width - side * 2) * scale), Math.min(1024, source.height * scale));
+    context.imageSmoothingEnabled = true; context.imageSmoothingQuality = "high";
+    context.drawImage(source, side, 0, source.width - side * 2, source.height, 0, 0, canvas.width, canvas.height);
+    const image = context.getImageData(0, 0, canvas.width, canvas.height), data = image.data;
+    for (let i = 0; i < data.length; i += 4) { const v = Math.max(0, Math.min(255, Math.round((grayAt(data, i) - 127.5) * 1.7 + 127.5))); data[i] = data[i + 1] = data[i + 2] = v; }
+    context.putImageData(image, 0, 0); return canvas;
   }
 
   function normalizedRead(text) {
@@ -192,7 +214,7 @@
           const strategyStarted = performance.now();
           let image = null;
           try {
-            image = strategy.prep === "reference" ? referenceCrop : prepCanvas(sourceCrop, strategy.prep, 3);
+            image = strategy.prep === "reference" ? referenceCrop : strategy.prep === "tight-crop" ? tightCropCanvas(sourceCrop) : prepCanvas(sourceCrop, strategy.prep, 3);
             const result = await read(worker, image, strategy);
             results.push({ ...result, ocrMs: result.ms, ms: Math.round(performance.now() - strategyStarted), preview: image.toDataURL("image/jpeg", .78) });
           } catch (error) {
