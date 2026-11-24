@@ -168,3 +168,16 @@
 .lab-diagnostic-link{display:inline-flex;align-items:center;margin-top:3px}
 @media(min-width:560px){.lab-checkbox-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.lab-crop-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.lab-engine-select{max-width:420px}}
 
+
+/* Compact independent PSM/preprocessing controls and comparison table. */
+.ocr-combination-controls{display:grid;gap:10px;margin:12px 0}
+.ocr-control-heading{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.ocr-combination-grid{display:grid;grid-template-columns:1fr;gap:6px}
+.ocr-combination-grid label,.ocr-glyph-option{display:flex;align-items:center;gap:8px;min-height:42px;padding:7px 9px;border:1px solid #40365f;border-radius:9px;background:#111225;color:#e6def4}
+.ocr-combination-grid input,.ocr-glyph-option input{width:20px;height:20px;accent-color:#ad80ff;flex:0 0 auto}
+.numeric-ocr-table-wrap{overflow-x:auto;margin:12px 0}
+.numeric-ocr-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.numeric-ocr-table th,.numeric-ocr-table td{padding:8px;border:1px solid #40365f;text-align:left;white-space:nowrap}
+.numeric-ocr-table th{background:#201935;color:#e5d6ff}
+@media(min-width:620px){.ocr-combination-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:980px){.ocr-combination-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
