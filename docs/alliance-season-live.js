@@ -122,7 +122,7 @@
     for(const record of payload.results){
       const key=record?.allianceKey;
       if(!known.has(key)||!allowed(key)||!validDate(record.capturedAt)||
-         !validRank(record.warRank)||!validRank(record.raidRank))continue;
+         (!validRank(record.warRank)&&!validRank(record.raidRank)))continue;
       // Historical boundaries are immutable, even after calendar changes.
       const start=Date.parse(record.startAt),end=Date.parse(record.endExclusiveAt);
       if(!validDate(record.startAt)||!validDate(record.endExclusiveAt)||
@@ -134,20 +134,23 @@
       const season={seasonId:record.seasonId,startAt:record.startAt,
         endExclusiveAt:record.endExclusiveAt,
         timezone:calendar?.timezone||"Europe/Paris"};
-      const identity=season.seasonId+"\u0000"+key;
+      const community=record.source==="community-misskinder67";
+      const groupId=season.seasonId+(community?":community":"");
+      const identity=groupId+"\u0000"+key;
       if(seen.has(identity))continue;
       seen.add(identity);
-      if(!groups.has(season.seasonId))
-        groups.set(season.seasonId,{season,alliances:[],capturedAt:record.capturedAt});
-      const group=groups.get(season.seasonId);
+      if(!groups.has(groupId))
+        groups.set(groupId,{season,community,alliances:[],capturedAt:record.capturedAt});
+      const group=groups.get(groupId);
       if(record.capturedAt>group.capturedAt)group.capturedAt=record.capturedAt;
-      group.alliances.push({key,warRank:record.warRank,
-        raidRank:record.raidRank,warTrophies:null,capturedAt:record.capturedAt});
+      group.alliances.push({key,warRank:validRank(record.warRank)?record.warRank:null,
+        raidRank:validRank(record.raidRank)?record.raidRank:null,warTrophies:null,capturedAt:record.capturedAt});
     }
     return [...groups.values()].map(group=>({
       version:1,kind:"losp-alliance-standings-snapshot",
       capturedAt:group.capturedAt,captureType:"season-ranks",
       archiveSource:"github-guest-season-history",
+      ...(group.community?{communityHistory:true}:{}),
       seasonId:group.season.seasonId,seasonVerified:false,seasonDerived:true,
       rankingSeason:{startAt:group.season.startAt,
         endExclusiveAt:group.season.endExclusiveAt,
