@@ -135,7 +135,7 @@ test("recommended seven-read set focuses corrections on PSM 8 and 13", () => {
 test("numeric lab UI exposes preset, count, independent combinations and exports", () => {
  const html=fs.readFileSync(path.join(root,"docs/war-results-vision.html"),"utf8");
  for(const id of ["ocrCombinationOptions","applyRecommendedOcrPreset","ocrCombinationCount","ocrGlyphOption","ocrMorphologyOption","copyNumericOcrButton","exportNumericOcrButton"]) assert.match(html,new RegExp(id));
- assert.match(html,/war-results-ocr-experiment\.js\?v=0\.3\.0-experimental/);
+ assert.match(html,/war-results-ocr-experiment\.js\?v=0\.4\.0-experimental/);
 });
 
 test("combined OCR results keep the existing session key, details and JSON export actions", () => {
@@ -170,6 +170,7 @@ test("hybrid strategy runs PSM 8 and keeps the OCR value unchanged while recordi
 });
 test("JSON diagnostics retain combination ID, morphology evidence and proposal explanation", () => {
  const ui=fs.readFileSync(path.join(root,"docs/war-results-vision.js"),"utf8");
- assert.match(ui,/proposedCorrection: item\.proposedCorrection/);assert.match(ui,/morphology: item\.morphology/);
- assert.match(ui,/ocrMorphologyOption/);assert.match(ui,/automatic:false/);
+ const engine=fs.readFileSync(path.join(root,"docs/war-results-ocr-experiment.js"),"utf8");
+ assert.match(ui,/proposedCorrection: item\\.proposedCorrection/);assert.match(ui,/morphology: item\\.morphology/);
+ assert.match(ui,/ocrMorphologyOption/);assert.match(engine,/automatic:false/);
 });
