@@ -57,6 +57,10 @@
   $("#copyLabJsonButton").addEventListener("click", () => copyLaboratoryJson().catch(showGlobalError));
   $("#exportLabJsonButton").addEventListener("click", exportLaboratoryJson);
   $("#compareNumericOcrButton").addEventListener("click", () => compareNumericOcr().catch(showGlobalError));
+  initializeOcrCombinations();
+  $("#ocrCombinationOptions").addEventListener("change", updateOcrCombinationCount);
+  $("#ocrGlyphOption").addEventListener("change", updateOcrCombinationCount);
+  $("#applyRecommendedOcrPreset").addEventListener("click", applyRecommendedOcrPreset);
   $("#clearNumericOcrButton").addEventListener("click", clearNumericOcrResults);
   $("#copyNumericOcrButton").addEventListener("click", () => copyNumericOcrJson().catch(showGlobalError));
   $("#exportNumericOcrButton").addEventListener("click", exportNumericOcrJson);
@@ -305,10 +309,32 @@
       consensus: d.ocrComparison?.consensus || null, totalMs: d.ocrComparison?.totalMs ?? null, warning: d.warning || null };
   }
 
+  function initializeOcrCombinations() {
+    const psms=[7,8,13], preps=[["reference","Référence sans correction"],["grayscale","Niveaux de gris"],["otsu","Seuillage global Otsu"],["adaptive","Seuillage local adaptatif"],["tight-crop","Marge horizontale réduite"],["thin-strokes","Amincissement morphologique"]];
+    $("#ocrCombinationOptions").innerHTML=preps.flatMap(([prep,label])=>psms.map(psm=>{
+      const combo={id:`combo:${prep}:psm${psm}`,label:`PSM ${psm} · ${label}`,group:prep==="reference"?"baseline":"preprocess",psm,prep,parameters:{}};
+      return `<label><input type="checkbox" value="${escapeAttr(JSON.stringify(combo))}" ${prep==="reference"?"checked":""}> ${escapeHtml(combo.label)}</label>`;
+    })).join("");
+    updateOcrCombinationCount();
+  }
+  function updateOcrCombinationCount() {
+    const count=document.querySelectorAll("#ocrCombinationOptions input:checked").length+($("#ocrGlyphOption").checked?1:0);
+    $("#ocrCombinationCount").textContent=`${count} combinaison${count===1?"":"s"} sélectionnée${count===1?"":"s"}`;
+  }
+  function applyRecommendedOcrPreset() {
+    document.querySelectorAll("#ocrCombinationOptions input").forEach(input=>{
+      const c=JSON.parse(input.value);
+      input.checked=(c.psm===7&&c.prep==="reference")||(c.psm!==7&&["reference","tight-crop","thin-strokes"].includes(c.prep));
+    });
+    $("#ocrGlyphOption").checked=false;
+    updateOcrCombinationCount();
+  }
+
   async function compareNumericOcr() {
     if (analyzing) return;
     const batch = records.filter((record) => record.file);
-    const selected = [...document.querySelectorAll("#ocrStrategyOptions input:checked")].map((input) => input.value);
+    const selected = [...document.querySelectorAll("#ocrCombinationOptions input:checked")].map((input) => JSON.parse(input.value));
+    if ($("#ocrGlyphOption").checked) selected.push("glyphs");
     if (!batch.length) { $("#numericOcrStatus").textContent = "Charge une ou plusieurs captures dans le laboratoire."; return; }
     if (!selected.length) { $("#numericOcrStatus").textContent = "Sélectionne au moins une stratégie OCR."; return; }
     analyzing = true;
@@ -341,6 +367,9 @@
 
   function renderNumericOcrResults(statusText) {
     const target = $("#numericOcrResults");
+    const tableRows=numericOcrSummary.flatMap(entry=>(entry.diagnostic?.ocrComparison?.strategies||entry.compact?.variants||[]).map(item=>`<tr><td>${escapeHtml(entry.captureId||"Capture")} · ${escapeHtml(LABELS[entry.field]||entry.field)}</td><td>${escapeHtml(item.label||item.strategy)}</td><td>${escapeHtml(item.value||"—")}</td><td>${Number.isFinite(item.digitCount)?item.digitCount:"—"}</td><td>${Number.isFinite(item.confidence)?Math.round(item.confidence)+" %":"—"}</td><td>${Number.isFinite(item.ms)?item.ms+" ms":"—"}</td></tr>`));
+    $("#numericOcrTable").innerHTML=tableRows.length?`<div class="numeric-ocr-table-wrap"><table class="numeric-ocr-table"><thead><tr><th>Champ</th><th>Combinaison</th><th>Valeur</th><th>Chiffres</th><th>Confiance</th><th>Durée</th></tr></thead><tbody>${tableRows.join("")}</tbody></table></div>`:"";
+
     const rows = numericOcrSummary.map((entry) => {
       const d = entry.diagnostic || {}, data = entry.compact || compactNumericOcrEntry(entry);
       const strategies = d.ocrComparison?.strategies || data.variants || [];
