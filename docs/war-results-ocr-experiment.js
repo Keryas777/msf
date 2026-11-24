@@ -282,7 +282,10 @@
     try {
       for (const [index, strategy] of chosen.entries()) {
         onProgress({ strategy: strategy.id, index: index + 1, total: chosen.length });
-        if (strategy.id === "psm8-morphology") {\n          try { results.push(await readPsm8Morphology(sourceCrop, referenceCrop, worker, digitReader)); }\n          catch (error) { results.push(failedRead(strategy, error, Math.round(performance.now() - started))); }\n        } else if (strategy.id === "glyphs") {
+        if (strategy.id === "psm8-morphology") {
+          try { results.push(await readPsm8Morphology(sourceCrop, referenceCrop, worker, digitReader)); }
+          catch (error) { results.push(failedRead(strategy, error, Math.round(performance.now() - started))); }
+        } else if (strategy.id === "glyphs") {
           try { results.push(await readGlyphs(sourceCrop, worker, digitReader)); }
           catch (error) { results.push(failedRead(strategy, error, Math.round(performance.now() - started))); }
         } else {
