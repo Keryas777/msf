@@ -119,3 +119,36 @@ test("the OCR comparator remains numeric-lab-only and does not embed private exp
   assert.match(html, /Copier le rapport OCR JSON/);
   assert.doesNotMatch(`${engine}\n${ui}\n${html}`, /expectedTrophies|benchmarkExpected|privateBenchmarkValues/i);
 });
+
+test("combination builder crosses selected PSM and preprocessing modes without chaining", () => {
+ const {api}=loadExperiment(), combos=api.buildCombinations([8,13],["reference","tight-crop","thin-strokes"]);
+ assert.equal(combos.length,6);
+ assert.deepEqual(JSON.parse(JSON.stringify(combos.map(x=>[x.psm,x.prep]))),[[8,"reference"],[13,"reference"],[8,"tight-crop"],[13,"tight-crop"],[8,"thin-strokes"],[13,"thin-strokes"]]);
+ assert.ok(combos.every(x=>!x.prep.includes("+")));
+});
+test("recommended seven-read set focuses corrections on PSM 8 and 13", () => {
+ const {api}=loadExperiment();
+ const combos=[...api.buildCombinations([7],["reference"]),...api.buildCombinations([8,13],["tight-crop","thin-strokes"]),...api.buildCombinations([8,13],["reference"])];
+ assert.equal(combos.length,7);
+ assert.deepEqual(combos.map(x=>x.id),["combo:reference:psm7","combo:tight-crop:psm8","combo:tight-crop:psm13","combo:thin-strokes:psm8","combo:thin-strokes:psm13","combo:reference:psm8","combo:reference:psm13"]);
+});
+test("numeric lab UI exposes preset, count, independent combinations and exports", () => {
+ const html=fs.readFileSync(path.join(root,"docs/war-results-vision.html"),"utf8");
+ for(const id of ["ocrCombinationOptions","applyRecommendedOcrPreset","ocrCombinationCount","ocrGlyphOption","copyNumericOcrButton","exportNumericOcrButton"]) assert.match(html,new RegExp(id));
+ assert.match(html,/war-results-ocr-experiment\.js\?v=0\.3\.0-experimental/);
+});
+
+test("combined OCR results keep the existing session key, details and JSON export actions", () => {
+ const ui=fs.readFileSync(path.join(root,"docs/war-results-vision.js"),"utf8");
+ assert.match(ui,/sessionStorage\.setItem\(NUMERIC_OCR_KEY/);
+ assert.match(ui,/copyNumericOcrJson/);
+ assert.match(ui,/exportNumericOcrJson/);
+ assert.match(ui,/variants: \(d\.ocrComparison\?\.strategies/);
+});
+test("all three lab engines and the OCR result controls live inside the unified experimental panel", () => {
+ const html=fs.readFileSync(path.join(root,"docs/war-results-vision.html"),"utf8");
+ const start=html.indexOf('id="recognitionLabTitle"'), end=html.indexOf('<section id="batchSummary"');
+ assert.ok(start>=0&&end>start);
+ const lab=html.slice(start,end);
+ for(const text of ["identity","numeric","result","Scores et trophées","Localisation et découpe","Reconnaissance OCR","Résultats détaillés, diagnostics et exports"]) assert.ok(lab.includes(text),text);
+});
