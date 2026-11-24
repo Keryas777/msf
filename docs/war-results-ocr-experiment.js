@@ -18,7 +18,8 @@
     { id: "psm13", label: "Image de référence · PSM 13", group: "segmentation", psm: 13, prep: "reference", parameters: { scale: 3, smoothing: "high", grayscale: true, contrast: 1.7 } },
     { id: "glyphs", label: "Tesseract chiffre par chiffre · PSM 10", group: "glyph", psm: 10, prep: "glyphs", parameters: { glyphPadding: .18, scalePerGlyph: 4, grayscaleContrast: 1.7 } }
   ]);
-  const HYBRID_STRATEGY = Object.freeze({id:"psm8-morphology",label:"PSM 8 + vérification morphologique 8/9/5",group:"morphology",psm:8,prep:"reference",parameters:{candidateDigits:[8,9,5]}});\n  const PSM_MODES = Object.freeze([7, 8, 13]);
+  const HYBRID_STRATEGY = Object.freeze({id:"psm8-morphology",label:"PSM 8 + vérification morphologique 8/9/5",group:"morphology",psm:8,prep:"reference",parameters:{candidateDigits:[8,9,5]}});
+  const PSM_MODES = Object.freeze([7, 8, 13]);
   const PREPROCESSING_MODES = Object.freeze([
     { id: "reference", label: "Référence sans correction supplémentaire" },
     { id: "grayscale", label: "Niveaux de gris" },
