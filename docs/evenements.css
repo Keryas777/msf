@@ -8,13 +8,6 @@ body.ev-body{margin:0;min-height:100vh;color:var(--text);font-family:system-ui,-
 .ev-header-banner{margin:0;width:100%;min-width:0}
 .ev-header-banner img{display:block;width:100%;height:auto}
 .ev-header .homeBtn{top:8px;right:8px}
-.ev-planner-link{display:flex;align-items:center;gap:11px;min-width:0;padding:12px 14px;border:1px solid rgba(216,173,85,.42);border-radius:15px;background:linear-gradient(110deg,rgba(91,68,29,.42),rgba(24,27,33,.94) 72%);color:var(--text);text-decoration:none;box-shadow:inset 0 1px rgba(255,255,255,.04)}
-.ev-planner-link:focus-visible{outline:2px solid #e6c478;outline-offset:3px}
-.ev-planner-link__icon{display:grid;place-items:center;flex:0 0 34px;height:34px;border:1px solid rgba(216,173,85,.4);border-radius:11px;color:#e6c478;background:rgba(0,0,0,.2);font-size:18px}
-.ev-planner-link__copy{display:flex;flex-direction:column;gap:2px;min-width:0}
-.ev-planner-link__copy strong{font-size:14px;line-height:1.25}
-.ev-planner-link__copy small{font-size:11px;line-height:1.35;color:var(--muted);overflow-wrap:anywhere}
-.ev-planner-link__arrow{margin-left:auto;flex:0 0 auto;color:#e6c478;font-size:24px;line-height:1}
 .ev-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
 .ev-stat{min-width:0;padding:13px 11px 12px;border:1px solid var(--border);border-radius:16px;background:var(--panel);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:7px;text-decoration:none;font:inherit;color:inherit;text-align:left;cursor:pointer;appearance:none;-webkit-tap-highlight-color:transparent}
 .ev-stat[aria-selected="true"]{border-color:rgba(255,255,255,.34);background:rgba(42,46,54,.9)}

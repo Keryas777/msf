@@ -20,18 +20,14 @@
   <link rel="stylesheet" href="./style.css?v=4">
   <link rel="stylesheet" href="./evenements.css?v=24">
   <link rel="manifest" href="./manifest.webmanifest">
-  </head>
+    <!-- Le planificateur personnel se lance depuis l’espace administrateur du Worker. -->
+</head>
 <body class="ev-body">
   <main class="app ev-page" aria-label="Événements et objectifs MSF">
     <header class="header ev-header" aria-label="Événements MSF">
       <a class="homeBtn" href="./home.html" aria-label="Accueil LoSP">⌂</a>
       <h1 class="ev-header-banner"><img src="./HeaderObjectifs.webp" alt="Résumé Objectifs"></h1>
     </header>
-    <a class="ev-planner-link" href="https://losp-roster-service.deliriousfan7.workers.dev/captain/events-planner">
-      <span class="ev-planner-link__icon" aria-hidden="true">✦</span>
-      <span class="ev-planner-link__copy"><strong>Planifier avec mon roster</strong><small>Objectifs personnels, récompenses et ressources · connexion Scopely</small></span>
-      <span class="ev-planner-link__arrow" aria-hidden="true">›</span>
-    </a>
     <div hidden aria-hidden="true"><span id="source-line"></span><span id="source-provenance"></span></div>
     <nav class="ev-overview" role="tablist" aria-label="Vues des événements">
       <button class="ev-stat ev-stat--objectives" id="tab-objectives" type="button" role="tab" aria-controls="section-objectives" aria-selected="true" tabindex="0"><strong id="stat-objectives">—</strong><span>Objectifs</span></button>
