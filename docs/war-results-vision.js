@@ -59,7 +59,7 @@
   $("#compareNumericOcrButton").addEventListener("click", () => compareNumericOcr().catch(showGlobalError));
   initializeOcrCombinations();
   $("#ocrCombinationOptions").addEventListener("change", updateOcrCombinationCount);
-  $("#ocrGlyphOption").addEventListener("change", updateOcrCombinationCount);
+  $("#ocrGlyphOption").addEventListener("change", updateOcrCombinationCount);\n  $("#ocrMorphologyOption").addEventListener("change", updateOcrCombinationCount);
   $("#applyRecommendedOcrPreset").addEventListener("click", applyRecommendedOcrPreset);
   $("#clearNumericOcrButton").addEventListener("click", clearNumericOcrResults);
   $("#copyNumericOcrButton").addEventListener("click", () => copyNumericOcrJson().catch(showGlobalError));
@@ -301,7 +301,7 @@
     const { diagnostic: d } = entry;
     return { captureId: entry.captureId, field: entry.field, dimensions: entry.dimensions, rect: d.rect, initialRect: d.initialRect,
       correctedRect: d.correctedRect, rectFrozen: d.ocrRectFrozen === true,
-      variants: (d.ocrComparison?.strategies || []).map((item) => ({ strategy: item.strategy, label: item.label, psm: item.psm,
+      variants: (d.ocrComparison?.strategies || []).map((item) => ({ strategy: item.strategy, label: item.label, psm: item.psm, preprocessing: item.preprocessing, raw: item.raw, value: item.value, digits: item.digits, digitCount: item.digitCount, confidence: item.confidence, ms: item.ms, ocrMs: item.ocrMs, warnings: item.warnings, segmentation: item.segmentation, morphology: item.morphology, proposedCorrection: item.proposedCorrection, strategy: item.strategy, label: item.label, psm: item.psm,
         preprocessing: item.preprocessing, raw: item.raw, value: item.value, digits: item.digits, digitCount: item.digitCount,
         confidence: item.confidence, ms: item.ms, ocrMs: item.ocrMs, warnings: item.warnings, segmentation: item.segmentation,
         glyphs: item.glyphs?.map((glyph) => ({ bounds: glyph.bounds, raw: glyph.raw, value: glyph.value, digits: glyph.digits,
@@ -318,7 +318,7 @@
     updateOcrCombinationCount();
   }
   function updateOcrCombinationCount() {
-    const count=document.querySelectorAll("#ocrCombinationOptions input:checked").length+($("#ocrGlyphOption").checked?1:0);
+    const count=document.querySelectorAll("#ocrCombinationOptions input:checked").length+($("#ocrGlyphOption").checked?1:0)+($("#ocrMorphologyOption").checked?1:0);
     $("#ocrCombinationCount").textContent=`${count} combinaison${count===1?"":"s"} sélectionnée${count===1?"":"s"}`;
   }
   function applyRecommendedOcrPreset() {
@@ -326,7 +326,7 @@
       const c=JSON.parse(input.value);
       input.checked=(c.psm===7&&c.prep==="reference")||(c.psm!==7&&["reference","tight-crop","thin-strokes"].includes(c.prep));
     });
-    $("#ocrGlyphOption").checked=false;
+    $("#ocrGlyphOption").checked=false;\n    $("#ocrMorphologyOption").checked=false;
     updateOcrCombinationCount();
   }
 
@@ -334,7 +334,7 @@
     if (analyzing) return;
     const batch = records.filter((record) => record.file);
     const selected = [...document.querySelectorAll("#ocrCombinationOptions input:checked")].map((input) => JSON.parse(input.value));
-    if ($("#ocrGlyphOption").checked) selected.push("glyphs");
+    if ($("#ocrMorphologyOption").checked) selected.push("psm8-morphology");\n    if ($("#ocrGlyphOption").checked) selected.push("glyphs");
     if (!batch.length) { $("#numericOcrStatus").textContent = "Charge une ou plusieurs captures dans le laboratoire."; return; }
     if (!selected.length) { $("#numericOcrStatus").textContent = "Sélectionne au moins une stratégie OCR."; return; }
     analyzing = true;
@@ -373,7 +373,7 @@
     const rows = numericOcrSummary.map((entry) => {
       const d = entry.diagnostic || {}, data = entry.compact || compactNumericOcrEntry(entry);
       const strategies = d.ocrComparison?.strategies || data.variants || [];
-      const family = (item) => `<article class="numeric-ocr-variant"><h4>${escapeHtml(item.label || item.strategy)}</h4>${item.preview ? `<a href="${escapeAttr(item.preview)}" target="_blank" rel="noopener"><img src="${escapeAttr(item.preview)}" alt="Prétraitement ${escapeAttr(item.label || item.strategy)}" loading="lazy"></a>` : ""}<p>Brut : <strong>${escapeHtml(item.raw || "—")}</strong> · valeur à 4 chiffres : ${escapeHtml(item.value || "—")}<br>Chiffres : ${Number.isFinite(item.digitCount) ? item.digitCount : "—"} · confiance : ${Number.isFinite(item.confidence) ? `${Math.round(item.confidence)} %` : "—"} · temps total ${Number.isFinite(item.ms) ? `${item.ms} ms` : "—"}${Number.isFinite(item.ocrMs) ? ` (${item.ocrMs} ms Tesseract)` : ""}<br>PSM ${Number.isFinite(item.psm) ? item.psm : "—"} · ${escapeHtml(item.preprocessing || "—")}${item.warnings?.length ? `<br>Avertissements : ${escapeHtml(item.warnings.join(", "))}` : ""}</p>${item.glyphs?.length ? `<div class="numeric-glyph-grid">${item.glyphs.map((glyph, i) => `<figure>${glyph.preview ? `<img src="${escapeAttr(glyph.preview)}" alt="Glyphe ${i + 1}" loading="lazy">` : ""}<figcaption>${i + 1}. ${escapeHtml(glyph.raw || "—")} · ${glyph.confidence ?? "—"} %</figcaption></figure>`).join("")}</div>` : ""}</article>`;
+      const family = (item) => `<article class="numeric-ocr-variant"><h4>${escapeHtml(item.label || item.strategy)}</h4>${item.preview ? `<a href="${escapeAttr(item.preview)}" target="_blank" rel="noopener"><img src="${escapeAttr(item.preview)}" alt="Prétraitement ${escapeAttr(item.label || item.strategy)}" loading="lazy"></a>` : ""}<p>Brut : <strong>${escapeHtml(item.raw || "—")}</strong> · valeur à 4 chiffres : ${escapeHtml(item.value || "—")}<br>Chiffres : ${Number.isFinite(item.digitCount) ? item.digitCount : "—"} · confiance : ${Number.isFinite(item.confidence) ? `${Math.round(item.confidence)} %` : "—"} · temps total ${Number.isFinite(item.ms) ? `${item.ms} ms` : "—"}${Number.isFinite(item.ocrMs) ? ` (${item.ocrMs} ms Tesseract)` : ""}<br>PSM ${Number.isFinite(item.psm) ? item.psm : "—"} · ${escapeHtml(item.preprocessing || "—")}${item.warnings?.length ? `<br>Avertissements : ${escapeHtml(item.warnings.join(", "))}` : ""}</p>${item.morphology ? `<p>Segmentation morphologique : ${item.morphology.selectedCount ?? "incertaine"} glyphe(s) retenu(s); lectures OCR ${item.morphology.ocrDigitCount} chiffre(s).</p>${item.morphology.glyphs.map(g=>`<p>Glyphe ${g.index}: boucle(s) ${g.features.holeCount}, bas ${Math.round(g.features.lowerInkRatio*100)} %, barre haute ${Math.round(g.features.topBar*100)} %, barre médiane ${Math.round(g.features.midBar*100)} %; hypothèses ${g.features.hypotheses.map(h=>h.digit+":"+h.score).join(", ")}; ${g.features.classification?"classe morphologique "+g.features.classification:"classe indécise"}.</p>`).join("")}${item.proposedCorrection?`<p class="lab-warning">Correction proposée ${escapeHtml(item.proposedCorrection.from)} → ${escapeHtml(item.proposedCorrection.to)} · ${escapeHtml(item.proposedCorrection.rationale)}</p>`:""}` : ""}${item.glyphs?.length ? `<div class="numeric-glyph-grid">${item.glyphs.map((glyph, i) => `<figure>${glyph.preview ? `<img src="${escapeAttr(glyph.preview)}" alt="Glyphe ${i + 1}" loading="lazy">` : ""}<figcaption>${i + 1}. ${escapeHtml(glyph.raw || "—")} · ${glyph.confidence ?? "—"} %</figcaption></figure>`).join("")}</div>` : ""}</article>`;
       const consensus = d.ocrComparison?.consensus || data.consensus;
       return `<article class="numeric-ocr-card"><h3>${escapeHtml(entry.captureId || "Capture")} · ${escapeHtml(LABELS[entry.field] || entry.field)}</h3><p>Image ${Number(entry.dimensions?.width) || "?"} × ${Number(entry.dimensions?.height) || "?"} · rectangle fixe : ${escapeHtml(JSON.stringify(d.rect || data.rect || null))} · combinaison, marge 18 % · rectangle conservé pour toutes les stratégies : ${data.rectFrozen ? "oui" : "diagnostic restauré"}</p><p>Consensus expérimental : <strong>${escapeHtml(consensus?.value || "lecture divergente")}</strong>${consensus?.warnings?.length ? ` · ${escapeHtml(consensus.warnings.join(", "))}` : ""} · temps total ${Number(d.ocrComparison?.totalMs ?? data.totalMs) || 0} ms</p><div class="numeric-ocr-variant-grid">${strategies.map(family).join("")}</div></article>`;
     }).join("");
