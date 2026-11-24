@@ -59,7 +59,8 @@
   $("#compareNumericOcrButton").addEventListener("click", () => compareNumericOcr().catch(showGlobalError));
   initializeOcrCombinations();
   $("#ocrCombinationOptions").addEventListener("change", updateOcrCombinationCount);
-  $("#ocrGlyphOption").addEventListener("change", updateOcrCombinationCount);\n  $("#ocrMorphologyOption").addEventListener("change", updateOcrCombinationCount);
+  $("#ocrGlyphOption").addEventListener("change", updateOcrCombinationCount);
+  $("#ocrMorphologyOption").addEventListener("change", updateOcrCombinationCount);
   $("#applyRecommendedOcrPreset").addEventListener("click", applyRecommendedOcrPreset);
   $("#clearNumericOcrButton").addEventListener("click", clearNumericOcrResults);
   $("#copyNumericOcrButton").addEventListener("click", () => copyNumericOcrJson().catch(showGlobalError));
@@ -326,7 +327,8 @@
       const c=JSON.parse(input.value);
       input.checked=(c.psm===7&&c.prep==="reference")||(c.psm!==7&&["reference","tight-crop","thin-strokes"].includes(c.prep));
     });
-    $("#ocrGlyphOption").checked=false;\n    $("#ocrMorphologyOption").checked=false;
+    $("#ocrGlyphOption").checked=false;
+    $("#ocrMorphologyOption").checked=false;
     updateOcrCombinationCount();
   }
 
@@ -334,7 +336,8 @@
     if (analyzing) return;
     const batch = records.filter((record) => record.file);
     const selected = [...document.querySelectorAll("#ocrCombinationOptions input:checked")].map((input) => JSON.parse(input.value));
-    if ($("#ocrMorphologyOption").checked) selected.push("psm8-morphology");\n    if ($("#ocrGlyphOption").checked) selected.push("glyphs");
+    if ($("#ocrMorphologyOption").checked) selected.push("psm8-morphology");
+    if ($("#ocrGlyphOption").checked) selected.push("glyphs");
     if (!batch.length) { $("#numericOcrStatus").textContent = "Charge une ou plusieurs captures dans le laboratoire."; return; }
     if (!selected.length) { $("#numericOcrStatus").textContent = "Sélectionne au moins une stratégie OCR."; return; }
     analyzing = true;
