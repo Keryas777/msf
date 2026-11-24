@@ -36,7 +36,7 @@
   function chooseSnapshots(input, chart, calendar) {
     const sorted = (Array.isArray(input) ? input : [])
       .filter(row => validDate(row && row.capturedAt))
-      .slice().sort((a, b) => a.capturedAt.localeCompare(b.capturedAt));
+      .slice().sort((a, b) => Number(!!a.communityHistory)-Number(!!b.communityHistory) || a.capturedAt.localeCompare(b.capturedAt));
     const rows = [];
     const seen = new Set();
     for (const raw of sorted) {
@@ -44,8 +44,10 @@
       if (chart.field === 'warTrophies' && raw.captureType === 'season-ranks') continue;
       // Live trophy-only captures cannot replace a completed-season ranking.
       if (chart.frequency === 'per-season' && raw.captureType === 'war-trophies') continue;
-      if (seen.has(raw.capturedAt)) continue;
-      seen.add(raw.capturedAt);
+      if (raw.communityHistory && !(raw.alliances || []).some(a => validValue(a[chart.field]))) continue;
+      const identity = raw.capturedAt + (raw.communityHistory ? ':community' : '');
+      if (seen.has(identity)) continue;
+      seen.add(identity);
       const archived = raw.archiveSource === 'github-guest-season-history' &&
         raw.seasonDerived === true && typeof raw.seasonId === 'string' &&
         validDate(raw.rankingSeason?.startAt) &&
@@ -165,7 +167,8 @@
         if(!seasonAdditions.has(seasonId))seasonAdditions.set(seasonId,new Map());
         const additions=seasonAdditions.get(seasonId);
         for(const source of capture.alliances || []){
-          if(typeof source.key === 'string' && validValue(source[chart.field]))
+          if(typeof source.key === 'string' && validValue(source[chart.field]) &&
+             (!capture.communityHistory || !additions.has(source.key)))
             additions.set(source.key,{source,capturedAt:capture.capturedAt});
         }
       }
