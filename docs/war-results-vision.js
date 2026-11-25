@@ -61,6 +61,7 @@
   $("#ocrCombinationOptions").addEventListener("change", updateOcrCombinationCount);
   $("#ocrGlyphOption").addEventListener("change", updateOcrCombinationCount);
   $("#ocrMorphologyOption").addEventListener("change", updateOcrCombinationCount);
+  $("#ocrAlignmentOption").addEventListener("change", updateOcrCombinationCount);
   $("#applyRecommendedOcrPreset").addEventListener("click", applyRecommendedOcrPreset);
   $("#clearNumericOcrButton").addEventListener("click", clearNumericOcrResults);
   $("#copyNumericOcrButton").addEventListener("click", () => copyNumericOcrJson().catch(showGlobalError));
@@ -302,11 +303,11 @@
     const { diagnostic: d } = entry;
     return { captureId: entry.captureId, field: entry.field, dimensions: entry.dimensions, rect: d.rect, initialRect: d.initialRect,
       correctedRect: d.correctedRect, rectFrozen: d.ocrRectFrozen === true,
-      variants: (d.ocrComparison?.strategies || []).map((item) => ({ strategy: item.strategy, label: item.label, psm: item.psm, preprocessing: item.preprocessing, raw: item.raw, value: item.value, digits: item.digits, digitCount: item.digitCount, confidence: item.confidence, ms: item.ms, ocrMs: item.ocrMs, warnings: item.warnings, segmentation: item.segmentation, morphology: item.morphology, proposedCorrection: item.proposedCorrection, strategy: item.strategy, label: item.label, psm: item.psm,
-        preprocessing: item.preprocessing, raw: item.raw, value: item.value, digits: item.digits, digitCount: item.digitCount,
-        confidence: item.confidence, ms: item.ms, ocrMs: item.ocrMs, warnings: item.warnings, segmentation: item.segmentation,
+      variants: (d.ocrComparison?.strategies || []).map((item) => ({ strategy: item.strategy, label: item.label, psm: item.psm, preprocessing: item.preprocessing, raw: item.raw, value: item.value, digits: item.digits, digitCount: item.digitCount, confidence: item.confidence, ms: item.ms, ocrMs: item.ocrMs, warnings: item.warnings, segmentation: item.segmentation, morphology: item.morphology, proposedCorrection: item.proposedCorrection,
         glyphs: item.glyphs?.map((glyph) => ({ bounds: glyph.bounds, raw: glyph.raw, value: glyph.value, digits: glyph.digits,
-          digitCount: glyph.digitCount, confidence: glyph.confidence, ms: glyph.ms, warnings: glyph.warnings })) || undefined })),
+          digitCount: glyph.digitCount, confidence: glyph.confidence, ms: glyph.ms, warnings: glyph.warnings })) || undefined,
+        ocrSymbols: item.ocrSymbols, alignment: item.alignment, morphologyChecks: item.morphologyChecks, decision: item.decision,
+        decisionRationale: item.decisionRationale, stageTimings: item.stageTimings, ocrReused: item.ocrReused })),
       consensus: d.ocrComparison?.consensus || null, totalMs: d.ocrComparison?.totalMs ?? null, warning: d.warning || null };
   }
 
@@ -319,7 +320,7 @@
     updateOcrCombinationCount();
   }
   function updateOcrCombinationCount() {
-    const count=document.querySelectorAll("#ocrCombinationOptions input:checked").length+($("#ocrGlyphOption").checked?1:0)+($("#ocrMorphologyOption").checked?1:0);
+    const count=document.querySelectorAll("#ocrCombinationOptions input:checked").length+($("#ocrGlyphOption").checked?1:0)+($("#ocrMorphologyOption").checked?1:0)+($("#ocrAlignmentOption").checked?1:0);
     $("#ocrCombinationCount").textContent=`${count} combinaison${count===1?"":"s"} sélectionnée${count===1?"":"s"}`;
   }
   function applyRecommendedOcrPreset() {
@@ -329,6 +330,7 @@
     });
     $("#ocrGlyphOption").checked=false;
     $("#ocrMorphologyOption").checked=false;
+    $("#ocrAlignmentOption").checked=false;
     updateOcrCombinationCount();
   }
 
@@ -337,6 +339,7 @@
     const batch = records.filter((record) => record.file);
     const selected = [...document.querySelectorAll("#ocrCombinationOptions input:checked")].map((input) => JSON.parse(input.value));
     if ($("#ocrMorphologyOption").checked) selected.push("psm8-morphology");
+    if ($("#ocrAlignmentOption").checked) selected.push("psm8-glyph-alignment");
     if ($("#ocrGlyphOption").checked) selected.push("glyphs");
     if (!batch.length) { $("#numericOcrStatus").textContent = "Charge une ou plusieurs captures dans le laboratoire."; return; }
     if (!selected.length) { $("#numericOcrStatus").textContent = "Sélectionne au moins une stratégie OCR."; return; }
@@ -376,7 +379,17 @@
     const rows = numericOcrSummary.map((entry) => {
       const d = entry.diagnostic || {}, data = entry.compact || compactNumericOcrEntry(entry);
       const strategies = d.ocrComparison?.strategies || data.variants || [];
-      const family = (item) => `<article class="numeric-ocr-variant"><h4>${escapeHtml(item.label || item.strategy)}</h4>${item.preview ? `<a href="${escapeAttr(item.preview)}" target="_blank" rel="noopener"><img src="${escapeAttr(item.preview)}" alt="Prétraitement ${escapeAttr(item.label || item.strategy)}" loading="lazy"></a>` : ""}<p>Brut : <strong>${escapeHtml(item.raw || "—")}</strong> · valeur à 4 chiffres : ${escapeHtml(item.value || "—")}<br>Chiffres : ${Number.isFinite(item.digitCount) ? item.digitCount : "—"} · confiance : ${Number.isFinite(item.confidence) ? `${Math.round(item.confidence)} %` : "—"} · temps total ${Number.isFinite(item.ms) ? `${item.ms} ms` : "—"}${Number.isFinite(item.ocrMs) ? ` (${item.ocrMs} ms Tesseract)` : ""}<br>PSM ${Number.isFinite(item.psm) ? item.psm : "—"} · ${escapeHtml(item.preprocessing || "—")}${item.warnings?.length ? `<br>Avertissements : ${escapeHtml(item.warnings.join(", "))}` : ""}</p>${item.morphology ? `<p>Segmentation morphologique : ${item.morphology.selectedCount ?? "incertaine"} glyphe(s) retenu(s); lectures OCR ${item.morphology.ocrDigitCount} chiffre(s).</p>${item.morphology.glyphs.map(g=>`<p>Glyphe ${g.index}: boucle(s) ${g.features.holeCount}, bas ${Math.round(g.features.lowerInkRatio*100)} %, barre haute ${Math.round(g.features.topBar*100)} %, barre médiane ${Math.round(g.features.midBar*100)} %; hypothèses ${g.features.hypotheses.map(h=>h.digit+":"+h.score).join(", ")}; ${g.features.classification?"classe morphologique "+g.features.classification:"classe indécise"}.</p>`).join("")}${item.proposedCorrection?`<p class="lab-warning">Correction proposée ${escapeHtml(item.proposedCorrection.from)} → ${escapeHtml(item.proposedCorrection.to)} · ${escapeHtml(item.proposedCorrection.rationale)}</p>`:""}` : ""}${item.glyphs?.length ? `<div class="numeric-glyph-grid">${item.glyphs.map((glyph, i) => `<figure>${glyph.preview ? `<img src="${escapeAttr(glyph.preview)}" alt="Glyphe ${i + 1}" loading="lazy">` : ""}<figcaption>${i + 1}. ${escapeHtml(glyph.raw || "—")} · ${glyph.confidence ?? "—"} %</figcaption></figure>`).join("")}</div>` : ""}</article>`;
+      const alignmentPanel=(item)=>{
+        const a=item.alignment;if(!a)return "";
+        const decisionLabels={"keep-ocr":"Conserver OCR","propose-correction":"Proposition ciblée","abstain":"Abstention"};
+        const association=(a.groups||[]).map(g=>`OCR ${g.ocr.map(c=>`${c.index}:${c.text}`).join("+")||"∅"} ↔ glyphes ${g.glyphs.map(x=>x.index).join("+")||"∅"} · ${g.relation} · ${Math.round(g.confidence*100)} %`).join("; ");
+        const inspections=(item.morphologyChecks||[]).map(g=>`<li>Glyphe ${g.glyphIndex} · ${g.relation} · classe ${g.features.classification} (${Math.round(g.features.confidence*100)} %, marge ${Math.round(g.features.margin*100)} %) · cavités ${g.features.holeCount} · bas ${Math.round(g.features.lowerInkRatio*100)} % · bas droite ${Math.round(g.features.lowerRightInkRatio*100)} % · exclu 9 : ${escapeHtml(g.features.exclusionReasons.join(", ")||"aucun")}</li>`).join("");
+        const width=Number(a.coordinateSpace?.width)||1,height=Number(a.coordinateSpace?.height)||1;
+        const overlayRects=[...(a.ocrCharacters||[]).filter(c=>c.bounds).map(c=>`<rect class="ocr-align-symbol" x="${c.bounds.x}" y="${c.bounds.y}" width="${c.bounds.width}" height="${c.bounds.height}"><title>OCR ${escapeHtml(c.index+": "+c.text)}</title></rect>`),...(a.physicalGlyphs||[]).map(g=>`<rect class="ocr-align-glyph" x="${g.bounds.x}" y="${g.bounds.y}" width="${g.bounds.width}" height="${g.bounds.height}"><title>Glyphe ${g.index}</title></rect>`)].join("");
+        const overlay=item.preview&&overlayRects?`<details class="ocr-alignment-visual"><summary>Visualiser les rectangles OCR et glyphes</summary><p class="muted">Cyan : caractères OCR · vert : glyphes physiques. Les rectangles sont exprimés dans la découpe source.</p><div class="ocr-alignment-overlay" style="aspect-ratio:${width}/${height}"><img src="${escapeAttr(item.preview)}" alt="Découpe numérique avec rectangles d’alignement"><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Rectangles OCR et glyphes superposés">${overlayRects}</svg></div></details>`:"";
+        return `<details class="ocr-alignment-details"><summary>Diagnostic alignement OCR/glyphes · ${escapeHtml(decisionLabels[item.decision]||item.decision||"à examiner")}</summary><p>Initial : <strong>${escapeHtml(item.raw||"—")}</strong> · ${item.digitCount} caractère(s) OCR / ${a.selectedGlyphCount??"—"} glyphe(s) physique(s) · source coordonnées : ${escapeHtml(a.source)} · confiance alignement ${Math.round(a.confidence*100)} % · marge segmentation ${Math.round((a.candidateMargin||0)*100)} %${item.ocrReused?" · lecture PSM 8 partagée":""}.</p><p>Associations : ${escapeHtml(association||"aucune")}</p><p>Anomalies : ${escapeHtml(JSON.stringify(a.anomalies||[]))}</p>${inspections?`<ul>${inspections}</ul>`:"<p>Aucun glyphe n’a nécessité de vérification morphologique ciblée.</p>"}<p>Décision : <strong>${escapeHtml(decisionLabels[item.decision]||item.decision||"—")}</strong> · ${escapeHtml(item.decisionRationale||"")}</p>${item.proposedCorrection?`<p class="lab-warning">Proposition ${escapeHtml(item.proposedCorrection.from)} → ${escapeHtml(item.proposedCorrection.to)} · ${escapeHtml(item.proposedCorrection.rationale)}. La lecture initiale n’est pas remplacée.</p>`:""}<p>Temps : OCR ${item.stageTimings?.ocrMs??"—"} ms · segmentation ${item.stageTimings?.segmentationMs??"—"} ms · alignement ${item.stageTimings?.alignmentMs??"—"} ms · morphologie ${item.stageTimings?.morphologyMs??"—"} ms · total ${item.stageTimings?.totalMs??"—"} ms.</p>${overlay}</details>`;
+      };
+      const family = (item) => `<article class="numeric-ocr-variant"><h4>${escapeHtml(item.label || item.strategy)}</h4>${item.preview ? `<a href="${escapeAttr(item.preview)}" target="_blank" rel="noopener"><img src="${escapeAttr(item.preview)}" alt="Prétraitement ${escapeAttr(item.label || item.strategy)}" loading="lazy"></a>` : ""}<p>Brut : <strong>${escapeHtml(item.raw || "—")}</strong> · valeur à 4 chiffres : ${escapeHtml(item.value || "—")}<br>Chiffres : ${Number.isFinite(item.digitCount) ? item.digitCount : "—"} · confiance : ${Number.isFinite(item.confidence) ? `${Math.round(item.confidence)} %` : "—"} · temps total ${Number.isFinite(item.ms) ? `${item.ms} ms` : "—"}${Number.isFinite(item.ocrMs) ? ` (${item.ocrMs} ms Tesseract)` : ""}<br>PSM ${Number.isFinite(item.psm) ? item.psm : "—"} · ${escapeHtml(item.preprocessing || "—")}${item.warnings?.length ? `<br>Avertissements : ${escapeHtml(item.warnings.join(", "))}` : ""}</p>${item.morphology ? `<p>Segmentation morphologique : ${item.morphology.selectedCount ?? "incertaine"} glyphe(s) retenu(s); lectures OCR ${item.morphology.ocrDigitCount} chiffre(s).</p>${item.morphology.glyphs.map(g=>`<p>Glyphe ${g.index}: boucle(s) ${g.features.holeCount}, bas ${Math.round(g.features.lowerInkRatio*100)} %, barre haute ${Math.round(g.features.topBar*100)} %, barre médiane ${Math.round(g.features.midBar*100)} %; hypothèses ${g.features.hypotheses.map(h=>h.digit+":"+h.score).join(", ")}; ${g.features.classification?"classe morphologique "+g.features.classification:"classe indécise"}.</p>`).join("")}${item.proposedCorrection?`<p class="lab-warning">Correction proposée ${escapeHtml(item.proposedCorrection.from)} → ${escapeHtml(item.proposedCorrection.to)} · ${escapeHtml(item.proposedCorrection.rationale)}</p>`:""}` : ""}${item.glyphs?.length ? `<div class="numeric-glyph-grid">${item.glyphs.map((glyph, i) => `<figure>${glyph.preview ? `<img src="${escapeAttr(glyph.preview)}" alt="Glyphe ${i + 1}" loading="lazy">` : ""}<figcaption>${i + 1}. ${escapeHtml(glyph.raw || "—")} · ${glyph.confidence ?? "—"} %</figcaption></figure>`).join("")}</div>` : ""}${alignmentPanel(item)}</article>`;
       const consensus = d.ocrComparison?.consensus || data.consensus;
       return `<article class="numeric-ocr-card"><h3>${escapeHtml(entry.captureId || "Capture")} · ${escapeHtml(LABELS[entry.field] || entry.field)}</h3><p>Image ${Number(entry.dimensions?.width) || "?"} × ${Number(entry.dimensions?.height) || "?"} · rectangle fixe : ${escapeHtml(JSON.stringify(d.rect || data.rect || null))} · combinaison, marge 18 % · rectangle conservé pour toutes les stratégies : ${data.rectFrozen ? "oui" : "diagnostic restauré"}</p><p>Consensus expérimental : <strong>${escapeHtml(consensus?.value || "lecture divergente")}</strong>${consensus?.warnings?.length ? ` · ${escapeHtml(consensus.warnings.join(", "))}` : ""} · temps total ${Number(d.ocrComparison?.totalMs ?? data.totalMs) || 0} ms</p><div class="numeric-ocr-variant-grid">${strategies.map(family).join("")}</div></article>`;
     }).join("");
