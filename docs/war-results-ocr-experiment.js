@@ -19,6 +19,7 @@
     { id: "glyphs", label: "Tesseract chiffre par chiffre · PSM 10", group: "glyph", psm: 10, prep: "glyphs", parameters: { glyphPadding: .18, scalePerGlyph: 4, grayscaleContrast: 1.7 } }
   ]);
   const HYBRID_STRATEGY = Object.freeze({id:"psm8-morphology",label:"PSM 8 + vérification morphologique 8/9/5",group:"morphology",psm:8,prep:"reference",parameters:{candidateDigits:[8,9,5]}});
+  const ALIGNMENT_STRATEGY = Object.freeze({id:"psm8-glyph-alignment",label:"PSM 8 + alignement OCR/glyphes",group:"alignment",psm:8,prep:"reference",parameters:{blockSymbols:true,physicalGlyphCounts:[3,4,5,6]}});
   const PSM_MODES = Object.freeze([7, 8, 13]);
   const PREPROCESSING_MODES = Object.freeze([
     { id: "reference", label: "Référence sans correction supplémentaire" },
@@ -74,9 +75,126 @@
       classification:hypotheses[0].score>=.78&&margin>=.3?hypotheses[0].digit:null};
   }
 
-  async function readPsm8Morphology(sourceCrop, referenceCrop, worker, digitReader) {
-    const initial=await read(worker,referenceCrop,{id:"psm8-morphology",label:"PSM 8 + vérification morphologique 8/9/5",psm:8,prep:"reference",parameters:{candidateDigits:[8,9,5],loopTopology:true,rowAndColumnProjections:true}});
-    if(!digitReader||typeof digitReader.segment!=="function")return {...initial,morphology:null,proposedCorrection:null,warnings:[...initial.warnings,"morphology-segmenter-unavailable"]};
+  function targetedMorphology(bitmap, width = 20, height = 24) {
+    const inkAt=(x,y)=>bitmap[y*width+x]?1:0, foregroundCount=bitmap.reduce((sum,v)=>sum+(v?1:0),0);
+    if(!foregroundCount)return {classification:"indeterminate",confidence:0,margin:0,holeCount:0,holes:[],hypotheses:[],exclusionReasons:["empty-glyph"]};
+    const seen=new Uint8Array(width*height),holes=[];
+    for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+      const start=y*width+x;if(inkAt(x,y)||seen[start])continue;
+      const queue=[start];seen[start]=1;let area=0,sumX=0,sumY=0,minX=x,maxX=x,minY=y,maxY=y,touchesEdge=false;
+      for(let q=0;q<queue.length;q++){
+        const at=queue[q],cx=at%width,cy=(at-cx)/width;area++;sumX+=cx;sumY+=cy;minX=Math.min(minX,cx);maxX=Math.max(maxX,cx);minY=Math.min(minY,cy);maxY=Math.max(maxY,cy);
+        if(cx===0||cy===0||cx===width-1||cy===height-1)touchesEdge=true;
+        for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+          const nx=cx+dx,ny=cy+dy;if(nx<0||ny<0||nx>=width||ny>=height)continue;
+          const next=ny*width+nx;if(!inkAt(nx,ny)&&!seen[next]){seen[next]=1;queue.push(next);}
+        }
+      }
+      if(!touchesEdge&&area>=3)holes.push({area,areaRatio:area/(width*height),areaToInkRatio:area/foregroundCount,centroidX:sumX/area/width,centroidY:sumY/area/height,
+        bounds:{x:minX/width,y:minY/height,width:(maxX-minX+1)/width,height:(maxY-minY+1)/height}});
+    }
+    const rows=Array.from({length:height},(_,y)=>{let n=0;for(let x=0;x<width;x++)n+=inkAt(x,y);return n/width;});
+    const columns=Array.from({length:width},(_,x)=>{let n=0;for(let y=0;y<height;y++)n+=inkAt(x,y);return n/height;});
+    let upper=0,lower=0,lowerLeft=0,lowerRight=0,top=0,mid=0;
+    for(let y=0;y<height;y++)for(let x=0;x<width;x++)if(inkAt(x,y)){
+      if(y<height*.42)upper++;else lower++;
+      if(y>=height*.58){if(x<width*.5)lowerLeft++;else lowerRight++;}
+      if(y>=height*.08&&y<height*.34)top=Math.max(top,rows[y]);
+      if(y>=height*.36&&y<height*.66)mid=Math.max(mid,rows[y]);
+    }
+    const lowerRatio=lower/foregroundCount,rightRatio=lowerRight/foregroundCount,leftRatio=lowerLeft/foregroundCount;
+    const compactLoop=holes.length===1&&holes[0].areaRatio>=.025&&holes[0].areaRatio<=.24;
+    const upperLoop=compactLoop&&holes[0].centroidY<.45;
+    const centeredLargeLoop=holes.length===1&&holes[0].centroidY>=.38&&holes[0].centroidY<=.64&&holes[0].areaRatio>.07;
+    const rightTail=rightRatio>=.065&&rightRatio>leftRatio*1.12;
+    const hypotheses=[
+      {digit:"9",score:Math.min(1,(upperLoop?.3:0)+(compactLoop?.18:0)+(lowerRatio>.16?.14:0)+(rightTail?.25:0)+(lowerRatio>.3?.13:0))},
+      {digit:"8",score:holes.length===2&&Math.abs(holes[0].centroidY-holes[1].centroidY)>.2&&holes.every(h=>h.areaRatio>.02)?.9:0},
+      {digit:"5",score:holes.length===0&&top>.24&&mid>.2&&rightRatio>=.07&&rightRatio>leftRatio*1.2?.84:0},
+      {digit:"other",score:centeredLargeLoop&&!rightTail?.9:(holes.length===0&&top>.2&&mid>.18&&!(rightRatio>leftRatio*1.2)?.82:0)}
+    ].sort((a,b)=>b.score-a.score);
+    const margin=hypotheses[0].score-(hypotheses[1]?.score||0),classification=hypotheses[0].score>=.76&&margin>=.18?hypotheses[0].digit:"indeterminate";
+    const exclusionReasons=[];
+    if(holes.length!==1)exclusionReasons.push("nine-requires-one-closed-cavity");
+    else if(!upperLoop)exclusionReasons.push(holes[0].areaRatio>.24?"cavity-too-large-or-central":"cavity-not-in-upper-region");
+    if(!rightTail)exclusionReasons.push("no-distinct-lower-right-tail");
+    if(foregroundCount<Math.max(12,width*height*.025))exclusionReasons.push("insufficient-foreground-evidence");
+    return {classification,confidence:Number(hypotheses[0].score.toFixed(3)),margin:Number(margin.toFixed(3)),holeCount:holes.length,holes,
+      foregroundCount,upperInkRatio:Number((upper/foregroundCount).toFixed(3)),lowerInkRatio:Number(lowerRatio.toFixed(3)),
+      lowerLeftInkRatio:Number(leftRatio.toFixed(3)),lowerRightInkRatio:Number(rightRatio.toFixed(3)),rightTail,
+      topBar:Number(top.toFixed(3)),midBar:Number(mid.toFixed(3)),rowProjection:rows.map(v=>Number(v.toFixed(3))),columnProjection:columns.map(v=>Number(v.toFixed(3))),
+      hypotheses:hypotheses.map(h=>({...h,score:Number(h.score.toFixed(3))})),exclusionReasons};
+  }
+
+  function normalizedBox(box, scaleX=1, scaleY=1) {
+    if(!box)return null;
+    const x=Number.isFinite(box.x0)?box.x0:Number(box.x),y=Number.isFinite(box.y0)?box.y0:Number(box.y);
+    const right=Number.isFinite(box.x1)?box.x1:x+Number(box.width),bottom=Number.isFinite(box.y1)?box.y1:y+Number(box.height);
+    if(![x,y,right,bottom].every(Number.isFinite)||right<=x||bottom<=y)return null;
+    return {x:x*scaleX,y:y*scaleY,width:(right-x)*scaleX,height:(bottom-y)*scaleY};
+  }
+  function unionBoxes(boxes) {
+    const valid=boxes.filter(Boolean);if(!valid.length)return null;
+    const x=Math.min(...valid.map(b=>b.x)),y=Math.min(...valid.map(b=>b.y));
+    const right=Math.max(...valid.map(b=>b.x+b.width)),bottom=Math.max(...valid.map(b=>b.y+b.height));
+    return {x,y,width:right-x,height:bottom-y};
+  }
+  function clamp01(value){return Math.max(0,Math.min(1,value));}
+  function scoreSpatialGroup(ocrGroup,glyphGroup) {
+    const ocrBox=unionBoxes(ocrGroup.map(s=>s._box)),glyphBox=unionBoxes(glyphGroup.map(g=>g.bounds));
+    if(!ocrBox||!glyphBox)return {cost:.72,confidence:.28,metrics:{available:false}};
+    const ix=Math.max(0,Math.min(ocrBox.x+ocrBox.width,glyphBox.x+glyphBox.width)-Math.max(ocrBox.x,glyphBox.x));
+    const iy=Math.max(0,Math.min(ocrBox.y+ocrBox.height,glyphBox.y+glyphBox.height)-Math.max(ocrBox.y,glyphBox.y));
+    const overlapX=ix/Math.max(1,Math.min(ocrBox.width,glyphBox.width)),overlapY=iy/Math.max(1,Math.min(ocrBox.height,glyphBox.height));
+    const h=Math.max(1,(ocrBox.height+glyphBox.height)/2),centerX=Math.abs((ocrBox.x+ocrBox.width/2)-(glyphBox.x+glyphBox.width/2))/h;
+    const centerY=Math.abs((ocrBox.y+ocrBox.height/2)-(glyphBox.y+glyphBox.height/2))/h;
+    const widthDelta=Math.min(1,Math.abs(Math.log(Math.max(.01,ocrBox.width/glyphBox.width)))/Math.log(4));
+    const confidence=clamp01(.34*overlapX+.16*overlapY+.24*(1-Math.min(1,centerX))+.12*(1-Math.min(1,centerY))+.14*(1-widthDelta));
+    const cost=1-confidence+.13*Math.abs(ocrGroup.length-glyphGroup.length);
+    return {cost,confidence,metrics:{horizontalOverlap:Number(overlapX.toFixed(3)),verticalOverlap:Number(overlapY.toFixed(3)),
+      centerDistanceX:Number(centerX.toFixed(3)),centerDistanceY:Number(centerY.toFixed(3)),widthRatio:Number((ocrBox.width/glyphBox.width).toFixed(3)),ocrBounds:ocrBox,glyphBounds:glyphBox}};
+  }
+  function alignOcrSymbolsToGlyphs(ocrSymbols,glyphs,options={}) {
+    const width=Number(options.width)||1,height=Number(options.height)||1;
+    const sx=Number(options.scaleX)||1,sy=Number(options.scaleY)||1;
+    const sourceSymbols=(ocrSymbols||[]).map((symbol,index)=>({text:String(symbol.text||""),confidence:Number.isFinite(symbol.confidence)?symbol.confidence:null,
+      bbox:symbol.bbox||null,index:Number.isInteger(symbol.index)?symbol.index:index,source:symbol.source||"tesseract-block-symbol",sharedBox:symbol.sharedBox===true}));
+    const hasCoordinates=sourceSymbols.length>0&&sourceSymbols.every(s=>normalizedBox(s.bbox,sx,sy));
+    const measured=sourceSymbols.map((symbol,index)=>({...symbol,_box:hasCoordinates?normalizedBox(symbol.bbox,sx,sy):{
+      x:((index+.12)/Math.max(1,sourceSymbols.length))*width,y:0,width:.76*width/Math.max(1,sourceSymbols.length),height}}));
+    const orderedGlyphs=(glyphs||[]).map((glyph,index)=>({index:Number.isInteger(glyph.index)?glyph.index:index+1,bounds:glyph.bounds||glyph.rect})).filter(g=>g.bounds)
+      .sort((a,b)=>a.bounds.x-b.bounds.x||a.bounds.y-b.bounds.y);
+    const n=measured.length,m=orderedGlyphs.length;
+    const states=Array.from({length:n+1},()=>Array.from({length:m+1},()=>[]));states[0][0]=[{cost:0,groups:[]}];
+    function push(i,j,candidate){const list=states[i][j];list.push(candidate);list.sort((a,b)=>a.cost-b.cost);const signatures=new Set();states[i][j]=list.filter(item=>{const sig=item.groups.map(g=>`${g.ocrIndices.join("")}:${g.glyphIndices.join("")}`).join("|");if(signatures.has(sig))return false;signatures.add(sig);return true;}).slice(0,3);}
+    for(let i=0;i<=n;i++)for(let j=0;j<=m;j++)for(const state of states[i][j]){
+      if(i<n)push(i+1,j,{cost:state.cost+.62,groups:[...state.groups,{ocrIndices:[i],glyphIndices:[],relation:"ocr-without-glyph",confidence:0,metrics:{}}]});
+      if(j<m)push(i,j+1,{cost:state.cost+.62,groups:[...state.groups,{ocrIndices:[],glyphIndices:[j],relation:"glyph-without-ocr",confidence:0,metrics:{}}]});
+      for(let a=1;a<=Math.min(3,n-i);a++)for(let b=1;b<=Math.min(3,m-j);b++){
+        if(a>1&&b>1)continue;
+        const os=measured.slice(i,i+a),gs=orderedGlyphs.slice(j,j+b),scored=scoreSpatialGroup(os,gs);
+        const relation=a===1&&b===1?"one-to-one":a>1&&b===1?"many-ocr-to-one-glyph":a===1&&b>1?"one-ocr-to-many-glyphs":"grouped-many-to-many";
+        push(i+a,j+b,{cost:state.cost+scored.cost,groups:[...state.groups,{ocrIndices:Array.from({length:a},(_,k)=>i+k),glyphIndices:Array.from({length:b},(_,k)=>j+k),relation,
+          confidence:Number(scored.confidence.toFixed(3)),metrics:scored.metrics}]});
+      }
+    }
+    const finals=states[n][m],best=finals[0],second=finals[1],margin=second?Number((second.cost-best.cost).toFixed(3)):1;
+    const quality=best?clamp01(1-best.cost/Math.max(1,Math.max(n,m)*.78)):0;
+    const confidence=Number(Math.min(hasCoordinates?1:.55,quality).toFixed(3));
+    const groups=(best?.groups||[]).map(group=>({...group,ocrIndices:group.ocrIndices.map(i=>i+1),glyphIndices:group.glyphIndices.map(i=>orderedGlyphs[i].index),
+      ocr:group.ocrIndices.map(i=>({index:i+1,text:measured[i].text,bounds:measured[i]._box,source:measured[i].source,confidence:measured[i].confidence})),
+      glyphs:group.glyphIndices.map(i=>({index:orderedGlyphs[i].index,bounds:orderedGlyphs[i].bounds}))}));
+    const anomalies=groups.filter(g=>g.relation!=="one-to-one").map(g=>({relation:g.relation,ocrIndices:g.ocrIndices,glyphIndices:g.glyphIndices}));
+    const ambiguous=Boolean(second&&margin<.035);
+    return {source:hasCoordinates?"tesseract-block-symbols":"sequential-fallback",confidence,margin,ambiguous,hasCoordinates,
+      ocrCharacters:measured.map((s,i)=>({index:i+1,text:s.text,confidence:s.confidence,bounds:hasCoordinates?normalizedBox(s.bbox,sx,sy):null,source:s.source,sharedBox:s.sharedBox})),
+      physicalGlyphs:orderedGlyphs.map(g=>({index:g.index,bounds:g.bounds})),groups,anomalies,
+      alternatives:finals.slice(1,3).map(path=>({cost:Number(path.cost.toFixed(3)),groups:path.groups.map(g=>({ocrIndices:g.ocrIndices.map(i=>i+1),glyphIndices:g.glyphIndices.map(i=>orderedGlyphs[i]?.index).filter(Number.isFinite),relation:g.relation}))}))};
+  }
+
+  async function readPsm8Morphology(sourceCrop, referenceCrop, worker, digitReader, sharedInitial=null, ocrReused=false) {
+    const initial=sharedInitial||await read(worker,referenceCrop,HYBRID_STRATEGY);
+    if(!digitReader||typeof digitReader.segment!=="function")return {...initial,strategy:HYBRID_STRATEGY.id,label:HYBRID_STRATEGY.label,ocrReused,morphology:null,proposedCorrection:null,warnings:[...initial.warnings,"morphology-segmenter-unavailable"]};
     const imageData=sourceCrop.getContext("2d",{willReadFrequently:true}).getImageData(0,0,sourceCrop.width,sourceCrop.height);
     const counts=[initial.digitCount,4,3,5,6].filter((n,i,a)=>Number.isInteger(n)&&n>=3&&n<=6&&a.indexOf(n)===i);
     const alternatives=counts.map(count=>{const s=digitReader.segment(imageData,"trophy",count);return {count,reason:s.reason||null,confidence:s.confidence??null,bounds:s.bounds||[],metrics:s.metrics||null,glyphs:s.glyphs||[]};});
@@ -91,8 +209,83 @@
       if(evidence.length&&corrected.join("")!==initial.digits)proposedCorrection={from:initial.digits,to:corrected.join(""),evidence,automatic:false,
         rationale:"Proposition seulement : chaque 9 proposé a une boucle supérieure unique, une projection de pixels dans la partie basse et une marge de score morphologique forte. La lecture OCR initiale reste inchangée."};
     }
-    return {...initial,value:initial.value,morphology:{ocrDigitCount:initial.digitCount,segmentationAlternatives:alternatives.map(({glyphs,...x})=>x),selectedCount:chosen?.count||null,glyphs},
+    return {...initial,strategy:HYBRID_STRATEGY.id,label:HYBRID_STRATEGY.label,ocrReused,value:initial.value,morphology:{ocrDigitCount:initial.digitCount,segmentationAlternatives:alternatives.map(({glyphs,...x})=>x),selectedCount:chosen?.count||null,glyphs},
       proposedCorrection,warnings:[...initial.warnings,...(!chosen?["morphology-segmentation-uncertain"]:[])]};
+  }
+
+  async function readPsm8GlyphAlignment(sourceCrop,referenceCrop,worker,digitReader,sharedInitial=null,ocrReused=false){
+    const started=performance.now(),initial=sharedInitial||await read(worker,referenceCrop,ALIGNMENT_STRATEGY,{blocks:true});
+    const ocrMs=initial.ms||0;
+    if(!digitReader||typeof digitReader.segment!=="function")return {...initial,strategy:ALIGNMENT_STRATEGY.id,label:ALIGNMENT_STRATEGY.label,
+      alignment:null,morphologyChecks:[],proposedCorrection:null,decision:"abstain",decisionRationale:"Le segmenteur de glyphes physiques est indisponible.",ocrReused,
+      stageTimings:{ocrMs,segmentationMs:0,alignmentMs:0,morphologyMs:0,totalMs:Math.round(performance.now()-started)},warnings:[...initial.warnings,"morphology-segmenter-unavailable"]};
+    const imageData=sourceCrop.getContext("2d",{willReadFrequently:true}).getImageData(0,0,sourceCrop.width,sourceCrop.height);
+    const ocrCharacters=initial.ocrSymbols?.length===initial.digitCount?initial.ocrSymbols:initial.digits.split("").map((text,index)=>({text,confidence:null,bbox:null,index,source:"normalized-text-fallback",sharedBox:false}));
+    const counts=[3,4,5,6],candidates=[];let segmentationElapsed=0,alignmentElapsed=0;
+    for(const count of counts){
+      const segAt=performance.now(),segmentation=digitReader.segment(imageData,"trophy",count);segmentationElapsed+=performance.now()-segAt;
+      if(segmentation.reason||segmentation.glyphs?.length!==count){candidates.push({count,reason:segmentation.reason||"incomplete-segmentation",confidence:segmentation.confidence??null,
+        bounds:segmentation.bounds||[],metrics:segmentation.metrics||null,alignment:null,score:0,_segmentation:null});continue;}
+      const alignAt=performance.now(),alignment=alignOcrSymbolsToGlyphs(ocrCharacters,segmentation.glyphs.map((g,index)=>({index:index+1,bounds:g.rect})),
+        {width:sourceCrop.width,height:sourceCrop.height,scaleX:sourceCrop.width/Math.max(1,referenceCrop.width),scaleY:sourceCrop.height/Math.max(1,referenceCrop.height)});alignmentElapsed+=performance.now()-alignAt;
+      const segmentationConfidence=Number.isFinite(segmentation.confidence)?segmentation.confidence:0;
+      candidates.push({count,reason:null,confidence:segmentationConfidence,bounds:segmentation.bounds||segmentation.glyphs.map(g=>g.rect),metrics:segmentation.metrics||null,
+        alignment,score:Number((.68*alignment.confidence+.32*segmentationConfidence).toFixed(3)),_segmentation:segmentation});
+    }
+    const ranked=candidates.filter(c=>c._segmentation).sort((a,b)=>b.score-a.score),selected=ranked[0]||null;
+    const candidateMargin=selected&&ranked[1]?Number((selected.score-ranked[1].score).toFixed(3)):1;
+    const alignment=selected?.alignment||null,anomalies=alignment?.anomalies||[];
+    const inspections=[],morphStarted=performance.now();
+    if(selected&&alignment){
+      for(const group of alignment.groups.filter(g=>g.relation!=="one-to-one")){
+        for(const glyphRef of group.glyphs){
+          const glyph=selected._segmentation.glyphs[glyphRef.index-1];if(!glyph)continue;
+          inspections.push({glyphIndex:glyphRef.index,rect:glyph.rect,relation:group.relation,features:targetedMorphology(glyph.bitmap),ocrIndices:group.ocrIndices});
+        }
+      }
+    }
+    const morphologyMs=Math.round(performance.now()-morphStarted);
+    let proposedCorrection=null,decision="keep-ocr",decisionRationale="OCR et segmentation ne montrent pas d’anomalie localisée; la lecture PSM 8 est conservée.";
+    const manyToOne=alignment?.groups.filter(g=>g.relation==="many-ocr-to-one-glyph")||[];
+    const hasOtherAnomaly=anomalies.some(a=>a.relation!=="many-ocr-to-one-glyph");
+    if(!selected||!alignment){decision="abstain";decisionRationale="Aucune segmentation physique exploitable ne permet d’établir une correspondance.";}
+    else if(!anomalies.length){
+      if(selected.count!==initial.digitCount){decision="abstain";decisionRationale="Le nombre de glyphes et le nombre de caractères OCR divergent sans association localisée.";}
+    }else if(alignment.ambiguous||!alignment.hasCoordinates){decision="abstain";decisionRationale=alignment.hasCoordinates?
+      "Plusieurs alignements spatiaux restent proches; aucune suppression ou fusion de caractère n’est justifiée.":
+      "Les coordonnées OCR sont absentes; l’alignement séquentiel reste une hypothèse et ne permet pas de corriger.";}
+    else if(manyToOne.length!==1||hasOtherAnomaly||anomalies.length!==1){decision="abstain";decisionRationale="L’anomalie n’est pas isolée à une seule association de plusieurs caractères OCR vers un glyphe.";}
+    else {
+      const group=alignment.groups.find(g=>g.relation==="many-ocr-to-one-glyph"),inspection=inspections.find(g=>g.glyphIndex===group.glyphIndices[0]);
+      const morph=inspection?.features,localAlignment=group?.confidence??0;
+      const eligible=group.ocrIndices.length>1&&morph?.classification==="9"&&morph.confidence>=.88&&morph.margin>=.24&&
+        selected.confidence>=.65&&alignment.confidence>=.76&&localAlignment>=.82&&candidateMargin>=.055&&
+        group.ocrIndices.length<=3&&group.glyphIndices.length===1;
+      if(eligible){
+        let output="",valid=true;
+        for(let i=0;i<ocrCharacters.length;){
+          const current=alignment.groups.find(g=>g.ocrIndices[0]===i+1);
+          if(!current){valid=false;break;}
+          if(current.relation==="many-ocr-to-one-glyph"&&current===group){output+="9";i+=current.ocrIndices.length;}
+          else if(current.relation==="one-to-one"&&current.ocrIndices.length===1){output+=ocrCharacters[i].text;i++;}
+          else {valid=false;break;}
+        }
+        if(valid&&/^[0-9]{4}$/.test(output)&&output!==initial.digits){
+          proposedCorrection={from:initial.digits,to:output,automatic:false,evidence:{ocrIndices:group.ocrIndices,glyphIndex:group.glyphIndices[0],
+            alignmentConfidence:alignment.confidence,groupConfidence:localAlignment,morphology:morph},
+            rationale:"Proposition localisée : plusieurs boîtes de caractères OCR recouvrent un seul glyphe physique; ce glyphe présente une morphologie de 9 suffisamment discriminante. Les autres caractères restent inchangés."};
+          decision="propose-correction";decisionRationale=proposedCorrection.rationale;
+        }else {decision="abstain";decisionRationale="La fusion morphologique ne produit pas une lecture numérique de quatre chiffres en conservant les caractères non suspects.";}
+      }else {decision="abstain";decisionRationale=morph?.classification==="other"||morph?.classification==="indeterminate"?
+        "Le glyphe suspect n’est pas classé comme 9 avec une confiance et une marge suffisantes; correction refusée.":
+        "L’association ou la classification morphologique ne franchit pas les seuils de décision conservateurs.";}
+    }
+    const alignmentOutput=alignment?{...alignment,coordinateSpace:{width:sourceCrop.width,height:sourceCrop.height,inputWidth:referenceCrop.width,inputHeight:referenceCrop.height},selectedGlyphCount:selected.count,candidateScore:selected.score,candidateMargin,
+      segmentationAlternatives:candidates.map(({_segmentation,...c})=>c),suspectGlyphs:inspections}:null;
+    const totalMs=Math.round(performance.now()-started);
+    return {...initial,strategy:ALIGNMENT_STRATEGY.id,label:ALIGNMENT_STRATEGY.label,ocrReused,value:initial.value,ms:totalMs,ocrMs,preview:referenceCrop.toDataURL("image/jpeg",.78),alignment:alignmentOutput,morphologyChecks:inspections,
+      proposedCorrection,decision,decisionRationale,stageTimings:{ocrMs,segmentationMs:Math.round(segmentationElapsed),alignmentMs:Math.round(alignmentElapsed),morphologyMs,totalMs},
+      warnings:[...initial.warnings,...(!alignment?["alignment-unavailable"]:[]),...(alignment&&!alignment.hasCoordinates?["ocr-symbol-coordinates-unavailable"]:[])]};
   }
   const MAX_EDGE = 4096;
 
@@ -200,14 +393,38 @@
     return { raw, digits, value: digits.length === 4 ? digits : "", digitCount: digits.length };
   }
 
-  async function read(worker, image, strategy) {
+  function extractOcrSymbols(data) {
+    const symbols = [];
+    let symbolIndex = 0;
+    for (const block of Array.isArray(data?.blocks) ? data.blocks : []) {
+      for (const paragraph of Array.isArray(block?.paragraphs) ? block.paragraphs : []) {
+        for (const line of Array.isArray(paragraph?.lines) ? paragraph.lines : []) {
+          for (const word of Array.isArray(line?.words) ? line.words : []) {
+            for (const symbol of Array.isArray(word?.symbols) ? word.symbols : []) {
+              const text = String(symbol?.text || "");
+              const bbox = symbol?.bbox && [symbol.bbox.x0, symbol.bbox.y0, symbol.bbox.x1, symbol.bbox.y1].every(Number.isFinite)
+                ? { x0: symbol.bbox.x0, y0: symbol.bbox.y0, x1: symbol.bbox.x1, y1: symbol.bbox.y1 } : null;
+              const chars = [...text].filter((char) => /[0-9]/.test(char));
+              for (const char of chars) symbols.push({ text: char, confidence: Number.isFinite(symbol?.confidence) ? symbol.confidence : null,
+                bbox, symbolIndex, sharedBox: chars.length > 1, source: "tesseract-block-symbol" });
+              symbolIndex++;
+            }
+          }
+        }
+      }
+    }
+    return symbols;
+  }
+
+  async function read(worker, image, strategy, outputOptions = null) {
     const started = performance.now();
     await worker.setParameters({ tessedit_pageseg_mode: String(strategy.psm), preserve_interword_spaces: "1", tessedit_char_whitelist: "0123456789" });
-    const output = await worker.recognize(image);
+    const output = outputOptions ? await worker.recognize(image, {}, outputOptions) : await worker.recognize(image);
     const parsed = normalizedRead(output.data?.text);
     return { strategy: strategy.id, label: strategy.label, psm: strategy.psm, preprocessing: strategy.prep, parameters: strategy.parameters,
       tesseditCharWhitelist: "0123456789", preserveInterwordSpaces: "1",
       ...parsed, confidence: Number.isFinite(output.data?.confidence) ? output.data.confidence : null,
+      ...(outputOptions?.blocks ? { ocrSymbols: extractOcrSymbols(output.data) } : {}),
       ms: Math.round(performance.now() - started), warnings: parsed.digitCount === 4 ? [] : [parsed.digitCount ? "unexpected-digit-count" : "no-numeric-read"] };
   }
 
@@ -277,15 +494,25 @@
 
   async function compare(sourceCrop, referenceCrop, worker, digitReader, onProgress = () => {}, requestedIds = null) {
     if (!sourceCrop || !referenceCrop || !worker) throw new Error("Découpe fixe ou Worker OCR indisponible.");
-    const chosen = Array.isArray(requestedIds) ? [...requestedIds.filter((item) => item && typeof item === "object" && Number.isFinite(item.psm) && typeof item.prep === "string"), ...STRATEGIES.filter((item) => requestedIds.includes(item.id)), ...(requestedIds.includes("psm8-morphology") ? [HYBRID_STRATEGY] : [])] : STRATEGIES;
+    const chosen = Array.isArray(requestedIds) ? [...requestedIds.filter((item) => item && typeof item === "object" && Number.isFinite(item.psm) && typeof item.prep === "string"), ...STRATEGIES.filter((item) => requestedIds.includes(item.id)), ...(requestedIds.includes("psm8-morphology") ? [HYBRID_STRATEGY] : []), ...(requestedIds.includes(ALIGNMENT_STRATEGY.id) ? [ALIGNMENT_STRATEGY] : [])] : STRATEGIES;
     if (!chosen.length) chosen.push(STRATEGIES[0]);
     const started = performance.now(), results = [];
+    const needsDetailedPsm8=chosen.some(item=>item.id===ALIGNMENT_STRATEGY.id||item.id===HYBRID_STRATEGY.id);
+    const sharesDetailedPsm8=chosen.filter(item=>item.id===ALIGNMENT_STRATEGY.id||item.id===HYBRID_STRATEGY.id||(Number(item.psm)===8&&item.prep==="reference")).length>1;
+    let detailedPsm8Promise=null;
+    const readDetailedPsm8=(strategy=ALIGNMENT_STRATEGY)=>{
+    if(!detailedPsm8Promise)detailedPsm8Promise=read(worker,referenceCrop,strategy,{text:true,blocks:true});
+      return detailedPsm8Promise;
+    };
     try {
       for (const [index, strategy] of chosen.entries()) {
         onProgress({ strategy: strategy.id, index: index + 1, total: chosen.length });
         if (strategy.id === "psm8-morphology") {
-          try { results.push(await readPsm8Morphology(sourceCrop, referenceCrop, worker, digitReader)); }
+          try { const initial=needsDetailedPsm8?await readDetailedPsm8(strategy):null;results.push(await readPsm8Morphology(sourceCrop, referenceCrop, worker, digitReader,initial,sharesDetailedPsm8)); }
           catch (error) { results.push(failedRead(strategy, error, Math.round(performance.now() - started))); }
+        } else if(strategy.id===ALIGNMENT_STRATEGY.id){
+          try {const initial=await readDetailedPsm8(strategy);results.push(await readPsm8GlyphAlignment(sourceCrop,referenceCrop,worker,digitReader,initial,sharesDetailedPsm8));}
+          catch(error){results.push(failedRead(strategy,error,Math.round(performance.now()-started)));}
         } else if (strategy.id === "glyphs") {
           try { results.push(await readGlyphs(sourceCrop, worker, digitReader)); }
           catch (error) { results.push(failedRead(strategy, error, Math.round(performance.now() - started))); }
@@ -294,7 +521,8 @@
           let image = null;
           try {
             image = strategy.prep === "reference" ? referenceCrop : strategy.prep === "tight-crop" ? tightCropCanvas(sourceCrop) : prepCanvas(sourceCrop, strategy.prep, 3);
-            const result = await read(worker, image, strategy);
+            const isReferencePsm8=Number(strategy.psm)===8&&strategy.prep==="reference";
+            const result = isReferencePsm8&&needsDetailedPsm8?await readDetailedPsm8(strategy):await read(worker, image, strategy);
             results.push({ ...result, ocrMs: result.ms, ms: Math.round(performance.now() - strategyStarted), preview: image.toDataURL("image/jpeg", .78) });
           } catch (error) {
             results.push(failedRead(strategy, error, Math.round(performance.now() - strategyStarted)));
@@ -306,5 +534,7 @@
     } finally { /* Caller owns and releases the two frozen source crops. */ }
   }
 
-  return { version: "0.3.0-experimental", strategies: STRATEGIES, hybridStrategy: HYBRID_STRATEGY, psmModes: PSM_MODES, preprocessingModes: PREPROCESSING_MODES, buildCombinations, morphologyFeatures, prepCanvas, normalizedRead, consensus, compare };
+  return { version: "0.5.0-experimental", strategies: STRATEGIES, hybridStrategy: HYBRID_STRATEGY, alignmentStrategy: ALIGNMENT_STRATEGY,
+    psmModes: PSM_MODES, preprocessingModes: PREPROCESSING_MODES, buildCombinations, morphologyFeatures, targetedMorphology,
+    extractOcrSymbols, alignOcrSymbolsToGlyphs, prepCanvas, normalizedRead, consensus, compare };
 });

@@ -134,8 +134,10 @@ test("recommended seven-read set focuses corrections on PSM 8 and 13", () => {
 });
 test("numeric lab UI exposes preset, count, independent combinations and exports", () => {
  const html=fs.readFileSync(path.join(root,"docs/war-results-vision.html"),"utf8");
- for(const id of ["ocrCombinationOptions","applyRecommendedOcrPreset","ocrCombinationCount","ocrGlyphOption","ocrMorphologyOption","copyNumericOcrButton","exportNumericOcrButton"]) assert.match(html,new RegExp(id));
- assert.match(html,/war-results-ocr-experiment\.js\?v=0\.4\.0-experimental/);
+ for(const id of ["ocrCombinationOptions","applyRecommendedOcrPreset","ocrCombinationCount","ocrGlyphOption","ocrMorphologyOption","ocrAlignmentOption","copyNumericOcrButton","exportNumericOcrButton"]) assert.match(html,new RegExp(id));
+ assert.match(html,/war-results-ocr-experiment\.js\?v=0\.5\.0-glyph-alignment/);
+ assert.match(html,/war-results-vision\.js\?v=5\.0-glyph-alignment/);
+ assert.match(html,/war-results-vision\.css\?v=6\.4-glyph-alignment/);
 });
 
 test("combined OCR results keep the existing session key, details and JSON export actions", () => {
@@ -172,5 +174,105 @@ test("JSON diagnostics retain combination ID, morphology evidence and proposal e
  const ui=fs.readFileSync(path.join(root,"docs/war-results-vision.js"),"utf8");
  const engine=fs.readFileSync(path.join(root,"docs/war-results-ocr-experiment.js"),"utf8");
  assert.ok(ui.includes("proposedCorrection: item.proposedCorrection"));assert.ok(ui.includes("morphology: item.morphology"));
- assert.match(ui,/ocrMorphologyOption/);assert.match(engine,/automatic:false/);
+ assert.ok(ui.includes("alignment: item.alignment"));assert.ok(ui.includes("decisionRationale: item.decisionRationale"));
+ assert.match(ui,/ocrMorphologyOption/);assert.match(ui,/ocrAlignmentOption/);assert.match(engine,/automatic:false/);
+ for(const field of ["ocrSymbols","alignment","morphologyChecks","decision","decisionRationale","stageTimings","ocrReused"]) assert.ok(ui.includes(`${field}: item.${field}`),`JSON export persists ${field}`);
+ assert.match(ui,/sessionStorage\.setItem\(NUMERIC_OCR_KEY, JSON\.stringify\(numericOcrSummary\.map\(\(entry\) => entry\.compact\)\)\)/);
+});
+
+function simpleGlyphs(){return [0,1,2,3].map((_,i)=>({index:i+1,bounds:{x:i*20,y:2,width:12,height:20}}));}
+function makeSymbolsForSplit(splitAt){
+ const out=[];let index=0;
+ for(let glyph=0;glyph<4;glyph++){
+  const x=glyph*20;
+  if(glyph===splitAt){out.push({text:"8",index:index++,bbox:{x0:x,y0:2,x1:x+6,y1:22}},{text:"9",index:index++,bbox:{x0:x+6,y0:2,x1:x+12,y1:22}});}
+  else out.push({text:String((glyph+1)%10),index:index++,bbox:{x0:x,y0:2,x1:x+12,y1:22}});
+ }
+ return out;
+}
+function digitBitmap(kind){
+ const a=new Uint8Array(20*24),put=(x,y)=>{if(x>=0&&x<20&&y>=0&&y<24)a[y*20+x]=1;};
+ if(kind==="9"){for(let y=2;y<=12;y++)for(let x=4;x<=15;x++)if(x===4||x===15||y===2||y===12)put(x,y);for(let y=12;y<22;y++)put(15,y);}
+ if(kind==="0"){for(let y=2;y<=21;y++)for(let x=4;x<=15;x++)if(x===4||x===15||y===2||y===21)put(x,y);}
+ if(kind==="8"){for(let y=2;y<=21;y++)for(let x=4;x<=15;x++)if(x===4||x===15||y===2||y===11||y===12||y===21)put(x,y);}
+ if(kind==="5"){for(let x=4;x<=15;x++){put(x,2);put(x,11);}for(let y=2;y<=11;y++)put(4,y);for(let y=11;y<=19;y++)put(15,y);for(let x=8;x<=15;x++)put(x,21);for(let y=19;y<=21;y++)put(15,y);}
+ if(kind==="2"){for(let x=4;x<=15;x++){put(x,2);put(x,11);put(x,21);}for(let i=0;i<9;i++){put(14-i,3+i);put(5+i,12+i);}}
+ return a;
+}
+function pixelImage(width,height){return {width,height,getContext:()=>({getImageData:()=>({width,height,data:new Uint8ClampedArray(width*height*4)})})};}
+function blockFor(symbols){return [{paragraphs:[{lines:[{words:[{symbols}]}]}]}];}
+function scaledSymbols(symbols,factor=3){return symbols.map(s=>({...s,bbox:{x0:s.bbox.x0*factor,y0:s.bbox.y0*factor,x1:s.bbox.x1*factor,y1:s.bbox.y1*factor}}));}
+
+test("Tesseract block output yields digit symbols, confidence and individual boxes",()=>{
+ const {api}=loadExperiment(),symbols=api.extractOcrSymbols({blocks:blockFor([{text:"2",confidence:88,bbox:{x0:4,y0:2,x1:8,y1:16}},{text:"9",confidence:91,bbox:{x0:9,y0:2,x1:13,y1:16}}])});
+ assert.deepEqual(JSON.parse(JSON.stringify(symbols.map(s=>[s.text,s.confidence,s.bbox.x0,s.bbox.x1]))),[["2",88,4,8],["9",91,9,13]]);
+});
+test("four OCR characters and four physical glyphs align one-to-one",()=>{
+ const {api}=loadExperiment(),result=api.alignOcrSymbolsToGlyphs(makeSymbolsForSplit(-1),simpleGlyphs(),{width:80,height:24});
+ assert.equal(result.groups.length,4);assert.ok(result.groups.every(g=>g.relation==="one-to-one"));assert.equal(result.anomalies.length,0);assert.ok(result.confidence>.75);
+});
+test("five OCR characters map to four glyphs for splits at the beginning, middle and end",()=>{
+ const {api}=loadExperiment();for(const splitAt of [0,2,3]){const result=api.alignOcrSymbolsToGlyphs(makeSymbolsForSplit(splitAt),simpleGlyphs(),{width:80,height:24});
+  assert.equal(result.anomalies.length,1);assert.equal(result.anomalies[0].relation,"many-ocr-to-one-glyph");assert.deepEqual(result.anomalies[0].glyphIndices,[splitAt+1]);assert.equal(result.ambiguous,false);}
+});
+test("three OCR characters can align one character to two physical glyphs",()=>{
+ const {api}=loadExperiment(),result=api.alignOcrSymbolsToGlyphs([
+  {text:"1",bbox:{x0:0,y0:2,x1:32,y1:22}},{text:"2",bbox:{x0:40,y0:2,x1:52,y1:22}},{text:"3",bbox:{x0:60,y0:2,x1:72,y1:22}}
+ ],simpleGlyphs(),{width:80,height:24});
+ assert.ok(result.anomalies.some(a=>a.relation==="one-ocr-to-many-glyphs"));
+});
+test("missing OCR boxes use a low-confidence sequential fallback",()=>{
+ const {api}=loadExperiment(),result=api.alignOcrSymbolsToGlyphs(makeSymbolsForSplit(2).map(s=>({...s,bbox:null})),simpleGlyphs(),{width:80,height:24});
+ assert.equal(result.source,"sequential-fallback");assert.equal(result.hasCoordinates,false);assert.ok(result.confidence<=.55);
+});
+test("overlapping OCR boxes remain ambiguous",()=>{
+ const {api}=loadExperiment(),symbols=Array.from({length:5},(_,i)=>({text:String(i),bbox:{x0:30,y0:2,x1:42,y1:22}}));
+ assert.equal(api.alignOcrSymbolsToGlyphs(symbols,simpleGlyphs(),{width:80,height:24}).ambiguous,true);
+});
+test("targeted morphology distinguishes 8, 9 and 5 and rejects 0 and 2 as 9",()=>{
+ const {api}=loadExperiment(),read=kind=>api.targetedMorphology(digitBitmap(kind));
+ assert.equal(read("8").classification,"8");assert.equal(read("9").classification,"9");assert.equal(read("5").classification,"5");
+ assert.equal(read("0").classification,"other");assert.equal(read("2").classification,"other");
+});
+test("weak glyph evidence is indeterminate rather than defaulting to 9",()=>{
+ const {api}=loadExperiment(),result=api.targetedMorphology(new Uint8Array(20*24));assert.equal(result.classification,"indeterminate");assert.equal(result.confidence,0);
+});
+test("localized PSM 8 alignment proposes a morphology-supported merge without mutating the OCR read",async()=>{
+ const {api}=loadExperiment(),source=pixelImage(80,24),symbols=scaledSymbols([
+  {text:"3",confidence:78,bbox:{x0:0,y0:2,x1:10,y1:22}},{text:"4",confidence:78,bbox:{x0:20,y0:2,x1:30,y1:22}},
+  {text:"8",confidence:78,bbox:{x0:40,y0:2,x1:45,y1:22}},{text:"9",confidence:78,bbox:{x0:45,y0:2,x1:50,y1:22}},{text:"6",confidence:78,bbox:{x0:60,y0:2,x1:70,y1:22}}
+ ]);
+ const worker={calls:0,setParameters:async()=>{},recognize:async(_image,_options,output)=>{worker.calls++;assert.deepEqual(JSON.parse(JSON.stringify(output)),{text:true,blocks:true});return {data:{text:"34896",confidence:78,blocks:blockFor(symbols)}};}};
+ const reader={segment:(_data,_category,count)=>count===4?{confidence:1,glyphs:simpleGlyphs().map((g,i)=>({rect:g.bounds,bitmap:i===2?digitBitmap("9"):digitBitmap("0")}))}:{reason:"no-coherent-run",confidence:.1,glyphs:[]}};
+ const result=await api.compare(source,{width:240,height:72,toDataURL:()=>"data:image/jpeg;base64,ref"},worker,reader,()=>{},["psm8-glyph-alignment"]),item=result.strategies[0];
+ assert.equal(worker.calls,1);assert.equal(item.raw,"34896");assert.equal(item.value,"");assert.equal(item.proposedCorrection.to,"3496");assert.equal(item.decision,"propose-correction");assert.equal(item.proposedCorrection.automatic,false);assert.deepEqual(item.alignment.anomalies[0].ocrIndices,[3,4]);
+});
+test("the PSM 8 read is shared between the reference strategy and alignment",async()=>{
+ const {api}=loadExperiment(),source=pixelImage(80,24),symbols=scaledSymbols(makeSymbolsForSplit(2));
+ const worker={calls:0,setParameters:async()=>{},recognize:async()=>{worker.calls++;return {data:{text:"34896",confidence:78,blocks:blockFor(symbols)}};}};
+ const reader={segment:(_data,_category,count)=>count===4?{confidence:1,glyphs:simpleGlyphs().map(g=>({rect:g.bounds,bitmap:digitBitmap("0")}))}:{reason:"no-run",glyphs:[]}};
+ const baseline={id:"combo:reference:psm8",psm:8,prep:"reference",label:"PSM 8 · Référence"};
+ const result=await api.compare(source,{width:240,height:72,toDataURL:()=>"data:image/jpeg;base64,ref"},worker,reader,()=>{},[baseline,"psm8-glyph-alignment"]);
+ assert.equal(worker.calls,1);assert.equal(result.strategies[0].strategy,baseline.id);assert.equal(result.strategies[1].ocrReused,true);
+});
+test("coherent OCR and segmentation keep the existing four-digit value",async()=>{
+ const {api}=loadExperiment(),source=pixelImage(80,24),symbols=scaledSymbols(makeSymbolsForSplit(-1));
+ const worker={setParameters:async()=>{},recognize:async()=>({data:{text:"1234",confidence:95,blocks:blockFor(symbols)}})};
+ const reader={segment:(_data,_category,count)=>count===4?{confidence:1,glyphs:simpleGlyphs().map(g=>({rect:g.bounds,bitmap:digitBitmap("9")}))}:{reason:"no-run",glyphs:[]}};
+ const result=await api.compare(source,{width:240,height:72,toDataURL:()=>"data:image/jpeg;base64,ref"},worker,reader,()=>{},["psm8-glyph-alignment"]),item=result.strategies[0];
+ assert.equal(item.value,"1234");assert.equal(item.proposedCorrection,null);assert.equal(item.decision,"keep-ocr");
+});
+test("coordinate-free anomalies and a centered 0 morphology abstain",async()=>{
+ const {api}=loadExperiment(),source=pixelImage(80,24),symbols=makeSymbolsForSplit(2).map(s=>({...s,bbox:null}));
+ const worker={setParameters:async()=>{},recognize:async()=>({data:{text:"34896",confidence:99,blocks:blockFor(symbols)}})};
+ const reader={segment:(_data,_category,count)=>count===4?{confidence:1,glyphs:simpleGlyphs().map(g=>({rect:g.bounds,bitmap:digitBitmap("0")}))}:{reason:"no-run",glyphs:[]}};
+ const result=await api.compare(source,{width:240,height:72,toDataURL:()=>"data:image/jpeg;base64,ref"},worker,reader,()=>{},["psm8-glyph-alignment"]),item=result.strategies[0];
+ assert.equal(item.proposedCorrection,null);assert.equal(item.decision,"abstain");assert.ok(item.warnings.includes("ocr-symbol-coordinates-unavailable"));
+});
+test("contradictory 8 morphology never authorizes merging OCR characters",async()=>{
+ const {api}=loadExperiment(),source=pixelImage(80,24),symbols=scaledSymbols(makeSymbolsForSplit(2));
+ const worker={setParameters:async()=>{},recognize:async()=>({data:{text:"34896",confidence:99,blocks:blockFor(symbols)}})};
+ const reader={segment:(_data,_category,count)=>count===4?{confidence:1,glyphs:simpleGlyphs().map((g,i)=>({rect:g.bounds,bitmap:i===2?digitBitmap("8"):digitBitmap("0")}))}:{reason:"no-run",glyphs:[]}};
+ const result=await api.compare(source,{width:240,height:72,toDataURL:()=>"data:image/jpeg;base64,ref"},worker,reader,()=>[],["psm8-glyph-alignment"]),item=result.strategies[0];
+ assert.equal(item.morphologyChecks[0].features.classification,"8");assert.equal(item.proposedCorrection,null);assert.equal(item.decision,"abstain");
 });

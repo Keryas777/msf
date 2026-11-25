@@ -183,3 +183,13 @@
 @media(min-width:980px){.ocr-combination-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
 .morphology-diagnostic{padding:8px;border-left:3px solid #a887ff;background:#1e1733}
+.ocr-alignment-details{margin-top:10px;padding:8px;border:1px solid #3d5f70;border-radius:9px;background:#0d1b25;color:#e1f3f6}
+.ocr-alignment-details>summary,.ocr-alignment-visual>summary{cursor:pointer;min-height:40px;display:flex;align-items:center;font-weight:650;color:#bfeeff}
+.ocr-alignment-details p,.ocr-alignment-details li{font-size:.82rem;line-height:1.45;overflow-wrap:anywhere}
+.ocr-alignment-details ul{padding-left:20px}
+.ocr-alignment-visual{margin-top:8px;padding:6px;border:1px solid #314a57;border-radius:8px}
+.ocr-alignment-overlay{position:relative;width:100%;max-height:55vh;margin-top:8px;overflow:hidden;background:#050914}
+.ocr-alignment-overlay img,.ocr-alignment-overlay svg{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain}
+.ocr-alignment-overlay svg{pointer-events:none}
+.ocr-align-symbol{fill:rgba(67,218,255,.08);stroke:#43daff;stroke-width:2;vector-effect:non-scaling-stroke}
+.ocr-align-glyph{fill:rgba(96,240,149,.06);stroke:#60f095;stroke-width:2;stroke-dasharray:5 3;vector-effect:non-scaling-stroke}

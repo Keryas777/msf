@@ -19,7 +19,7 @@ const makeFieldData = () => {
 function makeApp(saved = []) {
   const handlers = {};
   const elements = new Map();
-  for (const selector of ['#captureInput','#captureResults','#analyzeButton','#analysisStatus','#analysisProgress','#batchBadge','#validatedSummary','#validatedList','#batchSummary','#batchSummaryText','#clearButton','#exportAllButton','#diagnosticText','#diagnosticLog','#compareTrophyLocatorsButton','#trophyMarginSelect','#trophyRecoverySelect','#locatorCompareStatus','#locatorComparisonResults','#exportLocatorComparisonButton','#copyLocatorComparisonButton','#clearLocatorComparisonButton','#labEngineSelect','#laboratoryFields','#labResults','#labStatus','#labProgress','#runRecognitionLabButton','#copyLabJsonButton','#exportLabJsonButton','#labNumericOptions','#labTrophyMarginSelect','#labTrophyLocatorSelect','#labNumericLocatorSelect','#compareNumericOcrButton','#clearNumericOcrButton','#copyNumericOcrButton','#exportNumericOcrButton','#numericOcrStatus','#numericOcrResults']) {
+  for (const selector of ['#captureInput','#captureResults','#analyzeButton','#analysisStatus','#analysisProgress','#batchBadge','#validatedSummary','#validatedList','#batchSummary','#batchSummaryText','#clearButton','#exportAllButton','#diagnosticText','#diagnosticLog','#compareTrophyLocatorsButton','#trophyMarginSelect','#trophyRecoverySelect','#locatorCompareStatus','#locatorComparisonResults','#exportLocatorComparisonButton','#copyLocatorComparisonButton','#clearLocatorComparisonButton','#labEngineSelect','#laboratoryFields','#labResults','#labStatus','#labProgress','#runRecognitionLabButton','#copyLabJsonButton','#exportLabJsonButton','#labNumericOptions','#labTrophyMarginSelect','#labTrophyLocatorSelect','#labNumericLocatorSelect','#ocrCombinationOptions','#ocrCombinationCount','#ocrGlyphOption','#ocrMorphologyOption','#ocrAlignmentOption','#applyRecommendedOcrPreset','#compareNumericOcrButton','#clearNumericOcrButton','#copyNumericOcrButton','#exportNumericOcrButton','#numericOcrStatus','#numericOcrResults']) {
     elements.set(selector, { addEventListener(type, fn) { handlers[`${selector}:${type}`] = fn; }, dataset:{}, disabled:false, value:'', innerHTML:'', childElementCount:0, classList:{add(){},remove(){}}, querySelector(){return {textContent:'',checked:false};} });
   }
   elements.get('#labEngineSelect').value='numeric';
@@ -33,6 +33,7 @@ function makeApp(saved = []) {
   const clicks=[];
   const doc = {
     querySelector(selector) { if(!elements.has(selector)) throw new Error(`unexpected selector ${selector}`); return elements.get(selector); },
+    querySelectorAll(selector) { if(selector==='#ocrCombinationOptions input:checked')return []; throw new Error(`unexpected querySelectorAll ${selector}`); },
     createElement(tag) { return {tag,click(){clicks.push(this);}}; }
   };
   const storage = {getItem(){return JSON.stringify(saved);},setItem(_k,v){this.value=v;},removeItem(){this.value='[]';}};
