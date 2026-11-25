@@ -166,3 +166,7 @@ details[open]>.ev-objective-character-summary::after{transform:rotate(180deg)}
 @media(min-width:610px){.ev-page{padding-left:22px;padding-right:22px;gap:18px}.ev-overview{gap:13px}.ev-stat{padding:17px}.ev-stat strong{font-size:33px}.ev-stat span{font-size:12px}.ev-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ev-card{min-height:165px}.ev-cover{width:130px;flex-basis:130px;min-height:165px}.ev-card-copy{padding:14px}.ev-card h3{font-size:16px}}
 @media(max-width:365px){.ev-card{min-height:143px}.ev-cover{width:89px;flex-basis:89px;min-height:143px}.ev-card-copy{padding:10px}.ev-card h3{font-size:14px}.ev-sub{font-size:10px}.ev-stat strong{font-size:22px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.ev-card{transition:none}}
+
+/* Entrée privée visible uniquement pour le propriétaire administrateur LoSP. */
+.planner-owner-link{display:inline-flex;align-items:center;justify-content:center;max-width:100%;margin-top:2px;padding:5px 9px;border:1px solid rgba(157,201,255,.42);border-radius:8px;background:rgba(31,67,102,.28);color:#b8d9ff;font-size:11px;font-weight:750;line-height:1.3;text-decoration:none;overflow-wrap:anywhere}
+.planner-owner-link:hover,.planner-owner-link:focus-visible{border-color:#9dc9ff;background:rgba(31,67,102,.52);outline-offset:2px}

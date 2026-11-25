@@ -113,6 +113,7 @@
 
   window.LoSPAccess = Object.freeze({
     isLoSPMember,
+    isLoSPOwnerAdmin: isPreviewOwner,
     isAllianceAllowed,
     allowedAllianceKeys,
     filterRows(rows, field = "alliance") {
