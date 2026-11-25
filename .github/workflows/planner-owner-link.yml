@@ -8,6 +8,8 @@ on:
       - "docs/evenements.css"
       - "docs/planner-owner-link.mjs"
       - "tests/planner-owner-link.test.mjs"
+      - "docs/data/msf-resource-catalog.json"
+      - "tests/msf-resource-catalog.test.mjs"
       - ".github/workflows/planner-owner-link.yml"
   workflow_dispatch:
 
@@ -24,3 +26,5 @@ jobs:
           node-version: "22"
       - name: Run owner-only link tests
         run: node --test tests/planner-owner-link.test.mjs
+      - name: Verify public resource mappings and evidence
+        run: node --test tests/msf-resource-catalog.test.mjs
