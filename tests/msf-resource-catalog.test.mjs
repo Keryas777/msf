@@ -57,5 +57,5 @@ test("legacy gold and core mappings are not presented as new official definition
     assert.equal(item.sourceKind,"existing-planner-resource-mapping");
     assert.notEqual(item.sourceKind,"official-public-game-definition");
   }
-  assert.equal(catalog.localization.officialScopelyFrenchClaimed,false);
+  assert.equal(catalog.localization.fr.officialScopelyFrenchClaimed,false);
 });
