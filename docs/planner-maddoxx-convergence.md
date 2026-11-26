@@ -285,3 +285,12 @@ Par prudence, le déploiement reste bloqué jusqu’à preuve d’une licence ap
 ### État de #739
 
 #739 `work/maddoxx-convergence-owner-entry` reste ouverte, en brouillon, head `c149969aa1e7b95a07710aa01eddcd6a49792f91`, base `main` `968db3ae3fa5d2600093cba5361b1c67b9936f85`, `mergeable=true`. Cette mise à jour ajoute uniquement ce journal; la branche n’a pas été synchronisée ou fusionnée et aucun déploiement Pages n’a eu lieu.
+
+
+### Résultats CI supplémentaires — head #218 `a856e6a53f6df4189295dc5d502f7b2de4f76cdd`
+
+- `Event planner tests`, run `45796094429` : réussi, 128/128.
+- `Worker OAuth tests`, run `45796094410` : 15 échecs sur 912, avec exactement les mêmes 15 noms de tests qu’à la référence `719ac67e10549a4aedf584365dc5c0d3c53fdb36`. Aucun échec Maddoxx nouveau.
+- `Event planner mobile browsers`, run `45796094404` : Chromium 141.0.7390.37 terminé avec succès. Le parcours testé couvre les quatre largeurs 320/360/390/430 px, sans débordement horizontal, ainsi que les onglets, lectures bornées, événements, poste de commandement simulé, objectifs et inventaire. L’artefact des six captures synthétiques est disponible jusqu’au 10 décembre 2026 : [captures du run 45796094404](https://github.com/Keryas777/losp-roster-service/actions/runs/45796094404/artifacts/15104089703), digest `sha256:c52a7665edee3babccbe468e2f4b18b27872041d97ea8335d56de29e3069fe9d`.
+- WebKit n’a pas encore exécuté les tests : au dernier contrôle, son job est toujours dans l’étape d’installation Playwright/WebKit. Aucun résultat WebKit ni validation réelle Safari iPhone n’est revendiqué.
+- Head final #218 à ce relevé : `a856e6a53f6df4189295dc5d502f7b2de4f76cdd`, PR ouverte/en brouillon et `mergeable=true`. PR #739 a le commit de suivi `ed2139e9303143eb2b5a2637abd770969d7c52fc`, ouverte/en brouillon et `mergeable=true`.
