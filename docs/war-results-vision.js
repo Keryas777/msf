@@ -16,7 +16,9 @@
   const scoreLocatorButton = $("#compareScoreLocatorsButton"), scoreLocatorResults = $("#scoreLocatorResults");
   const SCORE_LOCATOR_KEY = "msf-war-results-score-locator-lab-v1";
   const scoreLocatorSummary = [];
+  const scoreColorMeasurements = [];
   const liveScoreLocator = new Map();
+  let scoreColorBitmap = null, scoreColorRect = null, scoreColorDrag = null, scoreColorPaintedRect = null;
   const LAB_FIELDS = { identity: ["localAlliance", "opponentAlliance"], numeric: ["localScore", "opponentScore", "localTrophies", "opponentTrophies"], result: ["result"] };
   const LAB_ENGINE_LABELS = { identity: "Identité", numeric: "Numérique", result: "Résultat" };
   const copyLocatorComparisonButton = $("#copyLocatorComparisonButton");
@@ -66,6 +68,12 @@
   $("#exportScoreLocatorJsonButton").addEventListener("click", exportScoreLocatorJson);
   $("#clearScoreLocatorResultsButton").addEventListener("click", clearScoreLocatorResults);
   scoreLocatorResults.addEventListener("change", onScoreQualityChange);
+  $("#scoreColorCapture").addEventListener("change", loadScoreColorCapture);
+  $("#measureScoreColorButton").addEventListener("click", measureSelectedScoreColorRegion);
+  $("#scoreColorSource").addEventListener("pointerdown", onScoreColorPointerDown);
+  $("#scoreColorSource").addEventListener("pointermove", onScoreColorPointerMove);
+  $("#scoreColorSource").addEventListener("pointerup", onScoreColorPointerUp);
+  $("#scoreColorSource").addEventListener("pointercancel", onScoreColorPointerUp);
   window.addEventListener("war-results-capture-batch", (event) => restoreScoreLocatorPreviews(event.detail || []));
   $("#compareNumericOcrButton").addEventListener("click", () => compareNumericOcr().catch(showGlobalError));
   initializeOcrCombinations();
@@ -143,6 +151,87 @@
     summary.hidden = !records.length;
     $("#batchSummaryText").textContent = records.length ? `${records.filter(r=>r.state==="validated").length} validée(s) localement · ${records.filter(r=>r.state==="review").length} à vérifier · ${records.filter(r=>r.state==="error").length} en erreur` : "";
     updateLaboratoryControls();
+    renderScoreColorCaptureOptions();
+  }
+
+  function renderScoreColorCaptureOptions() {
+    const select = $("#scoreColorCapture"), previous = select.value;
+    const available = records.filter((record) => record.file);
+    select.innerHTML = available.map((record) => `<option value="${escapeAttr(record.id)}">${escapeHtml(record.fileName)} · ${record.file.size} octets</option>`).join("");
+    if (available.some((record) => record.id === previous)) select.value = previous;
+    $("#measureScoreColorButton").disabled = !available.length || !scoreColorRect;
+  }
+
+  async function loadScoreColorCapture() {
+    scoreColorBitmap?.close?.(); scoreColorBitmap = null; scoreColorRect = null; scoreColorPaintedRect = null;
+    const record = records.find((item) => item.id === $("#scoreColorCapture").value && item.file);
+    const canvas = $("#scoreColorSource"), ctx = canvas.getContext("2d");
+    if (!record) { canvas.width = canvas.height = 1; return; }
+    scoreColorBitmap = await createImageBitmap(record.file);
+    canvas.width = scoreColorBitmap.width; canvas.height = scoreColorBitmap.height;
+    ctx.drawImage(scoreColorBitmap, 0, 0);
+    $("#scoreColorSelection").textContent = `Image source ${canvas.width} × ${canvas.height}px. Fais glisser sur les chiffres à mesurer.`;
+    $("#scoreColorMask").width = $("#scoreColorMask").height = 1;
+    $("#scoreColorSummary").textContent = "";
+    updateScoreColorSelection();
+  }
+  function scoreColorPoint(event) {
+    const canvas = $("#scoreColorSource"), box = canvas.getBoundingClientRect();
+    return { x: Math.max(0, Math.min(canvas.width, Math.round((event.clientX - box.left) * canvas.width / box.width))),
+      y: Math.max(0, Math.min(canvas.height, Math.round((event.clientY - box.top) * canvas.height / box.height))) };
+  }
+  function onScoreColorPointerDown(event) {
+    if (!scoreColorBitmap) return;
+    event.preventDefault(); $("#scoreColorSource").setPointerCapture?.(event.pointerId);
+    scoreColorDrag = { start: scoreColorPoint(event), current: scoreColorPoint(event) }; drawScoreColorSelection();
+  }
+  function onScoreColorPointerMove(event) { if (scoreColorDrag) { scoreColorDrag.current = scoreColorPoint(event); drawScoreColorSelection(); } }
+  function onScoreColorPointerUp(event) {
+    if (!scoreColorDrag) return;
+    scoreColorDrag.current = scoreColorPoint(event);
+    const a = scoreColorDrag.start, b = scoreColorDrag.current;
+    scoreColorRect = { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), width: Math.abs(a.x - b.x), height: Math.abs(a.y - b.y) };
+    scoreColorDrag = null; drawScoreColorSelection(); updateScoreColorSelection();
+  }
+  function drawScoreColorSelection() {
+    const canvas = $("#scoreColorSource"), ctx = canvas.getContext("2d");
+    if (!scoreColorBitmap) return;
+    if (!scoreColorPaintedRect) ctx.drawImage(scoreColorBitmap, 0, 0);
+    else {
+      const old = scoreColorPaintedRect, pad = Math.max(3, Math.round(canvas.width / 1000));
+      const x = Math.max(0, old.x-pad), y = Math.max(0, old.y-pad), x2 = Math.min(canvas.width, old.x+old.width+pad), y2 = Math.min(canvas.height, old.y+old.height+pad);
+      ctx.drawImage(scoreColorBitmap, x, y, x2-x, y2-y, x, y, x2-x, y2-y);
+    }
+    const a = scoreColorDrag?.start, b = scoreColorDrag?.current;
+    const rect = scoreColorDrag && a && b ? { x: Math.min(a.x,b.x), y: Math.min(a.y,b.y), width: Math.abs(a.x-b.x), height: Math.abs(a.y-b.y) } : scoreColorRect;
+    scoreColorPaintedRect = rect || null;
+    if (rect) { ctx.strokeStyle = "#4be7ff"; ctx.lineWidth = Math.max(2, canvas.width / 1000); ctx.strokeRect(rect.x, rect.y, rect.width, rect.height); }
+  }
+  function updateScoreColorSelection() {
+    const usable = scoreColorRect && scoreColorRect.width >= 2 && scoreColorRect.height >= 2;
+    $("#measureScoreColorButton").disabled = !usable;
+    $("#scoreColorSelection").textContent = usable
+      ? `Zone source : x=${scoreColorRect.x}, y=${scoreColorRect.y}, ${scoreColorRect.width} × ${scoreColorRect.height}px.`
+      : "Trace une zone source d’au moins 2 × 2 pixels sur les chiffres et leurs contours.";
+  }
+  async function measureSelectedScoreColorRegion() {
+    const record = records.find((item) => item.id === $("#scoreColorCapture").value && item.file);
+    if (!record || !scoreColorRect) return;
+    $("#measureScoreColorButton").disabled = true;
+    $("#scoreColorStatus").textContent = "Mesure directe des pixels source…";
+    try {
+      const result = await WarResultsVisionEngine.measureScoreColorRegion(record.file, scoreColorRect);
+      const { maskPreview, mask, ...summary } = result;
+      const maskCanvas = $("#scoreColorMask"), maskContext = maskCanvas.getContext("2d");
+      maskCanvas.width = result.region.width; maskCanvas.height = result.region.height;
+      const maskImage = maskContext.createImageData(maskCanvas.width, maskCanvas.height); maskImage.data.set(maskPreview.data); maskContext.putImageData(maskImage, 0, 0);
+      const entry = { captureId: record.fileKey, file: record.fileName, field: $("#scoreColorField").value,
+        dimensions: result.dimensions, ...summary, measuredAt: new Date().toISOString() };
+      scoreColorMeasurements.push(entry); persistScoreLocatorResults();
+      $("#scoreColorSummary").textContent = JSON.stringify(entry, null, 2);
+      $("#scoreColorStatus").textContent = `${result.accepted} pixels acceptés / ${result.pixelCount}; cyan = masque V0.1 accepté, rouge = rejeté. Statistiques RGB/HSV et couleurs dominantes enregistrées dans l’export JSON.`;
+    } catch (error) { $("#scoreColorStatus").textContent = errorMessage(error); }
+    updateLaboratoryControls();
   }
 
   function renderLaboratoryFields() {
@@ -214,7 +303,7 @@
               finalRect: diagnostic.finalRect, cropDimensions: diagnostic.cropDimensions, componentCount: diagnostic.componentCount,
               glyphCount: diagnostic.glyphCount, glyphs: diagnostic.glyphs, selected: diagnostic.selected,
               candidates: diagnostic.candidates, parameters: diagnostic.parameters, extensions: diagnostic.extensions,
-              diagnostics: diagnostic.diagnostics, warnings: diagnostic.warnings, localized: diagnostic.localized,
+              diagnostics: diagnostic.diagnostics, warnings: diagnostic.warnings, pipelineDiagnostics: diagnostic.pipelineDiagnostics, localized: diagnostic.localized,
               reason: diagnostic.reason, elapsedMs: diagnostic.elapsedMs },
             quality: previous?.quality || "pending", comparedAt: new Date().toISOString() };
           const position = scoreLocatorSummary.findIndex((item) => item.id === id);
@@ -243,7 +332,7 @@
 
   function scoreLocatorPayload() {
     return { schemaVersion: "1.0.0", scope: "score-localization-only", recognition: "none",
-      privacy: "No source pixels, image crops, or OCR values are included.", entries: scoreLocatorSummary.map(({ id, ...entry }) => entry) };
+      privacy: "No source pixels, image crops, or OCR values are included.", entries: scoreLocatorSummary.map(({ id, ...entry }) => entry), colorMeasurements: scoreColorMeasurements };
   }
   function persistScoreLocatorResults() {
     try { sessionStorage.setItem(SCORE_LOCATOR_KEY, JSON.stringify(scoreLocatorPayload())); }
@@ -254,6 +343,7 @@
       const saved = JSON.parse(sessionStorage.getItem(SCORE_LOCATOR_KEY) || "null");
       if (saved?.scope === "score-localization-only" && Array.isArray(saved.entries)) {
         scoreLocatorSummary.push(...saved.entries.map((entry) => ({ ...entry, id: `${entry.captureId}:${entry.field}` })));
+        if (Array.isArray(saved.colorMeasurements)) scoreColorMeasurements.push(...saved.colorMeasurements);
         $("#scoreLocatorStatus").textContent = `${scoreLocatorSummary.length} diagnostic(s) restauré(s). Réimporte les captures pour retrouver les aperçus.`;
       }
     } catch (_) { scoreLocatorSummary.splice(0); }
@@ -285,10 +375,10 @@
     scoreLocatorResults.innerHTML = scoreLocatorSummary.map((entry) => {
       const live = liveScoreLocator.get(entry.id), exp = entry.experimental || {}, baseline = entry.baseline || {};
       const box = (r, cls) => r ? `<rect class="score-locator-${cls}" x="${Number(r.x)}" y="${Number(r.y)}" width="${Number(r.width)}" height="${Number(r.height)}"/>` : "";
-      const image = live?.sourceUrl && entry.dimensions ? `<details><summary>Voir les deux localisations sur la capture</summary><p class="muted">Jaune : zone proportionnelle actuelle · cyan : recherche expérimentale · vert : découpe finale · rouge : limites des composantes retenues · violet : groupe candidat concurrent.</p><div class="score-locator-source" style="aspect-ratio:${entry.dimensions.width}/${entry.dimensions.height}"><img src="${escapeAttr(live.sourceUrl)}" alt="Capture originale ${escapeAttr(entry.file)}"><svg viewBox="0 0 ${entry.dimensions.width} ${entry.dimensions.height}" preserveAspectRatio="none">${box(baseline.rect,"baseline")}${box(exp.searchRegion,"search")}${box(exp.finalRect,"final")}${(exp.glyphs || []).map((g) => box(g,"glyph")).join("")}${(exp.candidates || []).slice(1,5).map((candidate) => box(candidate.rect,"candidate")).join("")}</svg></div></details>` : `<p class="muted">Réimporte cette capture pour restaurer les aperçus visuels.</p>`;
+      const image = live?.sourceUrl && entry.dimensions ? `<details><summary>Voir les deux localisations et les composants</summary><p class="muted">Jaune : zone proportionnelle actuelle · cyan : recherche · vert : découpe · rouge : glyphes sélectionnés · violet : autres candidats · vert pâle : composants acceptés · orange : petits composants rejetés.</p><div class="score-locator-source" style="aspect-ratio:${entry.dimensions.width}/${entry.dimensions.height}"><img src="${escapeAttr(live.sourceUrl)}" alt="Capture originale ${escapeAttr(entry.file)}"><svg viewBox="0 0 ${entry.dimensions.width} ${entry.dimensions.height}" preserveAspectRatio="none">${box(baseline.rect,"baseline")}${box(exp.searchRegion,"search")}${box(exp.finalRect,"final")}${(exp.glyphs || []).map((g) => box(g,"glyph")).join("")}${(exp.candidates || []).slice(1,5).map((candidate) => box(candidate.rect,"candidate")).join("")}${(exp.pipelineDiagnostics?.components?.accepted || []).map((c) => box(c,"component")).join("")}${(exp.pipelineDiagnostics?.components?.rejected || []).map((c) => box(c,"rejected-component")).join("")}</svg></div></details>` : `<p class="muted">Réimporte cette capture pour restaurer les aperçus visuels.</p>`;
       const crops = live ? `<div class="score-locator-crops"><figure><img src="${escapeAttr(live.proportionalPreview || "")}" alt="Découpe proportionnelle actuelle"><figcaption>Actuelle · ${escapeHtml(JSON.stringify(baseline.rect || null))}</figcaption></figure><figure>${live.experimentalPreview ? `<img src="${escapeAttr(live.experimentalPreview)}" alt="Découpe expérimentale du score">` : `<div class="score-locator-missing">Aucune découpe fiable</div>`}<figcaption>Expérimentale · ${escapeHtml(JSON.stringify(exp.cropDimensions || null))}</figcaption></figure></div>` : "";
       const quality = `<label class="score-locator-quality">Qualité visuelle de la découpe expérimentale<select data-score-quality="${escapeAttr(entry.id)}"><option value="pending" ${entry.quality === "pending" ? "selected" : ""}>À vérifier</option><option value="good" ${entry.quality === "good" ? "selected" : ""}>Complète, sans contamination notable</option><option value="bad" ${entry.quality === "bad" ? "selected" : ""}>Chiffre coupé ou contamination</option><option value="uncertain" ${entry.quality === "uncertain" ? "selected" : ""}>Incertaine</option></select></label>`;
-      const details = { baseline: baseline, experimental: exp, quality: entry.quality };
+      const details = { baseline: baseline, experimental: exp, pipelineDiagnostics: exp.pipelineDiagnostics, quality: entry.quality };
       return `<article class="score-locator-card"><h4>${escapeHtml(entry.file)} · ${escapeHtml(LABELS[entry.field] || entry.field)}</h4><p>${entry.dimensions ? `${entry.dimensions.width} × ${entry.dimensions.height}px` : "Dimensions indisponibles"} · ${escapeHtml(entry.layoutMethod || "mise en page indisponible")} · localisation ${exp.localized ? "candidate trouvée" : "incertaine"} · ${exp.elapsedMs ?? "—"} ms</p>${image}${crops}${quality}${(exp.warnings || []).length ? `<p class="lab-warning">${escapeHtml(exp.warnings.join(" · "))}</p>` : ""}<details><summary>Paramètres et limites détectées</summary><pre>${escapeHtml(JSON.stringify(details, null, 2))}</pre></details></article>`;
     }).join("");
     $("#copyScoreLocatorJsonButton").disabled = !scoreLocatorSummary.length;
@@ -308,6 +398,7 @@
   function exportScoreLocatorJson() { if (scoreLocatorSummary.length) download(scoreLocatorPayload(), `war-results-score-localization-${new Date().toISOString().slice(0, 10)}.json`); }
   function clearScoreLocatorResults() {
     scoreLocatorSummary.splice(0); liveScoreLocator.clear(); sessionStorage.removeItem(SCORE_LOCATOR_KEY);
+    scoreColorMeasurements.splice(0);
     scoreLocatorResults.innerHTML = ""; $("#scoreLocatorStatus").textContent = "Diagnostics de localisation des scores effacés."; updateLaboratoryControls();
   }
 

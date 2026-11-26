@@ -9,7 +9,7 @@ assert.match(html, /type="file"[^>]+multiple/, 'accepts multiple images');
 assert.match(html, /image\/png,image\/jpeg/, 'accepts PNG and JPEG');
 assert.match(html, /id="labNumericLocatorSelect"/, 'the numeric lab can compare initial localization strategies');
 assert.match(html, /id="compareScoreLocatorsButton"/, 'score-only geometric comparator is available');
-assert.match(html, /war-results-score-locator-experiment\.js\?v=0\.1\.0-score-localization/);
+assert.match(html, /war-results-score-locator-experiment\.js\?v=0\.1\.1-v020-measurement-api/);
 assert.match(html, /war-results-numeric-locator-experiment\.js/, 'the experimental pixel locator is loaded only by the vision page');
 assert.match(html, /war-results-vision-data\.js/, 'loads local data model');
 assert.match(html, /war-results-numeric-library\.js\?v=1\.0\.1-score-locator-option/);

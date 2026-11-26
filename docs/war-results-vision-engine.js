@@ -672,7 +672,7 @@
           cropCanvas.getContext("2d").drawImage(source, rect.x, rect.y, rect.width, rect.height, 0, 0, cropCanvas.width, cropCanvas.height);
           const preview = cropCanvas.toDataURL("image/jpeg", .9); cropCanvas.width = cropCanvas.height = 1; return preview;
         };
-        fieldsResult[field] = { ...result, proportionalRect: initialRect, proportionalPreview: makePreview(initialRect),
+        fieldsResult[field] = { ...result, pipelineDiagnostics: SCORE_LOCATOR.diagnoseSearch(imageData, result.searchRegion), proportionalRect: initialRect, proportionalPreview: makePreview(initialRect),
           experimentalPreview: makePreview(result.finalRect), layout: localized.layout, layoutMethod: localized.method,
           anchorsFound: localized.anchorsFound };
       }
@@ -683,11 +683,24 @@
     } finally { source.close?.(); }
   }
 
+  async function measureScoreColorRegion(file, rect) {
+    if (!SCORE_LOCATOR?.analyzeColorRegion) throw new Error("Outil de mesure colorimétrique indisponible.");
+    const source = await decode(file);
+    try {
+      const canvas = document.createElement("canvas"); canvas.width = source.width; canvas.height = source.height;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true }); ctx.drawImage(source, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const analysis = SCORE_LOCATOR.analyzeColorRegion(imageData, rect);
+      canvas.width = canvas.height = 1;
+      return { ...analysis, maskPreview: SCORE_LOCATOR.renderDiagnosticMask(analysis), dimensions: { width: source.width, height: source.height } };
+    } finally { source.close?.(); }
+  }
+
   async function release() {
     activeProgress = () => {};
     if (worker) { await worker.terminate(); worker = null; }
     workerPromise = null;
   }
-  window.WarResultsVisionEngine = { analyze, analyzeField, locateLaboratoryField, analyzeNumericFields, compareScoreLocators, compareTrophyLocators, release, version: VERSION };
+  window.WarResultsVisionEngine = { analyze, analyzeField, locateLaboratoryField, analyzeNumericFields, compareScoreLocators, measureScoreColorRegion, compareTrophyLocators, release, version: VERSION };
 })();
 
