@@ -387,5 +387,5 @@ Le roster, le catalogue et le nouveau vocabulaire ne peuvent être validés sur 
 #### État courant des PR
 
 - #218 reste ouverte et en brouillon sur work/maddoxx-convergence-ui, head b4890dc698b8da4dfefc60bd7aa608dfb4b6af6c; comparaison GitHub : 78 commits devant et zéro derrière main.
-- #739 reste ouverte et en brouillon sur work/maddoxx-convergence-owner-entry, head 95f64fae68bb79d95b92b62bd475acd67cc198a2; main courant b35d9a3f1c7d8066dd158049879a4f543c298a57, branche 29 commits devant et 15 derrière, GitHub signale mergeable=true. Elle n’a pas été synchronisée car ces corrections n’y touchent pas et la phase actuelle ne nécessite pas cette modification.
+- Au contrôle juste avant l’ajout de cette section, #739 était ouverte et en brouillon sur work/maddoxx-convergence-owner-entry au head 95f64fae68bb79d95b92b62bd475acd67cc198a2; le commit d’ajout du journal a ensuite porté sa branche à 0d762db289fcb5b4e00c7f7ad91ed769f163946c. Main MSF était b35d9a3f1c7d8066dd158049879a4f543c298a57; comparaison : 29 commits devant, 15 derrière, mergeable=true. Aucune synchronisation avec main n’a été faite.
 - Aucun merge ni déploiement de #739. Les PR restent en brouillon.
