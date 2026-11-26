@@ -320,6 +320,7 @@ async function commitWarIntel(env,snapshot,data,message){
   await api(env,"/git/refs/heads/main",{method:"PATCH",body:{sha:commit.sha,force:false}});
   return commit.sha;
 }
+const warAllianceKey=value=>String(value||"").normalize("NFC").toLocaleLowerCase("fr").trim().replace(/\s+/g," ");
 async function writeWarIntel(request,env){
   if(request.headers.get("Origin")!==ORIGIN)throw new HttpError(403,"forbidden_origin");
   if(Number(request.headers.get("Content-Length")||0)>MAX_WAR_INTEL_BODY)
@@ -339,6 +340,9 @@ async function writeWarIntel(request,env){
     if(input?.action==="createAlliance"){
       if(typeof input.name!=="string"||!input.name.trim()||input.name.trim().length>80)
         throw new HttpError(400,"invalid_alliance_name","Saisis un nom classique (80 caractères maximum).");
+      const matches=data.alliances.filter(item=>warAllianceKey(item.name)===warAllianceKey(input.name));
+      if(matches.length>1)throw new HttpError(409,"ambiguous_alliance","Plusieurs alliances portent ce nom. Sélectionne leur identité existante.");
+      if(matches.length===1)return {ok:true,action:input.action,allianceId:matches[0].id,created:false,commit:snapshot.sha};
       const alliance={id:"wi-"+crypto.randomUUID(),name:input.name.trim(),richName:null,
         createdAt:new Date().toISOString()};
       data.alliances.push(alliance);input.resultAllianceId=alliance.id;
@@ -348,6 +352,8 @@ async function writeWarIntel(request,env){
       if(!alliance)throw new HttpError(404,"alliance_not_found");
       if(typeof input.name!=="string"||!input.name.trim()||input.name.trim().length>80)
         throw new HttpError(400,"invalid_alliance_name","Saisis un nom classique (80 caractères maximum).");
+      if(warAllianceKey(alliance.name)!==warAllianceKey(input.name)&&data.alliances.some(item=>item.id!==alliance.id&&warAllianceKey(item.name)===warAllianceKey(input.name)))
+        throw new HttpError(409,"duplicate_alliance","Ce nom appartient déjà à une alliance.");
       alliance.name=input.name.trim();
       if(Object.hasOwn(input,"richName"))alliance.richName=validRichName(input.richName);
       alliance.updatedAt=new Date().toISOString();message="data(war-intel): mise à jour alliance";
