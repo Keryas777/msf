@@ -255,18 +255,24 @@
       const summary = summarize(references);
       $("#numericLibrarySummary").textContent = `${summary.total} référence(s) · ${summary.coveredDigits}/10 chiffres couverts · ${summary.distinctCaptures} capture(s) source(s) · ${summary.duplicateCount} doublon(s) détecté(s).`;
       $("#numericLibraryDigits").innerHTML = Object.entries(summary.byDigit).map(([digit, row]) => {
-        const rows = references.filter((ref) => ref.digit === digit).map((ref) => `<div class="numeric-library-reference"><canvas data-ref-preview="${escape(ref.id)}" width="48" height="64" aria-label="Référence ${digit}"></canvas><div><strong>${escape(ref.source.fileName)}</strong><br>${escape(ref.source.field)} · ${escape(ref.source.fieldType)} · ${escape(ref.source.side)}<br>${ref.native.width}×${ref.native.height} px · position ${ref.source.position + 1}<br><small>ID ${escape(ref.id)}<br>Capture ${escape(ref.source.captureId.slice(0, 16))}…</small></div><button type="button" class="secondary-button" data-delete-ref="${escape(ref.id)}">Supprimer cette référence</button></div>`).join("");
+        const rows = references.filter((ref) => ref.digit === digit).map((ref) => `<div class="numeric-library-reference"><div class="numeric-library-reference-previews"><canvas data-ref-native="${escape(ref.id)}" width="${ref.native.width}" height="${ref.native.height}" aria-label="Pixels originaux masqués, chiffre ${digit}"></canvas><canvas data-ref-normalized="${escape(ref.id)}" width="48" height="64" aria-label="Version normalisée, chiffre ${digit}"></canvas><canvas data-ref-sheared="${escape(ref.id)}" width="${ref.sheared.width}" height="${ref.sheared.height}" aria-label="Version redressée, chiffre ${digit}"></canvas></div><div><strong>${escape(ref.source.fileName)}</strong><br>${escape(ref.source.field)} · ${escape(ref.source.fieldType)} · ${escape(ref.source.side)}<br>${ref.native.width}×${ref.native.height} px · position ${ref.source.position + 1}<br><small>ID ${escape(ref.id)}<br>Capture ${escape(ref.source.captureId.slice(0, 16))}…</small></div><button type="button" class="secondary-button" data-delete-ref="${escape(ref.id)}">Supprimer cette référence</button></div>`).join("");
         return `<article class="numeric-library-digit"><strong>${digit}</strong><span>${row.total} réf. · scores ${row.scores} · trophées ${row.trophies}</span>${row.total ? `<details><summary>Examiner ${row.total} référence(s)</summary>${rows}</details>` : `<small>Manquant</small>`}</article>`;
       }).join("");
-      for (const canvas of $("#numericLibraryDigits").querySelectorAll("[data-ref-preview]")) {
-        const ref = references.find((item) => item.id === canvas.dataset.refPreview); if (ref) drawBytes(canvas, 48, 64, fromBase64(ref.normalized.rgba));
-      }
+      for (const canvas of $("#numericLibraryDigits").querySelectorAll("[data-ref-native]")) { const ref = references.find((item) => item.id === canvas.dataset.refNative); if (ref) drawBytes(canvas, ref.native.width, ref.native.height, fromBase64(ref.native.rgba)); }
+      for (const canvas of $("#numericLibraryDigits").querySelectorAll("[data-ref-normalized]")) { const ref = references.find((item) => item.id === canvas.dataset.refNormalized); if (ref) drawBytes(canvas, 48, 64, fromBase64(ref.normalized.rgba)); }
+      for (const canvas of $("#numericLibraryDigits").querySelectorAll("[data-ref-sheared]")) { const ref = references.find((item) => item.id === canvas.dataset.refSheared); if (ref) drawBytes(canvas, ref.sheared.width, ref.sheared.height, fromBase64(ref.sheared.rgba)); }
       $("#numericLibraryCoverage").textContent = summary.missingDigits.length ? `À collecter en priorité : ${summary.missingDigits.join(", ")}.` : "Les dix chiffres disposent d’au moins une référence.";
       $("#numericLibraryTotal").textContent = `${summary.total} glyphes validés`;
     }
     function renderGlyphs() {
       const host = $("#numericLibraryGlyphs");
-      if (!current?.extraction?.glyphs?.length) { host.innerHTML = ""; return; }
+      if (!current?.extraction) { host.innerHTML = ""; return; }
+      if (!current.extraction.glyphs?.length) {
+        host.innerHTML = "";
+        const detected = current.extraction.segmentation?.bounds?.length ?? current.extraction.segmentation?.components?.length ?? 0;
+        $("#numericLibraryLengthCheck").textContent = `Diagnostic : ${current.value.replace(/\D/g, "").length} chiffre(s) saisi(s), aucun groupe complet de glyphes validé (composants détectés : ${detected}). ${current.extraction.reason || "Vérifie la découpe ou essaie un autre champ."} Aucune référence ne peut être validée.`;
+        return;
+      }
       const length = current.value.replace(/\D/g, "").length, count = current.extraction.glyphs.length;
       $("#numericLibraryLengthCheck").textContent = current.extraction.reason || (length !== count ? `Diagnostic : ${length} chiffre(s) saisi(s), ${count} glyphe(s) détecté(s). Ajuste la valeur ou exclue le composant défectueux.` : "Le nombre de chiffres et de glyphes correspond. Vérifie chaque identification avant validation.");
       host.innerHTML = current.extraction.glyphs.map((glyph, index) => {

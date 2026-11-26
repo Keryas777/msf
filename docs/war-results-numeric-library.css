@@ -22,9 +22,10 @@
 .numeric-library-digit>strong{display:block;font-size:1.4rem;color:#9fd5ff}
 .numeric-library-digit>span{display:block;font-size:.78rem;color:#c1ccdc}
 .numeric-library-digit details{margin-top:8px}
-.numeric-library-reference{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;align-items:center;margin:8px 0;padding:7px;border-top:1px solid #324661;font-size:.76rem}
-.numeric-library-reference canvas{width:48px;height:64px;background:#eef2f7;border-radius:4px;image-rendering:pixelated}
-.numeric-library-reference button{grid-column:1/-1;min-height:38px}
+.numeric-library-reference{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;align-items:center;margin:8px 0;padding:7px;border-top:1px solid #324661;font-size:.76rem}
+.numeric-library-reference-previews{display:flex;align-items:center;gap:7px;min-height:64px;overflow-x:auto}
+.numeric-library-reference canvas{max-width:56px;max-height:64px;width:auto;height:auto;background:#eef2f7;border-radius:4px;image-rendering:pixelated;flex:0 0 auto}
+.numeric-library-reference button{min-height:38px}
 .numeric-library-actions{display:flex;flex-wrap:wrap;gap:8px}
 .numeric-library-actions>*{min-height:42px;flex:1 1 180px}
 .numeric-library-import{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;text-align:center}
