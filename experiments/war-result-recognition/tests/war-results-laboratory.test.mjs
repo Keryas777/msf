@@ -10,17 +10,95 @@ const html = fs.readFileSync(path.join(root, "docs/war-results-vision.html"), "u
 const app = fs.readFileSync(path.join(root, "docs/war-results-vision.js"), "utf8");
 const engineSource = fs.readFileSync(path.join(root, "docs/war-results-vision-engine.js"), "utf8");
 
-test("the lab selects an engine and exposes field groups without replacing normal analysis", () => {
-  for (const id of ["recognitionLabTitle", "labEngineSelect", "laboratoryFields", "runRecognitionLabButton", "labResults", "copyLabJsonButton", "exportLabJsonButton"]) {
+test("the simplified lab exposes four ordered numeric sections without changing normal analysis", () => {
+  for (const id of ["recognitionLabTitle", "laboratoryFields", "localizeNumericFieldsButton", "numericLocalizationResults", "ocrCombinationOptions", "numericGlyphLibrary"]) {
     assert.match(html, new RegExp(`id="${id}"`));
   }
-  for (const label of ["Identité", "Numérique", "Résultat"]) assert.ok(html.includes(label));
+  assert.ok(html.indexOf("numericFieldsTitle") < html.indexOf("numericLocalizationTitle"));
+  assert.ok(html.indexOf("numericLocalizationTitle") < html.indexOf("numericRecognitionTitle"));
+  assert.ok(html.indexOf("numericRecognitionTitle") < html.indexOf("numericGlyphLibrary"));
+  assert.match(html, /V0\.2\.0 — Regroupement \+ ancrage proportionnel/);
+  assert.match(html, /marge finale de 14 %/);
+  assert.match(html, /Reprise \+ corrections combinées/);
+  assert.match(html, /marge de 18 %/);
+  assert.match(html, /D\. Bibliothèque numérique MSF/);
+  assert.match(html, /id="runRecognitionLabButton"[^>]*hidden/);
+  assert.match(html, /id="scoreLocatorLab"[^>]*hidden/);
+  assert.match(html, /id="scoreColorMeasure"[^>]*hidden/);
   assert.match(app, /data-lab-select="scores"/);
   assert.match(app, /data-lab-select="trophies"/);
   assert.match(app, /WarResultsVisionEngine\.analyzeNumericFields\(record\.file, missing/);
   assert.match(app, /WarResultsVisionEngine\.analyze\(record\.file/);
   assert.match(engineSource, /async function analyze\(/);
   assert.match(engineSource, /async function analyzeNumericFields\(/);
+});
+
+test("fixed localization routes selected fields to retained locators and never starts OCR", async () => {
+  const calls = { score: [], pixel: [], trophy: [], workers: 0 };
+  const imageData = { width: 1000, height: 700, data: new Uint8ClampedArray(1000 * 700 * 4) };
+  const zones = {
+    localScore: { x: 80, y: 100, width: 180, height: 42 }, opponentScore: { x: 720, y: 100, width: 190, height: 42 },
+    localTrophies: { x: 110, y: 180, width: 120, height: 36 }, opponentTrophies: { x: 760, y: 180, width: 120, height: 36 }
+  };
+  const core = { locateZones: () => ({ zones, method: "proportional-layout-fallback", layout: "wide" }) };
+  const canvasContext = { drawImage() {}, getImageData: () => imageData, putImageData() {} };
+  const context = {
+    console,
+    performance: { now: () => 100 },
+    createImageBitmap: async () => ({ width: 1000, height: 700, close() {} }),
+    document: { head: { appendChild() {} }, createElement(tag) {
+      if (tag !== "canvas") return {};
+      return { width: 1, height: 1, getContext: () => canvasContext, toDataURL: () => "data:image/jpeg;base64,preview" };
+    } },
+    window: {
+      WarResultRecognition: core,
+      WarResultsScoreLocatorV020Experiment: { compare(_pixels, fields, anchors, variants) {
+        calls.score.push({ fields, anchors, variants });
+        return { variants: { anchored: { fields: { localScore: { localized: true, status: "validated-localization",
+          finalRect: { x: 88, y: 102, width: 164, height: 38 }, glyphs: [{ x: 94, y: 106, width: 20, height: 28 }], warnings: [] } } } } };
+      } },
+      WarResultsNumericLocatorExperiment: { locate(_pixels, fields) {
+        calls.pixel.push(fields);
+        return { method: "pixel-content", dimensions: { width: 1000, height: 700 }, fields: { localTrophies: { x: 112, y: 182, width: 116, height: 32 } },
+          candidates: { localTrophies: [] }, anchors: { localTrophies: [] }, reasons: {} };
+      } },
+      WarResultsTrophyLocatorExperiment: {
+        proportionalBand(_width, _height, verticalRect, side, options) {
+          calls.trophy.push({ type: "band", verticalRect, side, options });
+          return { x: 0, y: verticalRect.y, width: 400, height: verticalRect.height };
+        },
+        locateWithVerticalRecovery(readBand, width, height, verticalRect, side, _reader, options) {
+          calls.trophy.push({ type: "recover", width, height, verticalRect, side, options });
+          const bandRect = { x: 0, y: verticalRect.y, width: 400, height: verticalRect.height };
+          readBand(bandRect);
+          return { rect: { x: 112, y: verticalRect.y + 2, width: 116, height: 32 }, bandRect, reason: null,
+            segmented: { bounds: [{ x: 10, y: 2, width: 16, height: 28 }], glyphs: [], components: [{ x: 10, y: 2, width: 16, height: 28, area: 80 }], candidates: [], warnings: [] },
+            recovery: null, appliedMarginPercent: 18 };
+        },
+        translateBoundsToSource(bounds, origin) { return bounds.map((box) => ({ ...box, x: box.x + origin.x, y: box.y + origin.y })); }
+      },
+      WarResultsDigitReader: {}, WarResultsIdentityEngine: { analyzeRegion() { throw new Error("identity engine called"); } },
+      WarResultsResultEngine: { analyze() { throw new Error("result engine called"); } },
+      Tesseract: { async createWorker() { calls.workers++; throw new Error("localization must not initialize Tesseract"); } }
+    }
+  };
+  context.globalThis = context;
+  vm.runInNewContext(engineSource, context);
+  const result = await context.window.WarResultsVisionEngine.locateNumericFields({ size: 1 }, ["localScore", "localTrophies"]);
+  assert.deepEqual(Object.keys(result.fields), ["localScore", "localTrophies"]);
+  assert.deepEqual(JSON.parse(JSON.stringify(calls.score[0].fields)), ["localScore"]);
+  assert.deepEqual(JSON.parse(JSON.stringify(calls.score[0].variants)), ["anchored"]);
+  assert.deepEqual(JSON.parse(JSON.stringify(calls.pixel[0])), ["localTrophies"]);
+  assert.equal(calls.workers, 0);
+  assert.equal(result.fields.localScore.status, "localized");
+  assert.equal(result.fields.localScore.marginPercent, 14);
+  assert.equal(result.fields.localTrophies.status, "localized");
+  assert.equal(result.fields.localTrophies.marginPercent, 18);
+  assert.equal(calls.trophy.find((call) => call.type === "recover").options.iconAware, true);
+  assert.equal(calls.trophy.find((call) => call.type === "recover").options.paddingByGlyphHeight, 0.18);
+  assert.equal(calls.trophy.find((call) => call.type === "recover").options.minimumPaddingPixels, 2);
+  assert.equal(calls.trophy.find((call) => call.type === "recover").options.edgeSafePaddingByGlyphHeight, 0.3);
+  assert.ok(result.fields.localTrophies.diagnostics.segmentationBandRect);
 });
 
 test("numeric lab invokes OCR only for selected numeric fields and no specialized engine", async () => {

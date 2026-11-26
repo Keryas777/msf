@@ -104,8 +104,9 @@ test("an OCR worker error is retained as a failed strategy without inventing a v
   assert.ok(result.strategies.every((item) => item.warnings[0].startsWith("strategy-error:")));
 });
 
-test("the five historical trophy locator variants remain in the laboratory", () => {
+test("the five historical trophy locator variants remain available only in the hidden diagnostics panel", () => {
   const html = fs.readFileSync(path.join(root, "docs/war-results-vision.html"), "utf8");
+  assert.match(html, /id="diagnosticPanel"[^>]*hidden/);
   for (const id of ["adaptive", "vertical-recovery", "vertical-recovery-edge-safe", "vertical-recovery-icon-aware", "vertical-recovery-combined"]) assert.match(html, new RegExp(`value="${id}"`));
 });
 
@@ -132,12 +133,16 @@ test("recommended seven-read set focuses corrections on PSM 8 and 13", () => {
  assert.equal(combos.length,7);
  assert.deepEqual(combos.map(x=>x.id),["combo:reference:psm7","combo:tight-crop:psm8","combo:tight-crop:psm13","combo:thin-strokes:psm8","combo:thin-strokes:psm13","combo:reference:psm8","combo:reference:psm13"]);
 });
-test("numeric lab UI exposes preset, count, independent combinations and exports", () => {
- const html=fs.readFileSync(path.join(root,"docs/war-results-vision.html"),"utf8");
- for(const id of ["ocrCombinationOptions","applyRecommendedOcrPreset","ocrCombinationCount","ocrGlyphOption","ocrMorphologyOption","ocrAlignmentOption","copyNumericOcrButton","exportNumericOcrButton"]) assert.match(html,new RegExp(id));
+test("numeric lab exposes only the retained PSM 8 reference and glyph-alignment OCR strategies", () => {
+ const html=fs.readFileSync(path.join(root,"docs/war-results-vision.html"),"utf8"),ui=fs.readFileSync(path.join(root,"docs/war-results-vision.js"),"utf8");
+ for(const id of ["ocrCombinationOptions","ocrCombinationCount","copyNumericOcrButton","exportNumericOcrButton"]) assert.match(html,new RegExp(id));
+ assert.match(ui,/id:"psm8",label:"PSM 8 — référence sans correction"/);
+ assert.match(ui,/value="psm8-glyph-alignment"/);
+ assert.doesNotMatch(html,/applyRecommendedOcrPreset|ocrGlyphOption|ocrMorphologyOption|ocrAlignmentOption/);
+ assert.match(html,/Périmètre actuel : reconnaissance OCR des trophées uniquement/);
  assert.match(html,/war-results-ocr-experiment\.js\?v=0\.5\.0-glyph-alignment/);
- assert.match(html,/war-results-vision\.js\?v=5\.4-score-v020-geometry/);
- assert.match(html,/war-results-vision\.css\?v=6\.7-score-v020-geometry/);
+ assert.match(html,/war-results-vision\.js\?v=5\.5-numeric-lab-stable/);
+ assert.match(html,/war-results-vision\.css\?v=6\.8-numeric-lab-stable/);
 });
 
 test("combined OCR results keep the existing session key, details and JSON export actions", () => {
@@ -147,12 +152,16 @@ test("combined OCR results keep the existing session key, details and JSON expor
  assert.match(ui,/exportNumericOcrJson/);
  assert.match(ui,/variants: \(d\.ocrComparison\?\.strategies/);
 });
-test("all three lab engines and the OCR result controls live inside the unified experimental panel", () => {
+test("four simplified numeric sections and OCR controls live inside one lab panel", () => {
  const html=fs.readFileSync(path.join(root,"docs/war-results-vision.html"),"utf8");
  const start=html.indexOf('id="recognitionLabTitle"'), end=html.indexOf('<section id="batchSummary"');
  assert.ok(start>=0&&end>start);
  const lab=html.slice(start,end);
- for(const text of ["identity","numeric","result","Scores et trophées","Localisation et découpe","Reconnaissance OCR","Résultats détaillés, diagnostics et exports"]) assert.ok(lab.includes(text),text);
+ for(const text of ["A. Champs à analyser","B. Localisation et découpe","C. Reconnaissance numérique","D. Bibliothèque numérique MSF"]) assert.ok(lab.includes(text),text);
+ assert.ok(lab.indexOf("numericFieldsTitle")<lab.indexOf("numericLocalizationTitle"));
+ assert.ok(lab.indexOf("numericLocalizationTitle")<lab.indexOf("numericRecognitionTitle"));
+ assert.ok(lab.indexOf("numericRecognitionTitle")<lab.indexOf("numericGlyphLibrary"));
+ assert.match(lab,/id="runRecognitionLabButton"[^>]*hidden/);
 });
 
 test("morphology features distinguish a two-loop 8 from a single-loop 9 without auto-correction", () => {
@@ -175,7 +184,8 @@ test("JSON diagnostics retain combination ID, morphology evidence and proposal e
  const engine=fs.readFileSync(path.join(root,"docs/war-results-ocr-experiment.js"),"utf8");
  assert.ok(ui.includes("proposedCorrection: item.proposedCorrection"));assert.ok(ui.includes("morphology: item.morphology"));
  assert.ok(ui.includes("alignment: item.alignment"));assert.ok(ui.includes("decisionRationale: item.decisionRationale"));
- assert.match(ui,/ocrMorphologyOption/);assert.match(ui,/ocrAlignmentOption/);assert.match(engine,/automatic:false/);
+ assert.match(ui,/initializeOcrCombinations\(\)/);assert.match(engine,/automatic:false/);
+ assert.doesNotMatch(ui,/ocrMorphologyOption|ocrGlyphOption|ocrAlignmentOption/);
  for(const field of ["ocrSymbols","alignment","morphologyChecks","decision","decisionRationale","stageTimings","ocrReused"]) assert.ok(ui.includes(`${field}: item.${field}`),`JSON export persists ${field}`);
  assert.match(ui,/sessionStorage\.setItem\(NUMERIC_OCR_KEY, JSON\.stringify\(numericOcrSummary\.map\(\(entry\) => entry\.compact\)\)\)/);
 });

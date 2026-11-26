@@ -490,6 +490,124 @@
     } finally { source.close?.(); }
   }
 
+  // Localize selected numeric fields without creating or calling a Tesseract
+  // worker. This composes the already validated score and trophy locators with
+  // their fixed laboratory settings; it does not alter either algorithm.
+  async function locateNumericFields(file, fields, onProgress = () => {}) {
+    const numericFields = new Set(["localScore", "opponentScore", "localTrophies", "opponentTrophies"]);
+    const selected = [...new Set(Array.isArray(fields) ? fields : [])].filter((field) => numericFields.has(field));
+    if (!selected.length) throw new Error("Sélectionne au moins un champ numérique.");
+    if (!CORE) throw new Error("Le module de localisation partagé n’est pas chargé.");
+    if (selected.some((field) => field.endsWith("Score")) && !SCORE_LOCATOR_V020)
+      throw new Error("Le localisateur V0.2.0 des scores n’est pas chargé.");
+    if (selected.some((field) => field.endsWith("Trophies")) && (!NUMERIC_LOCATOR || !TROPHY_LOCATOR || !DIGIT_READER))
+      throw new Error("Les localisateurs de trophées ne sont pas chargés.");
+
+    const started = performance.now(), source = await decode(file), fieldsResult = {};
+    let scoreCanvas = null, trophyCanvas = null;
+    const rects = {};
+    try {
+      const proportional = CORE.locateZones([], source.width, source.height);
+      for (const field of selected) rects[field] = normalizeRect(proportional.zones[field], source.width, source.height);
+
+      const scoreFields = selected.filter((field) => field.endsWith("Score"));
+      if (scoreFields.length) {
+        scoreCanvas = document.createElement("canvas");
+        scoreCanvas.width = source.width; scoreCanvas.height = source.height;
+        const context = scoreCanvas.getContext("2d", { willReadFrequently: true });
+        context.drawImage(source, 0, 0);
+        const pixels = context.getImageData(0, 0, scoreCanvas.width, scoreCanvas.height);
+        const proportionalRects = Object.fromEntries(["localScore", "opponentScore"].map((field) =>
+          [field, normalizeRect(proportional.zones[field], source.width, source.height)]));
+        const comparison = SCORE_LOCATOR_V020.compare(pixels, scoreFields, proportionalRects, ["anchored"]);
+        for (const field of scoreFields) {
+          const fieldStarted = performance.now();
+          const result = comparison.variants?.anchored?.fields?.[field] || {
+            field, localized: false, status: "no-localization", finalRect: null, warnings: ["score-localization-result-missing"]
+          };
+          const finalRect = result.localized ? normalizeRect(result.finalRect, source.width, source.height) : null;
+          const previewCanvas = finalRect ? crop(source, finalRect, 1, false) : null;
+          const preview = previewCanvas?.toDataURL("image/jpeg", .9) || "";
+          if (previewCanvas) previewCanvas.width = previewCanvas.height = 1;
+          fieldsResult[field] = {
+            field, method: "score-v0.2-anchored", status: finalRect ? "localized" : result.status === "uncertain-candidate" ? "uncertain" : "failed",
+            localized: Boolean(result.localized && finalRect), initialRect: rects[field], proportionalRect: rects[field],
+            finalRect, cropDimensions: finalRect ? { width: finalRect.width, height: finalRect.height } : null,
+            glyphs: result.glyphs || [], warnings: result.warnings || [], elapsedMs: Math.max(0, Math.round(performance.now() - fieldStarted)),
+            marginPercent: 14, diagnostics: result, preview
+          };
+        }
+        scoreCanvas.width = scoreCanvas.height = 1; scoreCanvas = null;
+      }
+
+      const trophyFields = selected.filter((field) => field.endsWith("Trophies"));
+      if (trophyFields.length) {
+        const prepared = makeCanvas(source, 2500000); trophyCanvas = prepared.canvas;
+        const context = trophyCanvas.getContext("2d", { willReadFrequently: true });
+        const analysis = NUMERIC_LOCATOR.locate(context.getImageData(0, 0, trophyCanvas.width, trophyCanvas.height), trophyFields);
+        const scaleX = source.width / trophyCanvas.width, scaleY = source.height / trophyCanvas.height;
+        const toSource = (rect) => rect && normalizeRect({ x: rect.x * scaleX, y: rect.y * scaleY,
+          width: rect.width * scaleX, height: rect.height * scaleY }, source.width, source.height);
+        for (const field of trophyFields) {
+          const fieldStarted = performance.now();
+          onProgress({ status: `Localisation trophées — ${field}`, progress: .2 + .7 * (trophyFields.indexOf(field) + 1) / trophyFields.length });
+          const correctedRect = toSource(analysis.fields?.[field]);
+          const rawCandidates = analysis.candidates?.[field] || [];
+          const candidates = rawCandidates.map((candidate) => ({ ...candidate, rect: toSource(candidate.rect), iconAnchor: toSource(candidate.iconAnchor) }));
+          let located = { rect: null, reason: analysis.reasons?.[field] || analysis.reason || "no-pixel-group", recovery: null };
+          let searchBand = null;
+          if (correctedRect) {
+            const side = field === "localTrophies" ? "left" : "right";
+            const verticalRect = { x: 0, y: correctedRect.y, width: 0, height: correctedRect.height };
+            const locatorOptions = { paddingByGlyphHeight: .18, minimumPaddingPixels: 2,
+              edgeSafePaddingByGlyphHeight: .3, iconAware: true };
+            const readBandImageData = (bandRect) => {
+              const bandCanvas = crop(source, bandRect, 1, false);
+              if (!bandCanvas) return null;
+              try { return bandCanvas.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, bandCanvas.width, bandCanvas.height); }
+              finally { bandCanvas.width = bandCanvas.height = 1; }
+            };
+            searchBand = TROPHY_LOCATOR.proportionalBand(source.width, source.height, verticalRect, side, locatorOptions);
+            located = TROPHY_LOCATOR.locateWithVerticalRecovery(readBandImageData, source.width, source.height,
+              verticalRect, side, DIGIT_READER, locatorOptions);
+          }
+          const finalRect = located.rect && !located.reason ? normalizeRect(located.rect, source.width, source.height) : null;
+          const segmented = located.segmented || null;
+          const glyphs = segmented?.bounds && located.bandRect
+            ? TROPHY_LOCATOR.translateBoundsToSource(segmented.bounds, located.bandRect) : [];
+          const safeSegmentation = segmented ? { ...segmented,
+            glyphs: (segmented.glyphs || []).map(({ bitmap, ...glyph }) => glyph),
+            components: segmented.components || [], candidates: segmented.candidates || [] } : null;
+          const previewCanvas = finalRect ? crop(source, finalRect, 1, false) : null;
+          const preview = previewCanvas?.toDataURL("image/jpeg", .9) || "";
+          if (previewCanvas) previewCanvas.width = previewCanvas.height = 1;
+          const warnings = [...new Set([...(segmented?.warnings || []), ...(located.reason ? [located.reason] : [])])];
+          const hasDiagnosticCandidate = Boolean(candidates.length || segmented?.bounds?.length || segmented?.components?.length);
+          fieldsResult[field] = {
+            field, method: "pixel-content+vertical-recovery-combined", status: finalRect ? "localized" : hasDiagnosticCandidate ? "uncertain" : "failed",
+            localized: Boolean(finalRect), initialRect: rects[field], proportionalRect: rects[field], correctedRect, searchBand,
+            finalRect, cropDimensions: finalRect ? { width: finalRect.width, height: finalRect.height } : null,
+            glyphs, warnings, elapsedMs: Math.max(0, Math.round(performance.now() - fieldStarted)), marginPercent: located.appliedMarginPercent ?? 18,
+            diagnostics: { method: analysis.method, analysisDimensions: analysis.dimensions, coordinateTransform: { scaleX, scaleY },
+              anchors: (analysis.anchors?.[field] || []).map(toSource), candidates, selectedCandidate: candidates.find((candidate) => candidate.selected) || null,
+              reason: analysis.reasons?.[field] || located.reason || null, searchBand,
+              segmentationBandRect: located.bandRect || null,
+              recovery: located.recovery || null,
+              recoveries: located.recoveries || [], edgeSafePadding: located.edgeSafePadding || null, segmentation: safeSegmentation }, preview
+          };
+        }
+        trophyCanvas.width = trophyCanvas.height = 1; trophyCanvas = null;
+      }
+      onProgress({ progress: 1 });
+      return { dimensions: { width: source.width, height: source.height }, layout: proportional.layout,
+        totalMs: Math.max(0, Math.round(performance.now() - started)), fields: fieldsResult };
+    } finally {
+      if (scoreCanvas) scoreCanvas.width = scoreCanvas.height = 1;
+      if (trophyCanvas) trophyCanvas.width = trophyCanvas.height = 1;
+      source.close?.();
+    }
+  }
+
   async function analyzeNumericFields(file, fields, onProgress = () => {}, options = {}) {
     const expected = { localScore: 6, opponentScore: 6, localTrophies: 4, opponentTrophies: 4 };
     const selected = [...new Set(Array.isArray(fields) ? fields : [])].filter((field) => Object.hasOwn(expected, field));
@@ -742,7 +860,7 @@
     if (worker) { await worker.terminate(); worker = null; }
     workerPromise = null;
   }
-  window.WarResultsVisionEngine = { analyze, analyzeField, locateLaboratoryField, analyzeNumericFields, compareScoreLocators,
+  window.WarResultsVisionEngine = { analyze, analyzeField, locateLaboratoryField, locateNumericFields, analyzeNumericFields, compareScoreLocators,
     compareScoreLocatorsV020, measureScoreColorRegion, compareTrophyLocators, release, version: VERSION };
 })();
 
