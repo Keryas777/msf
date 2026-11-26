@@ -878,26 +878,30 @@ function renderDirection(run, section) {
   ];
 
   for (const choice of choices) {
-    const label = document.createElement("label");
-    label.className = "direction-option";
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "direction-option";
+    button.setAttribute("aria-pressed", String(run.direction === choice.value));
+    button.style.cssText = "width:100%;text-align:left;color:inherit;font:inherit;cursor:pointer;touch-action:manipulation";
 
-    const radio = document.createElement("input");
-    radio.type = "radio";
-    radio.name = `direction-${run.id}`;
-    radio.value = choice.value;
-    radio.checked = run.direction === choice.value;
+    const indicator = document.createElement("span");
+    indicator.setAttribute("aria-hidden", "true");
+    indicator.textContent = run.direction === choice.value ? "●" : "○";
 
     const text = document.createElement("span");
     text.textContent = choice.label;
 
-    radio.addEventListener("change", () => {
+    button.addEventListener("click", () => {
       run.direction = choice.value;
       run.directionCorrected = true;
-      renderAll();
+      const updated = renderRun(run);
+      section.replaceWith(updated);
+      updateBatchSummary();
+      updated.querySelector('.direction-option[aria-pressed="true"]')?.focus({ preventScroll: true });
     });
 
-    label.append(radio, text);
-    options.append(label);
+    button.append(indicator, text);
+    options.append(button);
   }
 
   panel.append(title, detected, options);
@@ -1131,6 +1135,14 @@ function renderRun(run) {
   section.append(verifyRow, renderDirection(run, section), renderCounterSummary(run));
 
   return section;
+}
+
+function refreshDerived(run, section) {
+  const status = section.querySelector('[data-role="capture-status"]');
+  if (status) setStatusChip(status, statusForRun(run));
+  const summary = section.querySelector(".counter-summary");
+  if (summary) summary.replaceWith(renderCounterSummary(run));
+  updateBatchSummary();
 }
 
 function renderAll() {
