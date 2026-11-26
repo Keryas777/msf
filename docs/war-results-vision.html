@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex,nofollow">
   <title>MSF War Results Vision</title>
   <link rel="stylesheet" href="./war-counter-lab.css?v=r7-entry-5">
-  <link rel="stylesheet" href="./war-results-vision.css?v=6.7-score-v020-geometry">
+  <link rel="stylesheet" href="./war-results-vision.css?v=6.8-numeric-lab-stable">
   <link rel="stylesheet" href="./war-results-numeric-library.css?v=1.0.0-glyph-library">
 </head>
 <body>
@@ -23,7 +23,7 @@
         <div class="section-title"><span class="step">1</span><h2 id="importTitle">Captures de résultats</h2></div>
         <span id="batchBadge" class="status-chip">Aucune capture</span>
       </div>
-      <p class="muted">Sélectionne une ou plusieurs images PNG ou JPEG. L’OCR est chargé seulement au lancement de l’analyse.</p>
+      <p class="muted">Sélectionne une ou plusieurs images PNG ou JPEG. « Analyser les captures » lance le parcours normal. Pour ne produire que des découpes, utilise le bouton de localisation du laboratoire numérique ci-dessous.</p>
       <div class="import-actions">
         <label class="primary-button upload-button" for="captureInput">Choisir des captures</label>
         <input id="captureInput" type="file" accept="image/png,image/jpeg" multiple>
@@ -36,12 +36,49 @@
     </section>
 
     <section class="panel recognition-lab" aria-labelledby="recognitionLabTitle">
-      <div class="section-heading"><div class="section-title"><span class="step">L</span><h2 id="recognitionLabTitle">Laboratoire expérimental</h2></div><span class="status-chip">Traitement local</span></div>
-      <p class="muted">Teste un moteur sans lancer les deux autres. Les images et diagnostics restent dans cet onglet.</p>
-      <label class="lab-engine-label" for="labEngineSelect">Moteur</label>
-      <select id="labEngineSelect" class="lab-engine-select"><option value="identity">Identité</option><option value="numeric" selected>Numérique</option><option value="result">Résultat</option></select>
-      <fieldset class="lab-fieldset"><legend>Scores et trophées</legend><div id="laboratoryFields" class="lab-field-options"></div></fieldset>
-      <div id="labNumericOptions" class="lab-options"><h3>Localisation et découpe</h3>
+      <div class="section-heading"><div class="section-title"><span class="step">L</span><h2 id="recognitionLabTitle">Laboratoire numérique</h2></div><span class="status-chip">Traitement local</span></div>
+      <p class="muted">Choisis les champs, localise et découpe sans OCR, puis ouvre séparément le comparateur OCR pris en charge. Les images restent dans cet onglet.</p>
+      <input id="labEngineSelect" type="hidden" value="numeric">
+      <section class="numeric-lab-section" aria-labelledby="numericFieldsTitle">
+        <h3 id="numericFieldsTitle">A. Champs à analyser</h3>
+        <fieldset class="lab-fieldset"><legend>Scores et trophées</legend><div id="laboratoryFields" class="lab-field-options"></div></fieldset>
+      </section>
+      <section class="numeric-lab-section" aria-labelledby="numericLocalizationTitle">
+        <h3 id="numericLocalizationTitle">B. Localisation et découpe</h3>
+        <div class="numeric-localizer-config">
+          <p><strong>Scores :</strong> V0.2.0 — Regroupement + ancrage proportionnel <span>marge finale de 14 % de la hauteur médiane des glyphes (minimum 2 px)</span></p>
+          <p><strong>Trophées :</strong> Localisation par groupes de chiffres dans les pixels · « Reprise + corrections combinées (référence) » <span>marge de 18 %, reprise verticale et rejet conditionnel des pictogrammes</span></p>
+        </div>
+        <button id="localizeNumericFieldsButton" class="primary-button" type="button" disabled>Localiser et découper les champs sélectionnés</button>
+        <progress id="numericLocalizationProgress" max="100" value="0" hidden></progress>
+        <p id="numericLocalizationStatus" class="analysis-status" role="status" aria-live="polite"></p>
+        <p id="numericLocalizationSummary" class="numeric-localization-summary" aria-live="polite">Aucun champ localisé.</p>
+        <label class="numeric-capture-filter" for="numericCaptureFilter">Afficher les résultats</label>
+        <select id="numericCaptureFilter" class="trophy-margin-select"><option value="all">Toutes les captures</option></select>
+        <div id="numericLocalizationResults" class="numeric-localization-results"></div>
+        <div class="lab-export-actions numeric-localization-actions">
+          <button id="copyNumericLocalizationJsonButton" class="secondary-button" type="button" disabled>Copier les diagnostics JSON</button>
+          <button id="exportNumericLocalizationJsonButton" class="secondary-button" type="button" disabled>Télécharger les diagnostics JSON</button>
+        </div>
+      </section>
+      <section class="numeric-lab-section" aria-labelledby="numericRecognitionTitle">
+        <h3 id="numericRecognitionTitle">C. Reconnaissance numérique</h3>
+        <p class="muted">Périmètre actuel : reconnaissance OCR des trophées uniquement. Les scores restent disponibles pour la localisation et la découpe ; leur OCR n’est pas pris en charge ici.</p>
+        <details class="numeric-recognition-controls" open>
+          <summary>Stratégies OCR à comparer</summary>
+          <p class="muted">Les deux stratégies conservées sont PSM 8 — référence sans correction et PSM 8 + alignement OCR/glyphes.</p>
+          <p id="ocrCombinationCount" class="muted" aria-live="polite"></p>
+          <div id="ocrCombinationOptions" class="ocr-strategy-options" role="group" aria-label="Stratégies OCR conservées"></div>
+        </details>
+        <button id="compareNumericOcrButton" class="secondary-button" type="button" disabled>Comparer l’OCR des trophées sélectionnés</button>
+        <button id="clearNumericOcrButton" class="secondary-button" type="button" disabled>Effacer les résultats OCR</button>
+        <button id="copyNumericOcrButton" class="secondary-button" type="button" disabled>Copier le rapport OCR JSON</button>
+        <button id="exportNumericOcrButton" class="secondary-button" type="button" disabled>Télécharger le rapport OCR JSON</button>
+        <p id="numericOcrStatus" class="analysis-status" role="status" aria-live="polite"></p>
+        <div id="numericOcrTable"></div><div id="numericOcrResults" class="numeric-ocr-results"></div>
+      </section>
+      <!-- Historic locator/margin controls stay in source, hidden and inactive in the simplified numeric flow. -->
+      <div id="labNumericOptions" class="lab-options" hidden><h3>Localisation et découpe</h3>
         <label for="labNumericLocatorSelect">Localisation initiale des quatre zones</label>
         <select id="labNumericLocatorSelect" class="trophy-margin-select"><option value="proportional">Proportionnelle actuelle</option><option value="pixel-content">Expérimentale — groupes de chiffres dans les pixels</option></select>
         <label for="labTrophyLocatorSelect">Localisateur des trophées</label>
@@ -50,7 +87,8 @@
         <select id="labTrophyMarginSelect" class="trophy-margin-select"><option value="0">0 %</option><option value="18" selected>18 %</option><option value="30">30 %</option></select>
         <p class="muted">Le comparateur A/B conserve ses cinq variantes, ses mesures, sa sauvegarde et ses exports dans le panneau de diagnostic plus bas.</p>
       </div>
-      <section id="scoreLocatorLab" class="score-locator-lab" aria-labelledby="scoreLocatorTitle">
+      <!-- Historical score variants and color diagnostics remain available in code, not in the current interface. -->
+      <section id="scoreLocatorLab" class="score-locator-lab" aria-labelledby="scoreLocatorTitle" hidden>
         <h3 id="scoreLocatorTitle">Comparateur des scores · sans OCR</h3>
         <p class="muted">Compare la localisation proportionnelle avec les stratégies expérimentales par pixels jaunes. Évalue les découpes à l’œil; aucune valeur n’est déduite par OCR. La V0.1.0 reste inchangée. V0.2.0 réutilise son masque colorimétrique sans en modifier les seuils.</p>
         <fieldset class="score-locator-variants"><legend>Stratégies à comparer</legend>
@@ -75,7 +113,7 @@
         <p id="scoreLocatorStatus" class="analysis-status" role="status" aria-live="polite"></p>
         <div id="scoreLocatorResults" class="score-locator-results"></div>
         <div id="scoreV020Results" class="score-locator-results"></div>
-        <details id="scoreColorMeasure" class="score-color-measure">
+        <details id="scoreColorMeasure" class="score-color-measure" hidden>
           <summary>Mesurer les couleurs des pixels source</summary>
           <p class="muted">Outil de caractérisation uniquement : il lit les pixels originaux de la capture importée et ne modifie ni la V0.1.0 ni une localisation. Choisis une capture, puis trace au doigt ou à la souris une petite zone incluant des chiffres et leurs contours.</p>
           <label for="scoreColorCapture">Capture originale</label><select id="scoreColorCapture"></select>
@@ -88,12 +126,12 @@
           <pre id="scoreColorSummary"></pre>
         </details>
       </section>
-      <button id="runRecognitionLabButton" class="primary-button" type="button" disabled>Lancer le moteur sélectionné</button>
+      <button id="runRecognitionLabButton" class="primary-button" type="button" disabled hidden>Lancer le moteur sélectionné</button>
       <progress id="labProgress" max="100" value="0" hidden></progress>
-      <p id="labStatus" class="analysis-status" role="status" aria-live="polite"></p>
-      <div id="labResults" class="lab-results"></div>
+      <p id="labStatus" class="analysis-status" role="status" aria-live="polite" hidden></p>
+      <div id="labResults" class="lab-results" hidden></div>
       <details id="numericGlyphLibrary" class="numeric-library-section">
-        <summary>Bibliothèque numérique MSF</summary>
+        <summary>D. Bibliothèque numérique MSF</summary>
         <p class="muted">Extrais, identifie et valide manuellement les chiffres des scores et des trophées. Les captures et références restent sur cet appareil; aucune écriture GitHub ni moteur Template Matching n’est activé.</p>
         <div class="numeric-library-controls">
           <label for="numericLibraryCapture">Capture importée</label><select id="numericLibraryCapture"></select>
@@ -118,10 +156,11 @@
         </div>
         <p id="numericLibraryStatus" class="analysis-status" role="status" aria-live="polite"></p>
       </details>
-      <div class="lab-export-actions"><button id="copyLabJsonButton" class="secondary-button" type="button" disabled>Copier les diagnostics</button><button id="exportLabJsonButton" class="secondary-button" type="button" disabled>Télécharger les diagnostics (.json)</button></div>
+      <div class="lab-export-actions" hidden><button id="copyLabJsonButton" class="secondary-button" type="button" disabled>Copier les diagnostics</button><button id="exportLabJsonButton" class="secondary-button" type="button" disabled>Télécharger les diagnostics (.json)</button></div>
       <p class="muted">Pour relancer un champ après interruption, réimporte la capture : les résultats par moteur, champ, variante et marge sont restaurés depuis le stockage temporaire.</p>
-      <a class="lab-diagnostic-link" href="#diagnosticPanel">Ouvrir le comparateur A/B des trophées</a>
-    <details id="diagnosticPanel" class="panel diagnostic-panel">
+      <a class="lab-diagnostic-link" href="#diagnosticPanel" hidden>Ouvrir le comparateur A/B des trophées</a>
+    <!-- Historical trophy A/B controls remain retained for future work; they are not shown or run here. -->
+    <details id="diagnosticPanel" class="panel diagnostic-panel" hidden>
       <summary>Résultats détaillés, diagnostics et exports</summary>
       <p id="diagnosticText" class="muted">Aucune analyse exécutée.</p>
       <pre id="diagnosticLog"></pre>
@@ -136,24 +175,6 @@
         <p class="muted">Les résultats sont sauvegardés temporairement dans cette session de navigateur après chaque capture. Réimporte une capture terminée pour retrouver son résultat sans la retraiter. Utilise « Effacer le diagnostic » pour supprimer ces mesures.</p>
         <p id="locatorCompareStatus" class="analysis-status" role="status" aria-live="polite"></p>
         <div id="locatorComparisonResults" class="locator-comparison-results"></div>
-        <section class="ocr-experiment-panel" aria-labelledby="ocrExperimentTitle">
-          <h2 id="ocrExperimentTitle">Reconnaissance OCR · combinaisons expérimentales</h2>
-          <p class="muted">Les trophées sont localisés une fois avec « groupes de chiffres dans les pixels », la variante combinée et une marge de 18 %. Le rectangle final est figé pour toutes les lectures. La référence PSM 7 reste toujours incluse. Les valeurs attendues ne sont pas enregistrées dans la page.</p>
-          <div class="ocr-combination-controls">
-            <div class="ocr-control-heading"><strong>Combinaisons PSM × prétraitement</strong><button id="applyRecommendedOcrPreset" class="secondary-button" type="button">Configuration recommandée · 7 essais</button></div>
-            <p id="ocrCombinationCount" class="muted" aria-live="polite"></p>
-            <div id="ocrCombinationOptions" class="ocr-combination-grid" role="group" aria-label="Combinaisons OCR disponibles"></div>
-            <label class="ocr-glyph-option"><input id="ocrMorphologyOption" type="checkbox" value="psm8-morphology"> PSM 8 + vérification morphologique ciblée 8/9/5</label>
-            <label class="ocr-glyph-option"><input id="ocrAlignmentOption" type="checkbox" value="psm8-glyph-alignment"> PSM 8 + alignement OCR/glyphes</label>
-            <label class="ocr-glyph-option"><input id="ocrGlyphOption" type="checkbox" value="glyphs"> Reconnaissance chiffre par chiffre · PSM 10 (distincte)</label>
-          </div><button id="compareNumericOcrButton" class="secondary-button" type="button" disabled>Comparer l’OCR des trophées chargés</button>
-          <button id="clearNumericOcrButton" class="secondary-button" type="button" disabled>Effacer les résultats OCR</button>
-          <button id="copyNumericOcrButton" class="secondary-button" type="button" disabled>Copier le rapport OCR JSON</button>
-          <button id="exportNumericOcrButton" class="secondary-button" type="button" disabled>Télécharger le rapport OCR JSON</button>
-          <p class="muted">Essais séquentiels avec le Worker Tesseract déjà partagé par la page. Les mesures partielles sont conservées dans la session; les captures et leurs pixels ne sont pas stockés.</p>
-          <p id="numericOcrStatus" class="analysis-status" role="status" aria-live="polite"></p>
-          <div id="numericOcrTable"></div><div id="numericOcrResults" class="numeric-ocr-results"></div>
-        </section>
       </div>
     </details>
     </section>
@@ -178,10 +199,10 @@
   <script src="./war-results-locator-comparison-store.js?v=1.3.0" defer></script>
   <script src="./war-results-identity-engine.js?v=1.0.0" defer></script>
   <script src="./war-results-result-engine.js?v=1.0.0" defer></script>
-  <script src="./war-results-vision-engine.js?v=6.5-score-v020-geometry" defer></script>
+  <script src="./war-results-vision-engine.js?v=6.6-numeric-lab-stable" defer></script>
   <script src="./war-results-vision-data.js?v=2-rich-name" defer></script>
   <script src="./war-results-numeric-library.js?v=1.0.1-score-locator-option" defer></script>
-  <script src="./war-results-vision.js?v=5.4-score-v020-geometry" defer></script>
+  <script src="./war-results-vision.js?v=5.5-numeric-lab-stable" defer></script>
 </body>
 </html>
 

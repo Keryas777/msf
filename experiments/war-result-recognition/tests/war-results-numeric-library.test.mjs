@@ -143,7 +143,7 @@ test('static page exposes a single repliable library section without changing pr
   assert.match(html, /<details id="numericGlyphLibrary"/); assert.match(html, /Bibliothèque numérique MSF/);
   assert.match(html, /war-results-numeric-library\.js\?v=1\.0\.1-score-locator-option/);
   assert.match(html, /war-results-numeric-library\.css\?v=1\.0\.0-glyph-library/);
-  assert.match(html, /war-results-vision\.js\?v=5\.4-score-v020-geometry/);
+  assert.match(html, /war-results-vision\.js\?v=5\.5-numeric-lab-stable/);
   assert.match(vision, /war-results-capture-batch/);
   assert.equal((html.match(/id="numericGlyphLibrary"/g) || []).length, 1);
 });
