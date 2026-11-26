@@ -247,3 +247,8 @@ Les corrections de provenance française de #739 sont présentes, le lien owner-
 - Si aucune donnée détail PC valable n’existe après accès owner-only, la proposition préalable à toute requête supplémentaire est : résoudre l’ID cible via `GET /player/v1/events?lang=fr` (endpoint existant, pagination jusqu’à 8 pages au maximum), puis appeler une seule fois `GET /player/v1/events/{eventId}?lang=fr&objRewards=full` pour cet ID. Cela représente 1 à 9 appels amont selon pagination, avant tout rafraîchissement éventuel d’inventaire; aucun n’est autorisé ou effectué à ce stade. Un appel pour `CONSUMABLE` serait séparé, jusqu’à 20 pages selon pagination, et nécessite une autorisation supplémentaire.
 
 Aucune modification de sécurité, d’OAuth, d’Access, de rétention, de collecte ou de cache n’a été réalisée. Le seul changement permanent de cette reprise est cette note de suivi sans données personnelles. PR #218/#739 restent en brouillon; aucun merge ni déploiement.
+
+
+### Prévention des appels non autorisés pendant l’interface
+
+L’inspection du `public/event-planner/app.js` de #218 a trouvé que le démarrage de l’analyse charge ensemble les listes d’événements en anglais et français, le roster, `CONSUMABLE` et `ISOITEM`; le bouton d’actualisation de stock appelle lui aussi `CONSUMABLE` et `ISOITEM`. Avec des caches expirés, ces actions peuvent engendrer des appels personnels additionnels. Elles ne seront pas déclenchées pour la validation à périmètre ISOITEM seule. Une validation iPhone du parcours complet devra attendre soit une collecte de données additionnelles autorisée, soit une préparation en code qui ne charge que les sources autorisées/nécessaires; aucun changement UI n’est inclus dans cette reprise.
