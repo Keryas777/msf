@@ -380,7 +380,7 @@ Le propriétaire a confirmé les résultats de sa première validation réelle :
 
 #### Données réelles et limites
 
-Le propriétaire rapporte 103 objets d’inventaire reçus, dont 100 ISO-8 et 3 consommables, ainsi que 25 IDs ISO-8 reconnus et 75 encore non classifiés; ce sont des statistiques de validation fournies par le propriétaire, pas un inventaire publié. L’hypothèse de couverture des 4 paliers × 5 classes × 5 catégories n’est pas encore confirmée par l’examen des IDs réels. Les deux consommables sans libellé français ne sont pas identifiés dans les données accessibles à cette reprise. Aucun mapping n’a été inventé. La correction suivante devra exploiter les résultats déjà synchronisés et les diagnostics administrateur existants; aucun appel personnel supplémentaire n’a été effectué dans cette passe.
+Le propriétaire signale dans son retour privé des IDs ISO-8 encore non classifiés et deux consommables sans libellé français. Les chiffres agrégés, identifiants exacts et captures de l’inventaire personnel ne sont pas conservés dans ce dépôt. L’hypothèse de couverture des quatre paliers, cinq classes de personnages et cinq catégories n’est pas confirmée par les IDs réels accessibles à cette reprise. Aucun mapping n’a été inventé. La suite devra exploiter les résultats déjà synchronisés et les diagnostics administrateur existants; aucun appel personnel supplémentaire n’a été effectué dans cette passe.
 
 Le roster, le catalogue et le nouveau vocabulaire ne peuvent être validés sur le nouveau code qu’après le redéploiement contrôlé de #218 puis le nouvel essai du propriétaire sur iPhone. Ce déploiement reste en attente d’une autorisation explicite; aucun déploiement, fusion ou appel personnel Scopely n’a été effectué dans cette passe.
 
