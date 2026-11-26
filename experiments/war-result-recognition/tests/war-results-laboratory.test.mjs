@@ -125,6 +125,7 @@ test("score comparison stays geometry-only, and the optional library locator use
   const scoreResult = (field) => ({ method: "score-test", localized: true,
     finalRect: { x: field === "localScore" ? 100 : 710, y: 82, width: 60, height: 24 }, glyphCount: 5, warnings: [] });
   const scoreLocator = { locate(_pixels, field) { calls.push(`score-locate:${field}`); return scoreResult(field); },
+    diagnoseSearch() { return { stages: [], components: { accepted: [], rejected: [], ungrouped: [] }, candidates: [] }; },
     compare(_pixels, fields) { calls.push(`score-locate:${fields.join(",")}`); return { fields: Object.fromEntries(fields.map((field) => [field, scoreResult(field)])) }; } };
   const worker = { async setParameters() {}, async recognize() { calls.push("ocr"); return { data: { text: "123456", confidence: 90 } }; }, async terminate() {} };
   const context = {
