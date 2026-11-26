@@ -133,7 +133,7 @@ globalThis.fetch = async (input, init) => {
 installWarCounterLabStability();
 
 try {
-  await import("./war-counter-lab.js?v=r7-vertical-3");
+  await import("./war-counter-lab.js?v=r7-direction-1");
   const { initWarCounterManualTeamUi } = await import("./war-counter-write-manual-teams.js?v=2");
   const { initWarCounterWriteUi } = await import("./war-counter-write-ui.js?v=r6");
   initWarCounterManualTeamUi();
