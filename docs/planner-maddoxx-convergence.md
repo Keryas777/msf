@@ -252,3 +252,36 @@ Aucune modification de sécurité, d’OAuth, d’Access, de rétention, de coll
 ### Prévention des appels non autorisés pendant l’interface
 
 L’inspection du `public/event-planner/app.js` de #218 a trouvé que le démarrage de l’analyse charge ensemble les listes d’événements en anglais et français, le roster, `CONSUMABLE` et `ISOITEM`; le bouton d’actualisation de stock appelle lui aussi `CONSUMABLE` et `ISOITEM`. Avec des caches expirés, ces actions peuvent engendrer des appels personnels additionnels. Elles ne seront pas déclenchées pour la validation à périmètre ISOITEM seule. Une validation iPhone du parcours complet devra attendre soit une collecte de données additionnelles autorisée, soit une préparation en code qui ne charge que les sources autorisées/nécessaires; aucun changement UI n’est inclus dans cette reprise.
+
+
+## Autorisation de validation réelle et précontrôles — 26 novembre 2026
+
+### Périmètre autorisé par le propriétaire
+
+Le propriétaire a autorisé un déploiement temporaire, sans fusion, de la PR #218 sur le Worker existant, ainsi que les lectures ponctuelles `ISOITEM` (20 pages max), `CONSUMABLE` (20 pages max), liste d’événements français (8 pages max) et une fiche PC française avec `objRewards=full`. Le roster doit venir du cache autorisé existant. Les plafonds sont des maximums; arrêter toute pagination à la dernière page. Aucune autre requête Scopely personnelle n’est autorisée. Cette autorisation n’a pas été exécutée tant que les contrôles préalables ne sont pas satisfaits.
+
+### Worker actif et retour arrière
+
+- Relevé Cloudflare en lecture seule : déploiement actif `8789c2d8-62ab-46e4-81f8-cb8b285aa601`, à 100 % sur la version `1706e375-159f-4c7b-9940-0776895a61c2` (version 235), créée le 24 novembre 2026 à 23:07 UTC. Cloudflare ne fournit pas de SHA Git dans les métadonnées consultées.
+- Retour arrière adjacent préparé : déploiement précédent `b69a4a7f-d505-4cd5-845a-efc6ab5062a9`, version 234 `b3a34398-71ea-4e5b-a7b6-fca9d459478d`.
+- Les deux versions exposent les mêmes 33 bindings, noms de variables (sans lecture de valeurs secrètes), trois namespaces Durable Objects et leurs classes, mêmes liaisons R2/service/Assets et compatibilité. Aucun changement de migration DO n’est nécessaire pour revenir à la version 234. Le workflow de publication contrôlé de la branche reste le chemin de déploiement; il n’a pas été lancé.
+- Aucun déploiement de cette PR n’a eu lieu. L’URL du Worker, OAuth, Access, secrets, scopes, consentements, collecte et rétention restent inchangés.
+
+### État de #218 et contrôles
+
+- #218 reste ouverte, en brouillon, `mergeable=true`, base `main` au SHA `5af430a10cd636badb0f18d9055e44693a96ef90`. Le head initial de cette reprise était `719ac67e10549a4aedf584365dc5c0d3c53fdb36`.
+- `4e8e81d61ab5c20d29a56a4cb37e9343f5b2fada` limite les lectures à la langue française, garde le roster en cache-only, mutualise les lectures au sein de la page, interdit les actualisations supplémentaires déclenchées par les boutons et borne le détail à une série PC. Cette correction ne modifie pas OAuth, Access, les scopes, les bindings, les migrations ni la rétention.
+- Le premier contrôle navigateur après `4e8e81d` a mis en évidence une régression réelle : le déplacement des lectures personnelles avait omis l’attente du chargement statique du calendrier/catalogue. Les cartes n’étaient donc pas produites. Correction dans `12a87b5ce4fef9ec8ed6a2152a18a9b18e8a44d5` : calendrier et catalogues statiques sont à nouveau attendus en parallèle des lectures, sans appel Scopely additionnel.
+- Le contrôle suivant a détecté deux attentes de test trop fortes sur la séquence UI (« chargement » déjà terminé pour une fiche sans appel détail; navigation retour répétée après sélection PC). Elles ont été ajustées dans `69c948f9b5cc97d977814645e91b883f0dc12dea` et `a856e6a53f6df4189295dc5d502f7b2de4f76cdd`; aucun comportement utilisateur n’a été modifié pour ces deux assertions.
+- Suite locale ciblée après ces changements : 128/128 réussies, `node --check` et `git diff --check` réussis. Le run de tests unitaires sur le dernier head est réussi. Chromium/WebKit sur le head `a856e6a` sont en cours à la dernière vérification; leurs résultats et captures doivent être consignés dans un append ultérieur avant validation finale.
+- La suite Worker OAuth du head `a856e6a` reste à 15 échecs. La liste des 15 sous-tests en échec est identique à la baseline `719ac67` et porte uniquement sur récupération tardive/invitée (2), enqueues DD9 (3), budgets partagés (2) et lecture R2 (8). Aucun des tests Maddoxx ne figure dans cette liste; ces échecs sont hors périmètre de la PR.
+
+### Condition de droit d’utilisation non satisfaite
+
+Les documents de suivi antérieurs indiquent qu’aucun fichier LICENSE ni condition explicite de redistribution n’a été trouvé dans les archives Maddoxx. La recherche ciblée des commentaires de PR et des fichiers du projet n’a pas trouvé de permission écrite de l’auteur. Aucun avis juridique n’a été fait. Cette vérification demandée est donc non concluante; la présence des archives ou leur transmission ne suffit pas à établir l’autorisation de republier le code dans le Worker.
+
+Par prudence, le déploiement reste bloqué jusqu’à preuve d’une licence appropriée ou confirmation écrite de Maddoxx autorisant l’usage du moteur dans ce projet et sur ce Worker. Cette condition est indépendante de l’autorisation du propriétaire à déployer. Aucun appel Scopely personnel n’a été effectué : 0 endpoint, 0 page; aucun cache personnel n’a été lu. Les quantités, IDs rencontrés, résultats de matrice, compteurs de progression et fiche du poste de commandement demeurent donc non validés sur données réelles.
+
+### État de #739
+
+#739 `work/maddoxx-convergence-owner-entry` reste ouverte, en brouillon, head `c149969aa1e7b95a07710aa01eddcd6a49792f91`, base `main` `968db3ae3fa5d2600093cba5361b1c67b9936f85`, `mergeable=true`. Cette mise à jour ajoute uniquement ce journal; la branche n’a pas été synchronisée ou fusionnée et aucun déploiement Pages n’a eu lieu.
