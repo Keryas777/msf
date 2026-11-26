@@ -1,21 +1,70 @@
-# Convergence du planificateur Maddoxx vers la page Événements LoSP
+# Maddoxx — convergence LoSP et journal permanent de la phase 1
 
-État de préparation associé à PR #739 (interface de navigation) et PR #218 (services privés et interface expérimentale). PR conservées en brouillon; aucune fusion ou publication.
+> **État courant au 26 novembre 2026 — reprise en cours.** Les décisions et constats ci-dessous remplacent les choix d’architecture plus anciens conservés plus bas à titre d’historique. PR #218 et #739 restent ouvertes et en brouillon. Aucune fusion, aucun déploiement et aucun nouvel appel personnel Scopely.
 
-## Architecture examinée
+## Décision d’architecture définitive
 
-| Solution | Authentification et session | Avantages | Contraintes, coût et risque | État |
-|---|---|---|---|---|
-| Interface servie par le Worker (actuel) | Cloudflare Access identifie l’administrateur; le Worker vérifie cet accès, puis le cookie capitaine HttpOnly; Secure; SameSite=Lax et ses scopes avant les données personnelles. | Même origine que l’API, session de premier niveau fiable sur Safari, aucun jeton OAuth dans le navigateur. | Page expérimentale distincte, duplication temporaire d’interface; ne satisfait pas la page unique dans msf/docs. | Référence transitoire; à conserver jusqu’à migration sûre. |
-| Origine commune Pages + Worker | URL officielle msf/docs et API privée exposées sous le même hôte; Cloudflare route les chemins privés vers le Worker et le reste vers Pages, ou un Worker relaie les assets publics. Admin toujours vérifié côté Worker; session capitaine reste HttpOnly. | Une seule page, même origine pour appels, cookies, liens et Safari; pas de ticket dans le navigateur. | Demande un domaine contrôlé par LoSP et une configuration DNS/Pages/Worker; éventuel coût de domaine et consommation Cloudflare dépendant du compte, non vérifiable ici. Le routage/proxy et le maintien de base, cache, CSP et PWA ajoutent de la configuration. Ne pas supposer que github.io peut être routé via la zone Cloudflare de LoSP. | Option la plus simple à long terme si un domaine LoSP existant est disponible; non mise en place sans validation. |
-| Session applicative / ticket temporaire | La page publique ne fait pas confiance à une session LoSP stockée par JavaScript. Le propriétaire ouvre d’abord une navigation de premier niveau du Worker, qui vérifie Cloudflare Access et la session capitaine, puis délivre une capacité opaque à usage unique / TTL court, limitée à l’origine et aux routes. Retour postMessage avec targetOrigin exact; API Worker échange/valide la capacité. OAuth reste serveur. | GitHub Pages statique peut rester l’interface; pas de cookie tiers requis pour chaque fetch; la capacité ne vaut pas jeton OAuth. Révocation possible avec TTL/état côté Durable Object existant. | Il faut gérer nonce, rejeu, TTL, échange atomique, origine exacte, CORS, erreurs et révocation; exposition d’une capacité en mémoire; davantage de code et de maintenance qu’une origine commune. Le Durable Object existant peut porter cet état, mais cette fonctionnalité n’existe pas encore. | Preuve partielle : Chromium valide le flux de ticket simulé; WebKit mobile valide l’interface mais ne transmet pas le cookie de session à la navigation popup dans le banc. L’échange de ticket n’est donc pas validé en WebKit et n’est pas implémenté. |
-| Cookie Worker directement depuis github.io | La page appelle le Worker en credentials: include. | Peu de code et pas de nouvelle session applicative. | Origines cross-site; le cookie SameSite=Lax n’est pas joint au fetch intersite sur Chromium/WebKit. Le passer en SameSite=None rendrait le fonctionnement dépendant des cookies tiers, bloqués sur Safari et souvent Discord; ne pas affaiblir ce cookie. | Écartée pour la page finale. |
+La WebApp LoSP reste répartie sur les deux infrastructures existantes, avec navigation entre elles.
 
-Le mécanisme LoSP existant distingue correctement deux identités : le garde GitHub Pages peut afficher l’entrée administrateur, mais l’autorisation réelle reste le JWT Cloudflare Access et l’allowlist propriétaire du Worker. Une session capitaine Scopely ne confère aucun droit administrateur. Le jeton OAuth et le refresh token restent dans le Worker / coffre chiffré.
+- **losp-roster-service / Worker Cloudflare** conserve Maddoxx et toutes ses données et opérations personnelles : passerelle Scopely et son URL enregistrée, OAuth, sessions, consentements/scopes, collecte/distribution, R2 et rétention existante (30 jours maximum), événements, objectifs, progression et inventaire personnels, moteur et interface du planificateur. Aucun historique Scopely additionnel ne sera ajouté.
+- **msf / GitHub Pages** conserve les outils communautaires/statistiques et l’entrée propriétaire vers la page Maddoxx du Worker. Il continue de consommer les données du roster-service selon les intégrations existantes; aucune nouvelle passerelle Scopely.
+- L’accès propriétaire, Cloudflare Access, l’allowlist, les scopes et les règles OAuth restent inchangés. Aucun jeton OAuth n’est envoyé au navigateur.
+- La page Événements publique et son expérience actuelle sont hors périmètre de cette phase; la convergence graphique et la migration éventuelle de cette page sont reportées.
+- Les expériences ajoutées par ces PR pour ticket inter-domaines, origine commune, hébergement Maddoxx dans msf/docs ou migration d’infrastructure sont abandonnées. Elles ne justifient ni domaine, ni Worker, ni passerelle supplémentaire. Le lien propriétaire vers le Worker est conservé.
+- Les mécanismes génériques d’authentification, de session ou de stockage déjà utilisés par d’autres fonctionnalités ne doivent pas être supprimés ni modifiés.
 
-### Preuve de faisabilité inter-domaines
+## Phase 1 — périmètre et point de reprise
 
-tests/event-planner-cross-origin.spec.mjs ouvre https://keryas777.github.io/msf/ et https://losp-roster-service.deliriousfan7.workers.dev/ dans Chromium et WebKit. Toutes les routes, cookies et identités sont synthétiques et interceptées : pas de login, pas de requête Scopely, pas de données de joueur. Au SHA courant, Chromium confirme que le cookie Lax est absent du fetch intersite et présent sur la navigation Worker de premier niveau; l’échange postMessage vers l’origine Pages exacte puis l’en-tête de ticket fonctionne, sans ticket dans l’URL ni localStorage. WebKit 26.0 possède le cookie synthétique dans son cookie jar après bootstrap, mais le cookie n’apparaît pas dans les en-têtes de la navigation popup interceptée; le test s’arrête donc avant l’échange du ticket. Le banc ne permet pas de conclure à une incompatibilité réelle de Safari ni à sa compatibilité : une validation réelle iOS reste requise. La preuve est partielle, sans ticket de production.
+Phase en cours : actualisation différentielle du moteur Maddoxx du 25 novembre, référentiel indépendant des inventaires personnels, identification ISO-8, inventaire, normalisation des objectifs/progression, fondations de faisabilité et validation. Pas de refonte graphique, mutualisation multi-événements, calendrier global, optimisation globale, persistance supplémentaire ou ouverture à d’autres joueurs.
+
+### État Git récupéré avant modification
+
+| Dépôt / PR | Branche | SHA de tête constaté | État |
+|---|---|---|---|
+| `Keryas777/losp-roster-service` #218 | `work/maddoxx-convergence-ui` | `f31986035cb65ab8b0645cc0e29e9ece69c5ff39` | ouverte, brouillon, `mergeable=true`; aucun retard de base signalé par l’API PR au point de contrôle |
+| `Keryas777/msf` #739 | `work/maddoxx-convergence-owner-entry` | `7a6150a5c64aa1fd01caa62bd57b448191d41707` | ouverte, brouillon, `mergeable=true`; 18 commits derrière main, sans conflit de contenu signalé. Les contrôles requis en échec bloquent l’intégration même si le calcul de fusion est positif. |
+
+Les deux PR ont été relues avec leurs diffs actuels. Les discussions, soumissions de revue et fils de revue sont vides. Les SHA ci-dessus sont le point de départ avant les modifications de cette phase. Les mises à jour seront limitées à ces branches.
+
+### CI de référence avant modification
+
+- #218 : Event planner tests #56 passe. Le parcours mobile #56 passe aux largeurs 320/360/390/430 px sous Chromium et WebKit; seul le test expérimental de ticket/cookie inter-domaines échoue sous WebKit, sans prouver le comportement réel de Safari iOS. Worker OAuth tests #817 : 885/900; les 15 échecs sont identiques au run main de référence #45507035749.
+- #739 : Planner owner link checks #13 et Events R2 validation #140 passent. Guest LoSP access #502 et unified season history #170 échouent; leurs journaux sont à rapprocher des runs main pour établir le détail et leur relation avec cette PR.
+- Les quatre captures synthétiques Chromium déjà produites sont dans l’artefact [Actions #45756968551](https://github.com/Keryas777/losp-roster-service/actions/runs/45756968551), qui expire le 10 décembre 2026. Elles ne sont pas une validation Safari iOS réelle.
+
+### Versions Maddoxx reçues et audit initial
+
+Archives accessibles dans les pièces jointes, non destinées à GitHub :
+
+| Archive | SHA-256 | Constat initial |
+|---|---|---|
+| `planificateur-evenements-2026-11-21(3).zip` | `233e9b67efcab7fab5ac2eb53d7c2c82256bb33acca3829655867bb7762d2716` | 37 fichiers; moteur backend CommonJS/ESM et interface React d’origine |
+| `planificateur-evenements-2026-11-25.zip` | `39664f61c9cb22fe19786da96287c1e530267eb25229c24a94c78f7f8f423e84` | 45 fichiers; 10 ajouts, aucun fichier supprimé |
+
+Le différentiel déjà identifié dans le classificateur est la prise en charge des libellés `Play Battles with …` (singulier/pluriel et article facultatif), absente le 21 novembre et ajoutée le 25 novembre. La nouvelle version ajoute aussi une analyse du **poste de commandement** (wrappers/feeders `lohub_wrapper`/`lohub_feeder`), la séparation des points de phase et des récompenses par paliers feeder, les indicateurs premium, le groupement d’événements et un plan de combats partagé. Les comportements exacts, les risques de complétion/double comptage et la compatibilité avec les garde-fous LoSP restent en cours d’audit avant portage.
+Le ZIP ne contient pas de fichier de licence évident dans l’inventaire initial; les conditions d’utilisation doivent être vérifiées et le port restera différentiel, sans réintroduire React, Express ou des dépendances serveur.
+
+La version exacte ayant servi à l’intégration initiale n’est pas encore prouvée par le seul nom de l’archive. Elle sera établie à partir de l’historique et de la comparaison des modules; à défaut, cette limite sera conservée explicitement.
+
+### Travail confirmé dans #218 avant la phase
+
+Le moteur vanilla existant comprend déjà classification EN des objectifs, résolution des personnages/traits, regroupement des combats, analyse des paliers et projections, planification dans un événement, ledger du stock/récompenses, inventaire personnel français, quantités nulles distinctes des inconnues, ressources statiques, objectifs regroupés/portraits, diagnostics et tests. L’analyse n’accepte une somme de compteurs partiels comme progression confirmée que lorsque tous les compteurs nécessaires sont connus; l’absence d’un compteur agrégé reste signalée.
+Le module `classify.js` de la PR ne traite pas encore `Play Battles with Tech Characters` selon la correction du 25 novembre. Le cas Faim mutante doit rester une fixture et distinguer score actuel et projection.
+
+### Prochaines tâches de reprise
+
+1. Terminer la comparaison des algorithmes et des données du poste de commandement, puis porter seulement les règles compatibles avec le modèle Worker/vanilla.
+2. Croiser les catalogues existants des deux branches, ressources Maddoxx, fixtures, manuel API et données du client 10.5.0 déjà fournies; publier uniquement des métadonnées statiques vérifiables.
+3. Compléter le parseur ISO-8 et la matrice à partir de nomenclatures réellement validées, en conservant les identifiants inconnus et les quantités inconnues.
+4. Fiabiliser l’analyse des objectifs, de la progression et des prérequis sans convertir une absence en zéro, ni inventer des coûts.
+5. Ajouter les fixtures/tests ciblés, comparer les CI préexistantes, vérifier Chromium/WebKit synthétique, mettre à jour les deux PR et ce journal.
+6. Rester sans fusion, déploiement, appel personnel Scopely, nouvelle PR ou changement de sécurité/rétention.
+
+---
+
+## Historique antérieur
+
+Les sections d’architecture et de migration ci-dessous consignent l’investigation de la reprise précédente. Elles ne sont plus des décisions actives : la décision définitive ci-dessus les remplace.
 
 ## Référentiel central des ressources
 
