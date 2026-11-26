@@ -128,3 +128,14 @@ test("session ancienne, origine incorrecte et conflit de commit ne valident pas 
     assert.equal(conflict.calls.filter(call=>call.path.endsWith("/git/ref/heads/main")).length,2);
   });
 });
+
+test("une nouvelle tentative de création réutilise l'identifiant sans écriture",async()=>{
+  const x=fixture();await withFetch(x.fetch,async()=>{
+    const first=await (await worker.fetch(post({action:"createAlliance",name:"EiNHERJAR Ω"}),x.env)).json();
+    const writes=x.calls.filter(call=>call.method!=="GET").length;
+    const second=await (await worker.fetch(post({action:"createAlliance",name:" einherjar   Ω "}),x.env)).json();
+    assert.equal(second.ok,true);assert.equal(second.allianceId,first.allianceId);
+    assert.equal(second.created,false);assert.equal(x.data.alliances.length,1);
+    assert.equal(x.calls.filter(call=>call.method!=="GET").length,writes);
+  });
+});
