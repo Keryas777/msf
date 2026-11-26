@@ -1,6 +1,6 @@
 # Maddoxx — convergence LoSP et journal permanent de la phase 1
 
-> **État courant au 26 novembre 2026 — reprise en cours.** Les décisions et constats ci-dessous remplacent les choix d’architecture plus anciens conservés plus bas à titre d’historique. PR #218 et #739 restent ouvertes et en brouillon. Aucune fusion, aucun déploiement et aucun nouvel appel personnel Scopely.
+> **État courant au 26 novembre 2026 — bilan de phase 1 avant validation finale.** Les décisions et constats ci-dessous remplacent les choix d’architecture plus anciens conservés plus bas à titre d’historique. PR #218 et #739 restent ouvertes et en brouillon. Aucune fusion, aucun déploiement et aucun nouvel appel personnel Scopely.
 
 ## Décision d’architecture définitive
 
@@ -63,154 +63,100 @@ La preuve de faisabilité inter-domaines a été retirée du workflow actif avec
 4. Compléter les projections PC et récompenses seulement avec une fixture de détails anonymisée/synthétique qui confirme le modèle des paliers et le comportement Scopely. Le calcul de points PC n’est pas déclaré implémenté dans cet incrément.
 5. Poursuivre la normalisation des objectifs, la traduction et l’analyse de faisabilité dans les données effectivement disponibles, sans nouveau stockage personnel ni nouvel appel Scopely.
 
-## Historique antérieur
+## Audit final de la reprise — 26 novembre 2026
 
-Les sections d’architecture et de migration ci-dessous consignent l’investigation de la reprise précédente. Elles ne sont plus des décisions actives : la décision définitive ci-dessus les remplace.
+Les notes de progression antérieures qui suivaient ce titre ont été condensées ici. Elles restent accessibles dans les commits précédents de la branche. Le présent état reflète les diffs, les tests et les fichiers effectivement récupérés sur GitHub.
 
-## Référentiel central des ressources
+### Comparaison du moteur et traçabilité
 
-Nouveau fichier : docs/data/msf-resource-catalog.json. Les composants publics utilisent id stable, noms en/fr, catégorie, groupe, icône, provenance et propriétés vérifiées. Les étiquettes françaises sont explicitement des traductions LoSP lorsque Scopely n’a fourni qu’un nom anglais. Le planificateur lit le référentiel depuis Pages; aucun dictionnaire complet concurrent n’est ajouté au Worker.
+- Les archives originales examinées sont planificateur-evenements-2026-11-21(3).zip (SHA-256 233e9b67efcab7fab5ac2eb53d7c2c82256bb33acca3829655867bb7762d2716, 37 fichiers) et planificateur-evenements-2026-11-25.zip (SHA-256 39664f61c9cb22fe19786da96287c1e530267eb25229c24a94c78f7f8f423e84, 45 fichiers).
+- L’intégration initiale du 23 novembre, commit 824229edc85a, dérive du moteur du 21 novembre. plan.js et subjects.js correspondent; classify.js adapte le chargement au module statique LoSP; ledger.js contient le garde-fou LoSP contre la conversion des valeurs inconnues en zéro.
+- Du 21 au 25 novembre, le moteur pur plan/ledger/subjects/resources et le service événement restent inchangés. La correction de classification des combats avec personnages ajoute Battle/Battles et un article facultatif à Play Battles with … . isPremium reste une métadonnée et ne signifie pas que l’action est payante ou indispensable.
+- L’archive du 25 ajoute 10 fichiers, dont le poste de commandement, le groupement des séries, le plan partagé et l’interface React/CSS. Les composants React, Express, caches de fichiers et requêtes supplémentaires ne sont pas portés.
+- Règles PC identifiées dans le source : wrapper lohub_wrapper et séries lohub_feeder; rapprochement par nom nettoyé et fenêtre de dates; périodes d’action; interprétation des récompenses de palier; séparation des objets EVTA_META_* (points) des autres récompenses. Le source ne fournit pas de fixture détaillée suffisamment vérifiable pour valider le total de points, les paliers atteints et les récompenses agrégées.
+- Intégration adaptée : groupement des séries en cours sous le wrapper existant; aucune duplication des feeders dans la liste principale; état inconnu préservé; aucune requête détail automatique durant le rendu. Les points/récompenses PC ne sont pas projetés, et l’interface l’explique. Les tests vérifient le groupement, les compteurs inconnus, l’absence d’appel au rendu et le parcours synthétique.
+- Le moteur d’origine convertit certains champs de progression absents en zéro et peut maintenir un cache de détails jusqu’à une semaine après l’événement. Ces comportements ne sont pas repris. Aucun fichier de licence ou de conditions de redistribution explicites n’a été trouvé dans les archives; aucun module tiers n’a été copié intégralement. Une revue juridique n’a pas été réalisée.
 
-Correspondances vérifiées dans l’archive publique /game/v1/items/{itemId} : modules CONSUMABLE_XPLVL20/40/60/80 vers L1–L4 Training Module, descriptions et icônes; ions ISO-8 T1, T2 (niveaux 1/4/5), T3 (1/4/5) et T4 (1) avec leurs noms. Le manuel API (2026-11-05) confirme Item.id/name/description/icon, et GET /player/v1/inventory accepte lang, page, perPage et since; la requête privée d’inventaire est maintenant faite en français, sans augmenter le nombre de requêtes.
+### Ressources, client 10.5 et inventaire
 
-Les IDs SC (or) et HC (noyaux) restent explicitement issus de la correspondance déjà portée par lib/resources.js, pas de nouvelle définition prétendument officielle. docs/data/iso-icons.json décrit des icônes de classe, pas des cristaux d’inventaire. L’archive R2 consultée ne contenait pas de définitions de cristaux ISO-8 permettant d’établir couleur, niveau, classe et statistique; les binaires 10.5 fournis sont des ressources Unity/wasm sans table texte d’items exploitable avec les outils disponibles. La matrice reste donc « données indisponibles »; aucun mapping ou icône n’est deviné. Les IDs inconnus ne sont visibles que sous « Diagnostic » replié.
+Sources réellement accessibles et examinées : manuel API LoSP 2026-11-05 (SHA-256 0f18b8c0f58f71c48619c41a6cdc1f55224419ae3bd8f3b7184edb863da5e4a7); spécification vivante (76027c706eab5a843fdf856d15c06ad0ddaf86c53098c8db23b765c5259265e5); framework JS 10.5 (fe355449318734f471ef44af956d72087b8b130a8d6312697b4262800f539331); data bundle 10.5 (8263126da3a767f42d3306d9f7045f98aeab8d5ff69014cf8a194ac1f88c2c2d); wasm 10.5 (afc7ca7391af7c5d3ef5526cf150b4c1cd64b46c92f31c97934ca72f10f1666a). Les extensions .gz ne correspondent pas au contenu réel des trois assets client : JS lisible brut, data UnityWebData1.0, wasm brut.
 
-## Planification : comportement Maddoxx observé
+- Le catalogue partagé docs/data/msf-resource-catalog.json de #739 contient 15 IDs distincts : 12 identifications confirmées par des définitions publiques officielles (4 modules d’entraînement et 8 entrées d’ions ISO-8) et 3 correspondances déjà observées dans le moteur LoSP (SC, HC, énergie Campagne). Chaque statut est explicite; les 3 observations historiques ne sont pas qualifiées d’officielles.
+- Aucun décompte exhaustif des ressources inconnues n’est possible : le corpus fourni n’est pas une liste complète de définitions d’items. Aucune des 15 lignes du catalogue n’a un statut « inconnu »; cela ne prouve pas l’exhaustivité du jeu.
+- La terminologie ISO-8 de combat n’est pas confondue avec les classes des personnages. Les fichiers client fournis ne contiennent pas d’identifiant ISOITEM de cristal exploitable. L’exemple ISOITEM_GREEN_SUPPORT_HEALTH_1 n’y figure pas. Les ions ne sont pas des cristaux; aucune règle de couleur/classe/stat/niveau ne peut être confirmée.
+- Une matrice des cristaux et un parseur des identifiants restent bloqués par l’absence de source structurée. Aucune correspondance ou quantité n’est inventée. La capture Mon stock montre cet état indisponible; elle ne représente pas une matrice de stock opérationnelle.
+- L’inventaire existant reste compact et filtrable, distingue zéro, inconnu et quantité déclarée manuellement, garde les ressources inconnues consultables et ne cumule pas les ions de familles/niveaux différents. Aucun appel personnel n’a été fait pendant la reprise; aucun historique de stock n’a été créé.
 
-Les algorithmes portés sont laissés intacts. event-analysis.js contient déjà la mutualisation au sein d’un événement : mêmes personnages + modes ou mêmes traits + modes; le nombre d’actions restantes par groupe est le maximum requis parmi les lignes compatibles et les points par combat sont cumulés. plan.js projette les points d’actions classées faisables gratuitement et les ressources déjà prises en compte, compare les seuils et présente écarts, dépenses et leviers de roster. La couche UI indique maintenant explicitement « projection gratuite conditionnelle », conserve le score acquis distinct et montre les points restant non couverts.
+### Objectifs, progression, faisabilité et Faim mutante
 
-Limites constatées : l’analyse porte sur un événement sélectionné et ne fabrique pas un calendrier global inter-événements. Les réponses publiques/personnelles ne donnent pas ici un calendrier fiable de combats à venir, d’énergie à gagner ni d’offre à réclamer. Les gains « gratuits » restent conditionnels aux compteurs, prérequis roster, plafonds, durée et actions reconnues. Il n’existe pas de preuve permettant de mutualiser un combat entre événements différents; le moteur ne le fait pas. Les améliorations de roster sont des leviers potentiels, pas une recommandation de dépense si leurs coûts ou ressources manquent. Une ressource n’est jamais additionnée à une autre famille incompatible.
+- Les modèles et comportements existants sont préservés : descriptions anglaises et IDs côté moteur, libellés français disponibles côté interface, objectifs regroupés par personnage avec portrait unique, barres seulement quand un compteur est fiable, statuts inconnus explicites, prérequis et ledger des ressources. La portée de cette passe n’a pas livré un normaliseur universel pour toutes les structures possibles Scopely.
+- Les objectifs dépourvus de compteur ou de coût vérifiable restent non déterminés; ils ne sont pas déclarés terminés, à zéro action ou matériellement réalisables. Les recommandations restent limitées aux champs connus et à l’analyse Maddoxx existante.
+- Faim mutante demeure une fixture de test, sans valeur codée dans le moteur de production : score confirmé 65 300; projection gratuite conditionnelle +29 600; total projeté 94 900. Palier 13 à 70 000 : 4 700 manquants depuis le score actuel. Palier 18 à 95 000 : 100 manquants après projection. Palier 19 : 5 100 manquants; palier 20 : 10 100. Le score acquis et la projection restent séparés; les points acquis ne sont pas recomptés.
+- Poste de commandement : le parcours de groupement est couvert par tests. Une comparaison chiffrée des quatre moteurs, l’atteignabilité des paliers, les plafonds et récompenses PC attendent une fixture de détail anonymisée fiable. Aucune règle métier PC n’est extrapolée.
 
-### Référence Faim mutante (fixture uniquement)
+### Sécurité, conservation et architecture
 
-Test exact ajouté aux tests du port : 65 300 points déjà acquis + 29 600 points d’actions gratuites conditionnelles = 94 900 points projetés. Le palier 18 à 95 000 reste à 100 points; le moteur laisse 100 points non couverts et ne le déclare pas atteignable. Les paliers 19 à 20 restent plus éloignés. Cette fixture ne contient aucun résultat personnel Scopely.
+Les décisions de phase 0 sont appliquées à la documentation et aux liens : Maddoxx demeure dans le Worker existant et MSF garde le lien propriétaire. Les essais d’authentification inter-domaines, tickets, migration vers msf/docs, origine commune et nouveau service sont abandonnés. Les contrôles Access, OAuth, sessions, scopes, URL Scopely, limites d’appels et rétention R2 ne sont pas modifiés. Aucun jeton ou résultat personnel n’est transmis à GitHub Pages; aucun nouvel endpoint de collecte, cache, persistance, fixture brute ou historique n’est ajouté. Aucune demande personnelle Scopely, fusion ou publication Worker/Pages n’a été effectuée.
 
-## État de conformité par rapport au cahier des charges
+Le stock manuel et les événements ignorés restent partitionnés par session propriétaire selon l’implémentation existante. Ce n’est pas une identité de compte durable : une nouvelle session peut créer une partition distincte. Aucune persistance par compte n’est ajoutée pendant cette phase, conformément aux contraintes de données et au périmètre de personnalisation ultérieur.
 
-| Domaine | État réel | Évidence / limite |
-|---|---|---|
-| Une page Événements unique dans msf/docs | Partielle | PR #739 garde l’entrée propriétaire, mais renvoie encore vers la page Worker. La migration n’est pas faite. |
-| Données personnelles sécurisées dans le Worker | Réalisée dans le modèle actuel | Routes privées restent derrière Access + allowlist propriétaire + session capitaine/scopes; aucune publication ni modification de ces contrôles dans cette PR. |
-| Contrainte Safari iOS inter-domaines | Partielle, migration bloquée | Chromium valide le flux du ticket simulé; WebKit 26.0 mobile valide l’interface, mais le cookie n’est pas exposé sur la navigation popup interceptée malgré sa présence en cookie jar. Pas de test réel sur Safari iOS et aucun ticket de production. |
-| Réutiliser les règles publiques d’événements | Partielle | Le planificateur exploite le snapshot/calendrier public et l’ID stable pour filtrer et présenter, mais la page officielle et la page privée sont encore deux documents. |
-| Données événementielles, roster, inventaire Scopely | Réalisée avant cette PR, conservée | Le code reste sur les appels existants; aucun accès personnel nouveau pour ce chantier. Test réel antérieur rapporté par le propriétaire; non rejoué ici. |
-| Français des événements et objectifs | Partielle | Libellés structurés pour actions usuelles et données françaises Scopely/catalogue; identifiants inconnus signalés génériquement. Un lexique exhaustif de toutes les phrases/objectifs ne peut être prouvé avec les données fournies. |
-| Progression, objectifs et prérequis distincts | Réalisée partiellement | Objectifs groupés et compteurs inconnus sans barre zéro; palier terminé distinct d’objectif terminé; tests synthétiques. L’exactitude de structures réelles n’est pas revalidée sans données personnelles. |
-| Plan d’action concret Maddoxx | Partielle | Mutualisation par personnage/trait + mode dans un événement, coûts/leviers et récompenses selon données connues; pas de calendrier de disponibilités ni de mutualisation multi-événements. |
-| Non-double-comptage global des combats et ressources | Partielle | Calculs partagés dans le groupe d’un événement et ledger stock existant; aucune planification multi-événements. N’affirme pas une garantie globale. |
-| Référence Faim mutante exacte | Réalisée en fixture | 65 300 + 29 600 = 94 900; palier 18 à 95 000, écart non couvert de 100. |
-| Stock prioritaire mobile | Partielle | Résumé par or, noyaux, modules N1–N4 et ions; tableau compact et recherche française; valeurs manquantes explicites. Le rendu des cristaux reste bloqué faute de définition vérifiée. |
-| Matrice ISO-8 | Bloquée par les données publiques disponibles | R2 fournit des ions/monnaies mais aucune correspondance cristal → couleur/niveau/classe/statistique; l’archive Unity fournie n’a pas livré de mapping exploitable. Solution : archiver des définitions complètes /game/v1/items/{id} ou un catalogue Scopely structuré et les ajouter avec provenance. |
-| Isolation du stock manuel / événements ignorés | Réalisée au niveau session, partielle au niveau compte durable | Partition par hash du cookie capitaine aléatoire, effacement en mémoire à la déconnexion et changement de session testés. Pas d’identifiant compte stable exploitable sans appel personnel supplémentaire; une réauthentification crée une partition vierge. |
-| Captures ergonomiques quatre onglets | Réalisées sous Chromium | Quatre PNG synthétiques des onglets Événements, Objectifs, Planifier et Mon stock, à 390 px, issus du SHA f31986035cb65ab8b0645cc0e29e9ece69c5ff39; aucune capture personnelle. Artefact Actions #15088646035, expiration le 10 décembre 2026. |
-| Page Événements publique / expérience membres | Non modifiée par PR #739 | Aucune modification des composants publics dans cette PR; elle ajoute la centralisation du catalogue et la note d’architecture. La page privée reste owner-only. |
-| Déploiement/migration/retrait de l’interface Worker | Non réalisé et volontairement hors état actuel | PR en brouillon; aucun merge, déploiement ou changement d’autorisation n’a été demandé. |
+### Résultats de validation
 
-## Ordre de migration proposé
+- Tests locaux Maddoxx/ressources/faisabilité : 22/22 réussis.
+- Tests locaux du catalogue MSF : 5/5 réussis.
+- #218, Event planner tests #61 sur le commit de branche bc9e2d1d140361bd29290a64557323ef6a3ec2ba : 119/119 réussis.
+- #218, Event planner mobile browsers #61 sur le commit bc9e2d1d140361bd29290a64557323ef6a3ec2ba : Chromium et WebKit réussis à 320, 360, 390 et 430 px, sans débordement horizontal; parcours PC synthétique. Un test Playwright WebKit n’équivaut pas à une validation sur Safari iOS réel.
+- Captures Chromium à 390 px issues du parcours synthétique : Événements, Objectifs, Planifier, Mon stock et Poste de commandement. Artefact Actions 15092414723, SHA-256 sha256:ea26c462a2dc3cef12ef3b0d95cb88b41c335dfc06d8131570e917aaa9aa1b6c, expiration 10 décembre 2026.
+- #218, Worker OAuth tests #822 : 891/906 réussis, 15 échoués. Le run main de référence #45507035749 échoue également sur ces mêmes 15 assertions, avec 882/897 réussis. Les erreurs couvrent deux tests de collecte tardive/invitée, trois tests d’enqueue DD9, deux budgets partagés et huit tests de lecture R2. Aucun test Maddoxx n’échoue.
+- #739, Planner owner link checks #16 et Events R2 validation #143 réussissent. Guest LoSP access #507 échoue sur un test qui attend joueur.js?v=7 dans une page non modifiée par cette PR; l’erreur est une assertion de version de script, pas une assertion sur l’identité du joueur. Unified season history #173 échoue sur quatre tests hors fichiers de la PR : alliance-history-charts attend alliance-history-data.js?v=6 et 9 bandes (valeur observée 11), puis deux tests season-history échouent sur « Invalid or duplicate season rank ». Le code de ces pages, la logique de trophées et les données d’historique ne sont pas modifiés par #739. Ces contrôles restent rouges; leur classification comme non-régression Maddoxx n’est pas établie par les seuls logs.
+- La correction du test de localisation demandée lors de la conversation interrompue est présente sur #739 : l’assertion lit catalog.localization.fr.officialScopelyFrenchClaimed (commit 09cdac4264a0642c0f79d5caf919fa05efb1c50e). Les tests propriétaire #16 et catalogue local 5/5 réussissent.
 
-1. Valider ce travail et les captures.
-2. Valider l’une des architectures inter-domaines, idéalement une origine LoSP commune si un domaine contrôlé existe.
-3. Garder l’entrée d’administration owner-only pendant toute la phase pilote.
-4. Intégrer les composants dans msf/docs/evenements.html après preuve sécurisée d’origine/session; conserver le Worker comme API privée.
-5. Tester sur Safari/WebKit, puis comparer l’expérience de la page publique avant activation propriétaire.
-6. Ne retirer /admin/events-planner qu’après validation complète; ne pas ouvrir aux membres sans autorisation distincte.
+### État des PR, fichiers et reprise
 
-
-## Journal de reprise — 26 novembre 2026 — audit comparatif Maddoxx et fiabilisation
-
-### Décision et état de sûreté
-
-La décision d’architecture définitive ci-dessus est appliquée aux documents : Maddoxx reste sur losp-roster-service; msf conserve le lien propriétaire; l’ancienne preuve ticket/cookie inter-domaines est abandonnée. Aucun changement OAuth, Access, allowlist, scopes, rétention R2, collecte, stockage serveur ou adresse Scopely. Aucun appel Scopely personnel, aucune fusion et aucun déploiement n’ont eu lieu.
-
-### Sources examinées et traçabilité
-
-| Source | SHA-256 / version | Résultat |
-|---|---|---|
-| planificateur-evenements-2026-11-21(3).zip | 233e9b67efcab7fab5ac2eb53d7c2c82256bb33acca3829655867bb7762d2716 | Base originale de l’intégration |
-| planificateur-evenements-2026-11-25.zip | 39664f61c9cb22fe19786da96287c1e530267eb25229c24a94c78f7f8f423e84 | Version comparée |
-| Manuel API LoSP, 5 novembre | 0f18b8c0f58f71c48619c41a6cdc1f55224419ae3bd8f3b7184edb863da5e4a7 | Accessible et lu |
-| Spécification vivante | 76027c706eab5a843fdf856d15c06ad0ddaf86c53098c8db23b765c5259265e5 | Accessible et lue |
-| Client MSF 10.5 framework.js | fe355449318734f471ef44af956d72087b8b130a8d6312697b4262800f539331 | Fichier lisible en JS brut malgré l’extension .gz |
-| Client MSF 10.5 data | 8263126da3a767f42d3306d9f7045f98aeab8d5ff69014cf8a194ac1f88c2c2d | UnityWebData1.0, non compressé gzip |
-| Client MSF 10.5 wasm | afc7ca7391af7c5d3ef5526cf150b4c1cd64b46c92f31c97934ca72f10f1666a | WebAssembly brut |
-
-Les trois fichiers client ont été scannés pour les chaînes d’identifiants ISOITEM_; aucune définition de cristal exploitable n’y apparaît. Le framework et la spécification exposent des classes ISO-8 de combat distinctes des classes de personnage. Les fichiers joints n’ont pas fourni la nomenclature complète item → couleur/niveau/classe/statistique. L’exemple ISOITEM_GREEN_SUPPORT_HEALTH_1 n’est pas présent dans les données examinées; une seule forme d’exemple ne prouve ni toutes les variations ni les exceptions.
-
-### Bilan différentiel du moteur Maddoxx
-
-- Base initiale : l’intégration du 23 novembre, commit 824229edc85a, reprend la version du 21 novembre. plan.js et subjects.js sont identiques à l’original; classify.js porte l’import du référentiel statique; ledger.js contient les corrections LoSP qui préservent les compteurs/paliers inconnus.
-- Correction intégrée du 25 novembre : reconnaître Play Battles with … avec article facultatif et formes Battle/Battles. Des tests couvrent les variantes et le trait Tech.
-- Poste de commandement : le code source du 25 novembre définit lohub_wrapper/lohub_feeder, le rapprochement par nom/dates, les périodes quotidiennes/hebdomadaires/événement, rewardTier − 1, et la séparation des objets EVTA_META_* (points de phase) des autres récompenses.
-- Incrément adapté : une fonction pure groupe les séries identifiées en cours sous leur wrapper, et présente leurs compteurs seulement quand leurs plafonds et avancements sont connus. Les feeders correspondant à un wrapper ne sont pas dupliqués dans la liste principale. Les tests mobile vérifient le parcours PC.
-- isPremium est préservé et affiché comme indicateur informatif, y compris pour une ligne non analysée. Il n’est ni traité comme coût ni comme condition nécessaire.
-- Non-porté : buildCombatPlan, déjà couvert pour les événements habituels par le regroupement de combat et ledger LoSP; composants React/CSS; services serveur, stockage fichier et nouveaux parcours API. Le nouveau service Maddoxx déclenche deux lectures des événements (EN/FR), une lecture roster et des détails supplémentaires; cela n’est pas nécessaire à l’intégration par étapes.
-- Garde-fous non repris : la version source convertit des valeurs absentes de points/soFar en zéro. Le moteur LoSP conserve l’état inconnu. Le cache de détails d’origine peut survivre jusqu’à une semaine après l’événement; aucun cache/historique Scopely supplémentaire n’est ajouté.
-- Limite : le code Maddoxx explique la règle PC, mais l’archive ne contient pas de fixture détaillée PC vérifiée. L’incrément n’implémente donc pas encore les points par feeder, les paliers atteignables ni les récompenses consolidées du poste. Cette limite est explicite dans l’interface et les tests empêchent d’affirmer une complétion sur compteurs absents.
-
-### Référentiel et inventaire
-
-Le catalogue central sur #739 compte désormais 15 identifiants distincts : 12 issus de définitions publiques officielles (4 modules d’entraînement et 8 monnaies d’ions) et 3 correspondances observées dans l’intégration LoSP (SC, HC, énergie de campagne). Le champ identificationStatus distingue official-confirmed et legacy-observed; localization.fr.officialScopelyFrenchClaimed reste false. Les noms français sont des libellés LoSP quand aucune preuve de libellé Scopely français n’existe.
-
-La table resources.js du moteur conserve aussi quatre catégories d’actions sans itemId exploitable dans le stock (Dreadmarks, énergie Campagne/ISO/Incursion, énergie préhistorique, énergie Doomsday). Elles restent des actions reconnues, pas des correspondances d’inventaire confirmées.
-
-Le catalogue n’identifie aucun cristal ISO-8. Les ions ne sont pas des cristaux. iso8CrystalMatrix reste explicitement indisponible; aucun parseur spéculatif ni matrice quantité/couleur/niveau/classe/stat n’est ajouté. Les données de quantité personnelles n’ont pas été relues dans cette phase et aucun stock personnel brut n’est commité. Une quantité d’inventaire absente garde l’état inconnu; zéro reste distinct.
-
-### Objectifs, progression et faisabilité
-
-Le moteur existant garde les descriptions EN pour classer les actions et réutilise le français disponible pour l’affichage. Les objectifs groupés, portraits uniques, prérequis roster, états faisable/bloqué/ressource/inconnu, ledger et états de progression sont préservés. L’incrément garde isPremium en métadonnée et rend visibles les feeders PC sans lancer automatiquement leurs détails.
-
-Les tests Faim mutante conservent le cas fixture exact : 65 300 confirmés + 29 600 projetés sous conditions = 94 900; palier 13 à 70 000, palier 18 à 95 000 (100 manquants après projection), palier 19 à 100 000 (5 100 manquants), palier 20 à 105 000 (10 100 manquants). Les valeurs projetées restent séparées du score acquis et ne sont pas codées en dur dans le moteur de production.
-
-Les données de progression détaillées du poste de commandement et les détails d’objets restent la principale donnée manquante. Il n’est pas établi que les objectifs PC consommés par l’API ont des compteurs complets sur toutes les langues/familles; aucune recommendation de palier PC n’est donc présentée comme certaine.
-
-### Modifications de cette reprise et validations
-
-#218 :
-- Correction du classificateur, métadonnée Premium, groupement pur des séries PC, filtres de doublons sous wrapper et fixtures unit/browser.
-- Ajout du module PC dans la liste explicite des assets Worker, sans changer son garde d’accès.
-- Retrait du test et de l’étape CI de preuve inter-domaines; l’expérience était simulée, non concluante sous WebKit, et hors architecture.
-- Note d’intégration mise à jour pour la décision définitive et l’audit différentiel.
-
-#739 :
-- Catalogue enrichi du statut de preuve par entrée et énergie de campagne venant du mapping LoSP déjà observé.
-- Test de catalogue vérifiant les 15 identifiants, les 12 sources publiques, les 3 mappings historiques et l’absence de faux catalogue cristaux.
-- La correction antérieure localization.fr.officialScopelyFrenchClaimed est confirmée committée (09cdac4264a0642c0f79d5caf919fa05efb1c50e); le workflow propriétaire passe.
-
-Résultats locaux ciblés : 22/22 tests Maddoxx/ressources/feasibility passent; 5/5 tests du référentiel passent. Les navigateurs ne sont pas disponibles dans l’exécuteur local; la CI GitHub Actions reste la validation Chromium/WebKit de référence et ne doit pas être appelée Safari iOS réel.
-
-### Points GitHub au checkpoint
-
-| Dépôt / PR | Branche | SHA au checkpoint | État |
+| PR | Branche | SHA de branche au dernier relevé | État et constat |
 |---|---|---|---|
-| Keryas777/losp-roster-service #218 | work/maddoxx-convergence-ui | 4596d2d519d5908974000c8a09eefb586547635c | ouverte, brouillon, API GitHub mergeable=true |
-| Keryas777/msf #739 | work/maddoxx-convergence-owner-entry | e14193d06c63d77d97f38941266a6e67c4155356 | ouverte, brouillon, API GitHub mergeable=true; 18 commits en retard sur main |
+| Keryas777/losp-roster-service #218 | work/maddoxx-convergence-ui | bc9e2d1d140361bd29290a64557323ef6a3ec2ba | ouverte, brouillon; GitHub mergeable=true; pas de conflit. Le commit bc9e est documentaire après le SHA code de34dad5f84fb41aeea179efe3d5352523a97255. |
+| Keryas777/msf #739 | work/maddoxx-convergence-owner-entry | 5a96d996dbf3fc10e884d960ac820fe955988381 avant la présente mise à jour du journal | ouverte, brouillon; GitHub mergeable=true malgré 18 commits de retard sur main; 12 commits en avance avant ce commit (13 après lui). Aucun conflit de contenu; contrôles requis en échec comme détaillé ci-dessus. Le commit de cette édition crée le nouveau point de reprise. |
 
-Aucun conflit de contenu n’est signalé par GitHub. La PR #739 est signalée comme non fusionnable par ses contrôles requis en échec et son retard sur main, pas par un conflit de fichiers. Le dernier run de #218 après le correctif est encore en cours pour le navigateur au moment de cette note; les résultats seront remplacés dans ce journal lorsque terminés. Le run Worker générique conserve 15 échecs préexistants, même nombre que main. Les détails finaux des runs #739 sont à reporter après comparaison aux checks de main.
+Discussions et revues GitHub des deux PR : aucune. La correction de localization.fr vérifiée plus haut n’est pas perdue. Toutes les évolutions observées dans cette reprise sont committées sur les deux branches; aucun fichier de travail local non poussé de la conversation précédente n’était disponible à comparer, donc une modification temporaire non committée d’alors ne peut pas être exclue.
 
-### Conformité et blocages restants
+Diff complet de la PR #218 contre main (inclut les travaux antérieurs à cette reprise) :
+.github/workflows/event-planner-browser.yml; docs/event-planner-maddoxx-integration.md; public/event-planner/app.js; public/event-planner/index.html; public/event-planner/lib/classify.js; public/event-planner/lib/command-center.js; public/event-planner/lib/event-analysis.js; public/event-planner/lib/index.js; public/event-planner/styles.css; src/event-planner-api.js; src/event-planner-cache.js; src/event-planner-page.js; tests/event-planner-api.test.mjs; tests/event-planner.browser.spec.mjs; tests/event-planner/analyze.test.js; tests/event-planner/classify.test.js; tests/event-planner/command-center.test.js; tests/event-planner/references.test.js.
 
-| Exigence phase 1 | Statut au checkpoint | Constat |
+Diff complet de la PR #739 contre main (inclut les travaux antérieurs à cette reprise; pendant cette passe, seul le journal, le catalogue et son test ont été modifiés dans ce dépôt) :
+.github/workflows/planner-owner-link.yml; docs/auth-guard.js; docs/data/msf-resource-catalog.json; docs/evenements.css; docs/evenements.html; docs/evenements.js; docs/planner-maddoxx-convergence.md; docs/planner-owner-link.mjs; tests/evenements-objectives.test.mjs; tests/msf-resource-catalog.test.mjs; tests/planner-owner-link.test.mjs.
+
+### Conformité synthétique au cahier des charges
+
+| Exigence | État | Preuve ou limite |
 |---|---|---|
-| Architecture indépendante Pages/Worker et lien propriétaire | Conforme | Maddoxx reste dans le Worker; MSF garde le lien; aucune migration/ticket/origine nouvelle |
-| Comparaison original, 25 novembre et intégration | Réalisée | Base 21 novembre prouvée par l’historique et les modules |
-| Correction Maddoxx 25 novembre | Partiellement intégrée | Classifieur et métadonnée Premium; aucune réécriture du moteur |
-| Poste de commandement | Partiel | Séries regroupées et progrès sûrs; points/récompenses non calculés sans fixture vérifiable |
-| Référentiel central | Partiel, fiabilisé | 15 IDs; 12 définitions officielles, 3 mappings LoSP |
-| Parsing/matrice des cristaux ISO-8 | Bloqué par source manquante | Aucun ID cristal exploitable dans les assets examinés |
-| Inventaire et distinction nul/inconnu | Préservé | Aucun nouvel appel ni stockage; catalogue découplé du stock personnel |
-| Objectifs et prérequis | Partiel, moteur existant conservé | Données texte/scoring, niveaux structurés limités par les sources |
-| Progression et Faim mutante | Conforme aux fixtures | Valeurs acquises/projetées séparées; 100 points restent manquants au palier 18 |
-| Faisabilité personnelle | Partiellement prête | États et prérequis existants; coûts inconnus restent inconnus |
-| Sécurité et rétention | Conforme aux contraintes | Aucun changement aux contrôles, scopes, OAuth, R2 ou données personnelles |
-| Tests unitaires/non-régression | Partiel | Ciblés verts; contrôles générales hors chantier à comparer à main |
-| Chromium/WebKit mobile | En cours au checkpoint | CI à 320/360/390/430 px; aucun résultat réel iPhone Safari |
-| Événements ignorés et stock manuel isolés par compte | Partiel existant | Partition par session; aucune identité durable ou stockage serveur ajouté |
-| Mutualisation multi-événements | Reportée | Le moteur existant mutualise dans une phase; globalement reporté comme prévu |
+| Utiliser les deux PR existantes, sans en créer | Conforme | PR #218 et #739 uniquement |
+| Aucune fusion, aucun déploiement, aucun appel personnel Scopely | Conforme | Actions et dépôts vérifiés; aucun appel effectué |
+| Architecture Pages/Worker indépendante, Maddoxx sur Worker, lien propriétaire conservé | Conforme | Architecture définitive documentée, lien owner-only laissé |
+| Retirer seulement l’expérimentation inter-domaines | Conforme | Test et job retirés; aucune auth partagée retirée |
+| Comparer l’intégration originale et Maddoxx du 25 novembre | Réalisé | Archives et SHA-256 notés; modules et changements comparés |
+| Intégrer les corrections du 25 novembre sans remplacement total | Partiel réalisé | Classifieur/plural/article, Premium informatif, groupe PC; logique de points PC attend fixture |
+| Respecter règles PC et éviter double comptage | Partiel | Séries groupées et inconnues conservées; projection PC non implémentée faute de données |
+| Référentiel central avec provenance/niveau de confiance | Partiel | 15 IDs, 12 officiels et 3 hérités LoSP; pas d’inventaire exhaustif |
+| Parseur et matrice cristaux ISO-8 | Bloqué par les sources | Pas de cristal ISOITEM confirmé dans le corpus; pas d’interprétation spéculative |
+| Inventaire compact, nul distinct d’inconnu, IDs diagnostics | Préservé | Capture synthétique et tests; aucune donnée personnelle ajoutée |
+| Objectifs structurés exhaustivement selon chaque schéma | Partiel | Moteur existant conservé; les champs absents ne sont pas inventés |
+| Progression et projections distinctes, pas de zéro artificiel | Conforme aux données disponibles | Tests de compteurs manquants et fixture Faim mutante |
+| Faisabilité et prérequis sans coût inventé | Partiel, fondations existantes | Conditions connues exploitées; coûts et certaines progressions inconnus |
+| Faim mutante 65 300 + 29 600 = 94 900 | Conforme en fixture | 100 points restent jusqu’au palier 18; aucun double comptage |
+| Traduction française fonctionnelle | Partielle | Lexique connu et correction de test; traduction exhaustive/officialité non affirmée |
+| Accès owner-only, OAuth, Access, rétention et absence de données personnelles publiques | Conforme selon les changements examinés | Aucune modification des gardes; tests d’accès existants et owner-link réussis |
+| Tests unitaires/non-régression | Partiel | Ciblés verts; 15 échecs Worker préexistants et contrôles #739 hors périmètre restent rouges |
+| Chromium et WebKit sur 320/360/390/430 px | Conforme au run #61 | Aucun débordement global; WebKit CI n’est pas Safari iOS réel |
+| Stock manuel et événements ignorés isolés durablement par compte | Partiel existant | Partition session, pas identifiant stable de compte; pas de stockage supplémentaire |
+| Mutualisation globale multi-événements et optimisation | Reporté | Hors phase; mutualisation Maddoxx par événement préservée |
+| Page publique Événements et convergence graphique | Non modifiées / reportées | Conforme au périmètre de phase 1 |
+| Journal permanent et PR actualisées | Journal mis à jour et descriptions PR synchronisées | Le commit du journal est le nouveau point de reprise de #739 |
 
-### Prochaines actions avant compte rendu final
+### Données manquantes, blocages et phase 2
 
-1. Récupérer les résultats finaux de l’e2e Chromium/WebKit et les artefacts de captures.
-2. Comparer les échecs non liés de #739 aux exécutions de main; ne pas réparer des fichiers hors périmètre.
-3. Mettre à jour ce journal et les descriptions PR avec les derniers résultats et les SHA finaux.
-4. Laisser les deux PR ouvertes/en brouillon; ne pas fusionner ni déployer.
-5. Attendre la validation explicite du propriétaire avant toute intégration ou publication.
+Blocages réels : définitions structurées des cristaux ISO-8; corpus complet d’items pour compter les IDs inconnus; fixture PC détaillée anonymisée permettant de calculer points/plafonds/récompenses; certaines progressions, coûts et prérequis manquants; validation réelle sur iPhone Safari; tests #739 et 15 échecs généraux du Worker à distinguer des comportements préexistants sans modifier ces fonctionnalités hors périmètre.
+
+Phase 2 — intelligence individuelle, après validation de la phase 1 : compléter les données sources vérifiables; analyser l’éligibilité personnage par personnage, les coûts connus et les prérequis; améliorer les projections individuelles sans déclarer réalisable un coût inconnu; obtenir une fixture PC fiable et finaliser son calcul; vérifier les règles de rétention et d’autorisation avant toute extension des données personnelles. Ne pas commencer la mutualisation multi-événements avant la phase 3.
+
+Les deux PR doivent rester ouvertes et en brouillon. Aucun merge ni déploiement avant validation explicite.
