@@ -33,6 +33,7 @@
     if (!region || !imageData?.data) return { error: "invalid-sample-region", region: null, mask: new Uint8Array() };
     const { width, data } = imageData, size = region.width * region.height;
     const mask = new Uint8Array(size), reasons = { accepted: 0, lowLuma: 0, lowChroma: 0, redGreenBalance: 0, blueSeparation: 0 };
+    const acceptedIndices = [], rejectedIndices = [], rejectedByReason = {};
     const channels = [[], [], []], hues = [], sats = [], vals = [], colorBins = new Map();
     const hsv = (r, g, b) => {
       r /= 255; g /= 255; b /= 255;
@@ -54,7 +55,8 @@
       else if (chroma < Math.max(options.minimumChroma, Math.min(r, g) * .26)) reason = "lowChroma";
       else if (r < g * .78 || g < r * .48) reason = "redGreenBalance";
       else if (Math.max(r, g) - b < options.minimumChroma) reason = "blueSeparation";
-      if (reason === "accepted") mask[i] = 1;
+      if (reason === "accepted") { mask[i] = 1; acceptedIndices.push(i); }
+      else { rejectedIndices.push(i); (rejectedByReason[reason] ||= []).push(i); }
       reasons[reason]++;
     }
     const stats = (values) => {
@@ -86,6 +88,8 @@
       rgbBin: bin.split(":").map((v) => Number(v) * 16 + 8), count, fraction: count / size }));
     return { region, pixelCount: size, accepted: reasons.accepted, rejected: size - reasons.accepted,
       acceptedFraction: reasons.accepted / size, rejectionReasons: reasons, dominantColors,
+      pixelClasses: { accepted: color(acceptedIndices), rejected: color(rejectedIndices),
+        rejectedByReason: Object.fromEntries(Object.entries(rejectedByReason).map(([reason, indices]) => [reason, color(indices)])) },
       distributions: { red: stats(channels[0]), green: stats(channels[1]), blue: stats(channels[2]),
         hueDegrees: stats(hues), saturationPercent: stats(sats), value: stats(vals),
         histogram: { red: histogram(channels[0],0,256,16), green: histogram(channels[1],0,256,16), blue: histogram(channels[2],0,256,16),

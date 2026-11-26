@@ -141,12 +141,17 @@ test('final crop contains all significant detected glyph pixels and parameters/t
 test('source color measurement reports RGB/HSV distributions, V0.1 mask rejects and a renderable mask without changing localization', () => {
   const img = image(32, 24, [180, 40, 35]);
   score(img, 8, 8, [5, 6, 5], 2, 8, [238, 218, 164]);
+  paint(img, 20, 8, 5, 6, [244, 205, 79]);
   const stableResult = (value) => { const { elapsedMs, ...stable } = value; return JSON.stringify(stable); };
   const before = stableResult(locator.locate(img, 'localScore', zone(4, 5, 24, 14)));
   const measured = locator.analyzeColorRegion(img, { x: 4, y: 4, width: 24, height: 16 });
   assert.equal(measured.region.x, 4);
   assert.equal(measured.pixelCount, 384);
   assert.equal(measured.accepted + measured.rejected, measured.pixelCount);
+  assert.equal(measured.pixelClasses.accepted.count, measured.accepted);
+  assert.equal(measured.pixelClasses.rejected.count, measured.rejected);
+  assert.ok(measured.pixelClasses.accepted.rgb[0].median > measured.pixelClasses.rejected.rgb[0].median);
+  assert.ok(Object.keys(measured.pixelClasses.rejectedByReason).length > 0);
   assert.ok(measured.distributions.red.median > 0);
   assert.ok(measured.distributions.hueDegrees.median >= 0);
   assert.equal(measured.maskNeighborhood.interior.count + measured.maskNeighborhood.antialiasOrBoundary.count, measured.accepted);

@@ -64,7 +64,7 @@
           <summary>Mesurer les couleurs des pixels source</summary>
           <p class="muted">Outil de caractérisation uniquement : il lit les pixels originaux de la capture importée et ne modifie ni la V0.1.0 ni une localisation. Choisis une capture, puis trace au doigt ou à la souris une petite zone incluant des chiffres et leurs contours.</p>
           <label for="scoreColorCapture">Capture originale</label><select id="scoreColorCapture"></select>
-          <label for="scoreColorField">Champ repéré (annotation seulement)</label><select id="scoreColorField"><option value="localScore">Score LoSP</option><option value="opponentScore">Score adverse</option></select>
+          <label for="scoreColorField">Élément mesuré (annotation seulement)</label><select id="scoreColorField"><option value="localScore">Score LoSP</option><option value="opponentScore">Score adverse</option><option value="artifact">Élément graphique jaune ou doré (parasite)</option></select>
           <canvas id="scoreColorSource" aria-label="Capture originale : tracer une zone de mesure"></canvas>
           <p id="scoreColorSelection" class="muted">Aucune zone sélectionnée.</p>
           <button id="measureScoreColorButton" class="secondary-button" type="button" disabled>Mesurer la zone sélectionnée</button>
