@@ -192,3 +192,30 @@ Les modifications Maddoxx du 25 novembre et leur groupement de séries restent c
 - #218 : adaptateur, matrice et nouvel examen du statut ISO manquant modifient uniquement les modules/tests/docs Maddoxx. Un niveau ISO absent ne produit plus un levier depuis zéro; une valeur active explicitement à zéro demeure zéro.
 - Les workflows doivent être relus sur les nouveaux heads avant validation finale. Dernier état connu avant les derniers commits : tests unitaires #218 passaient; le parcours mobile était encore en cours; les contrôles owner-link et R2 de #739 passaient, tandis que les 1+4 échecs non-Maddoxx connus restaient à comparer au run de référence indépendant sur main.
 - PR #218 et #739 restent ouvertes en brouillon. Aucun merge, aucun déploiement et aucun nouvel appel personnel Scopely.
+
+
+## Point de reprise final — 26 novembre 2026
+
+### État des deux branches
+
+- #218 `work/maddoxx-convergence-ui` : head `719ac67e10549a4aedf584365dc5c0d3c53fdb36`. Tests planificateur : 125/125. Worker OAuth : 897/912; les 15 échecs connus restent les tests de collecte tardive/invitée (2), enqueue DD9 (3), budgets (2), accès R2 (8). Même ensemble fonctionnel en échec que la référence main `5af430a10cd636badb0f18d9055e44693a96ef90`; aucune assertion Maddoxx nouvelle ne casse.
+- Parcours mobile #218 : sur head immédiatement précédent `899286eb2bc4db9d34de90efa87ade2f30bede60`, Chromium 141.0 et WebKit 26.0 ont réussi; le scénario vérifie les quatre largeurs 320/360/390/430 px sans débordement global, le poste de commandement simulé, l’inventaire, la matrice et le parcours d’accès. Le commit `719ac67` ne change que la capture complète de la table; son exécution navigateur est en cours au moment de l’écriture de ce point de reprise.
+- Artefact mobile précédent : run Actions `45780834228`, SHA `899286e`, digest `sha256:c2b7d327ea0a4509ad2698bb362ca9cb8a9bcfcf8e93ba4a0a8512092af7cb13`, expiration 10 décembre 2026. Il contient six captures synthétiques des quatre onglets, du poste de commandement et de la matrice affichée dans la page. Run `719ac67` ajoute une capture séparée de la table entière à 800 px, une fois ses jobs terminés.
+- #739 `work/maddoxx-convergence-owner-entry` : après synchronisation, head `3e5531e889c972b5b5051631466b56412ca9f183`, `main` `968db3ae3fa5d2600093cba5361b1c67b9936f85), 16 commits en avance et aucun en retard. Main et PR n’ont aucun conflit de fichiers. Merge commit de synchronisation `23d55a4be2b27065d0fa19b3005a74a395f20140`; aucun merge de PR. Checks après synchronisation : owner-link et Events R2 réussis; Guest LoSP 106/107; Unified season history 76/80.
+- Les cinq assertions rouges de #739 portent sur : `joueur.js?v=7` attendu par `tests/scoped-roster-pages.test.mjs`; cache-busting `alliance-history-data.js?v=6`; 9 bandes attendues/11 observées; deux validations de rangs qui lèvent `Invalid or duplicate season rank`. Les fichiers `tests/scoped-roster-pages.test.mjs`, `tests/alliance-history-charts.test.mjs`, `tests/season-history.test.mjs`, `scripts/lib/season-history.mjs` et `docs/data/war-season-rules.json` ont les mêmes blobs sur `main` et #739; aucun n’est modifié par le diff #739. Les workflows concernés sont déclenchés par `pull_request` (l’historique ne fournit donc pas un run push-main indépendant). Cela classe les échecs hors PR par comparaison des sources et données actuelles, sans prétendre à un nouveau run indépendant sur main.
+
+### Comptages d’identification
+
+- Référentiel MSF : 15 IDs de ressources distincts, 12 confirmés via définitions publiques officielles, 3 mappings historiques LoSP. Pas de couverture exhaustive.
+- Cristaux ISOITEM concrets examinés : 1 ID fourni par le propriétaire; identifiants de cristaux lus dans un inventaire Scopely personnel pendant cette phase : 0. Le cas Tireur/P4/niveau 1 utilise cinq IDs de test synthétiques, total 117; ces cinq IDs ne sont pas comptés comme réellement observés. D’autres combinaisons sont reconnues comme déduites du motif, pas confirmées individuellement. Le nombre réel d’IDs inconnus ne peut pas être établi sans inventaire.
+- La matrice et l’évaluation d’éligibilité sont partielles mais exploitables : quantité explicite zéro, quantité absente/invalide et conflit demeurent distincts; les coûts de fusion/pose/amélioration restent `null`/inconnus. La classe ISO de combat et son niveau réellement attribué viennent du roster; l’éligibilité calculée depuis les cristaux ne les remplace pas.
+
+### Cache personnel et autorisation éventuelle
+
+Le dépôt permet de vérifier le parcours existant : `GET /player/v1/inventory?itemType=ISOITEM&lang=fr`, via le même `PERSONAL_EVENT_CACHE`, avec pagination existante (budget maximal 20 pages) et `since=meta.asOf` lorsque disponible. Les réponses et scopes personnels actuels ne sont pas exposés par GitHub; le contrôle Cloudflare ne fournit pas de lecteur de stockage Durable Object. Aucun cache personnel n’a donc été lu directement, et aucun appel Scopely personnel n’a eu lieu.
+
+Pour comparer aux captures du propriétaire, la seule requête éventuelle est une actualisation manuelle owner-only de ce endpoint existant, limitée à `itemType=ISOITEM`, `lang=fr`, avec au plus 20 lectures de page; le nombre réel dépendra des métadonnées de pagination ou d’un `unchanged`. Elle n’ajoute aucune collecte ni persistance. Cette autorisation reste en attente; ne pas appeler avant validation explicite.
+
+### État de livraison
+
+Les corrections de provenance française de #739 sont présentes, le lien owner-only est conservé, le journal reste ici, les descriptions PR ont été actualisées. Les deux PR sont ouvertes et en brouillon. Aucun nouveau dépôt/PR, aucun merge, aucun déploiement, aucune page publique Événements modifiée, aucun secret ou inventaire personnel publié. La validation finale du propriétaire reste attendue.
