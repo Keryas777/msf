@@ -34,6 +34,7 @@
     return result;
   }
   const normalizeName=value=>String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("fr").trim();
+  const identityKey=value=>String(value||"").normalize("NFC").toLocaleLowerCase("fr").trim().replace(/\s+/g," ");
   const matchingAlliances=value=>data.alliances.filter(item=>normalizeName(item.name).includes(normalizeName(value))).sort((a,b)=>a.name.localeCompare(b.name,"fr",{sensitivity:"base"}));
   function activeAllianceId(){return mode==="create"?createAllianceId:allianceSelect.value;}
   function saveDraft(){
@@ -134,14 +135,16 @@
       button.addEventListener("click",()=>{createAllianceId=alliance.id;newAlliance.value=alliance.name;box.hidden=true;newAlliance.setAttribute("aria-expanded","false");$("intelCreateSelection").textContent="Alliance existante sélectionnée : "+alliance.name;renderHistory();preview();});
       box.append(button);
     }
-    box.hidden=!matches.length;newAlliance.setAttribute("aria-expanded",String(!!matches.length));
+    box.hidden=!!createAllianceId||!matches.length;newAlliance.setAttribute("aria-expanded",String(!box.hidden));
     $("intelCreateSelection").textContent=createAllianceId?"Alliance existante sélectionnée : "+(data.alliances.find(item=>item.id===createAllianceId)?.name||""):"Aucune alliance sélectionnée. Choisis une proposition ou crée une nouvelle alliance.";
-    $("intelCreateAlliance").hidden=!!createAllianceId;
+    const exact=matches.some(item=>identityKey(item.name)===identityKey(value));
+    $("intelCreateAlliance").hidden=!!createAllianceId||exact||!value;
+    $("intelCreateAlliance").textContent="Créer l’alliance « "+value+" »";
   }
   function bind(){
     $("intelTabCreate").addEventListener("click",()=>setAllianceTab("create"));
     $("intelTabEdit").addEventListener("click",()=>setAllianceTab("edit"));
-    newAlliance.addEventListener("input",()=>{createAllianceId=null;renderSuggestions();preview();});
+    newAlliance.addEventListener("input",()=>{createAllianceId=null;renderSuggestions();renderHistory();preview();});
     search.addEventListener("input",()=>fillAllianceSelect());
     allianceSelect.addEventListener("change",()=>{selectedHistory=null;classicName.value=currentAlliance()?.name||"";renderHistory();clearDraft();});
     dateInput.addEventListener("change",preview);
@@ -161,9 +164,25 @@
     $("intelCreateAlliance").addEventListener("click",async()=>{
       if(mode!=="create")return;
       const name=newAlliance.value.trim();if(!name){setStatus("Saisis le nom classique de l’alliance.","error");return;}
-      const exact=data.alliances.find(item=>normalizeName(item.name)===normalizeName(name));
+      const exact=data.alliances.find(item=>identityKey(item.name)===identityKey(name));
       if(exact){createAllianceId=exact.id;newAlliance.value=exact.name;renderSuggestions();setStatus("Alliance existante retrouvée et sélectionnée. Aucun doublon créé.","ok");preview();return;}
-      await runBusy(async()=>{const result=await api("createAlliance",{name});search.value="";await reload(result.allianceId);createAllianceId=result.allianceId;newAlliance.value=name;renderSuggestions();clearDraft();setStatus("Alliance créée et sélectionnée. Choisis la date, puis touche une salle sur la carte pour la renseigner.","ok");});
+      await runBusy(async()=>{
+        let result;
+        try{result=await api("createAlliance",{name});}
+        catch(error){
+          const response=await fetch(API,{cache:"no-store",mode:"cors"});
+          if(!response.ok)throw error;
+          const fresh=await response.json();
+          const found=fresh.alliances?.filter(item=>identityKey(item.name)===identityKey(name))||[];
+          if(found.length!==1)throw error;
+          result={allianceId:found[0].id,created:false};
+        }
+        search.value="";await reload(result.allianceId);
+        const saved=data.alliances.find(item=>item.id===result.allianceId);
+        if(!saved)throw Error("Alliance enregistrée mais non encore visible. Actualise avant de réessayer.");
+        createAllianceId=saved.id;newAlliance.value=saved.name;renderSuggestions();renderHistory();preview();
+        setStatus("Alliance sélectionnée. Choisis la date, puis renseigne les salles.","ok");
+      });
     });
     $("intelSaveAllianceName").addEventListener("click",()=>runBusy(async()=>{
       if(!currentAlliance())throw Error("Sélectionne une alliance.");
@@ -188,7 +207,7 @@
         if(data.observations.some(row=>row.id!==selectedHistory.id&&row.allianceId===id&&row.date===targetDate))throw Error("Un relevé existe déjà à cette date. Aucune correction effectuée.");
         if(!window.confirm("Déplacer le relevé du "+selectedHistory.date+" au "+targetDate+" ? L’ancienne date sera supprimée, sans copie ni révision."))return;
       }
-      if(mode==="create"&&data.observations.some(row=>row.allianceId===id&&row.date===dateInput.value))throw Error("Un relevé existe déjà pour cette alliance et cette date. Utilise l’onglet Modifier.");
+      if(mode==="create"&&data.observations.some(row=>row.allianceId===id&&row.date===dateInput.value)&&!window.confirm("Remplacer le relevé existant à cette date ?"))return;
       const result=mode==="edit"
         ?await api("updateObservation",{observationId:selectedHistory.id,observation:{allianceId:id,date:targetDate,layout:[...layout]}})
         :await api("publish",{observation:{allianceId:id,date:targetDate,layout:[...layout]}});
