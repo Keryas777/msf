@@ -1,0 +1,34 @@
+name: War Results numeric glyph library tests
+
+on:
+  pull_request:
+    paths:
+      - 'docs/war-results-numeric-library.*'
+      - 'docs/war-results-vision.html'
+      - 'docs/war-results-vision.js'
+      - 'docs/war-results-digit-reader.js'
+      - 'experiments/war-result-recognition/tests/**'
+      - '.github/workflows/test-war-results-numeric-library.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/war-results-numeric-library.*'
+      - 'docs/war-results-vision.html'
+      - 'docs/war-results-vision.js'
+      - 'docs/war-results-digit-reader.js'
+      - 'experiments/war-result-recognition/tests/**'
+      - '.github/workflows/test-war-results-numeric-library.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  war-results-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run War Results Vision automated tests
+        run: node --test experiments/war-result-recognition/tests/*.test.*

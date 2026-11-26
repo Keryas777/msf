@@ -8,6 +8,7 @@
   <title>MSF War Results Vision</title>
   <link rel="stylesheet" href="./war-counter-lab.css?v=r7-entry-5">
   <link rel="stylesheet" href="./war-results-vision.css?v=6.4-glyph-alignment">
+  <link rel="stylesheet" href="./war-results-numeric-library.css?v=1.0.0-glyph-library">
 </head>
 <body>
   <main class="app-shell">
@@ -53,6 +54,31 @@
       <progress id="labProgress" max="100" value="0" hidden></progress>
       <p id="labStatus" class="analysis-status" role="status" aria-live="polite"></p>
       <div id="labResults" class="lab-results"></div>
+      <details id="numericGlyphLibrary" class="numeric-library-section">
+        <summary>Bibliothèque numérique MSF</summary>
+        <p class="muted">Extrais, identifie et valide manuellement les chiffres des scores et des trophées. Les captures et références restent sur cet appareil; aucune écriture GitHub ni moteur Template Matching n’est activé.</p>
+        <div class="numeric-library-controls">
+          <label for="numericLibraryCapture">Capture importée</label><select id="numericLibraryCapture"></select>
+          <label for="numericLibraryField">Champ numérique</label><select id="numericLibraryField"><option value="localScore">Score LoSP</option><option value="opponentScore">Score adverse</option><option value="localTrophies">Trophées LoSP</option><option value="opponentTrophies">Trophées adverses</option></select>
+          <button id="numericLibraryPrepare" class="secondary-button" type="button">Localiser, lire et extraire les glyphes</button>
+        </div>
+        <p id="numericLibraryProgress" class="muted" aria-live="polite">Aucune capture importée.</p>
+        <canvas id="numericLibraryCrop" class="numeric-library-crop" width="1" height="1" aria-label="Découpe originale de la valeur"></canvas>
+        <p id="numericLibraryOcr" class="muted">La lecture Tesseract est une proposition uniquement.</p>
+        <label for="numericLibraryValue">Valeur réelle confirmée manuellement</label>
+        <input id="numericLibraryValue" class="numeric-library-value" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="Saisir les chiffres réels" disabled>
+        <p id="numericLibraryLengthCheck" class="analysis-status" role="status" aria-live="polite">Prépare un champ pour afficher ses glyphes.</p>
+        <div id="numericLibraryGlyphs" class="numeric-library-glyphs"></div>
+        <label class="numeric-library-reviewed"><input id="numericLibraryReviewed" type="checkbox"> J’ai comparé la valeur réelle à la capture et vérifié visuellement chaque glyphe inclus.</label>
+        <button id="numericLibraryValidate" class="primary-button" type="button">Valider les glyphes inclus</button>
+        <div class="numeric-library-management"><h3>Références validées sur cet appareil</h3>
+          <p id="numericLibrarySummary" class="muted">Chargement de la bibliothèque locale…</p><p id="numericLibraryCoverage" class="muted"></p><strong id="numericLibraryTotal"></strong>
+          <div id="numericLibraryDigits" class="numeric-library-digits"></div>
+          <div class="numeric-library-actions"><button id="numericLibraryExport" class="secondary-button" type="button">Télécharger la bibliothèque JSON</button><button id="numericLibraryCopy" class="secondary-button" type="button">Copier le JSON complet</button><label class="secondary-button numeric-library-import" for="numericLibraryImport">Importer / fusionner JSON</label><input id="numericLibraryImport" type="file" accept="application/json,.json" multiple><button id="numericLibraryDeleteOne" class="secondary-button" type="button">Supprimer une référence par ID</button><button id="numericLibraryReset" class="secondary-button" type="button">Réinitialiser la bibliothèque locale</button></div>
+          <p class="muted">Le champ captureId est commun aux scores et trophées d’une image pour permettre plus tard une validation leave-one-capture-out. L’identité typographique scores/trophées reste à vérifier.</p>
+        </div>
+        <p id="numericLibraryStatus" class="analysis-status" role="status" aria-live="polite"></p>
+      </details>
       <div class="lab-export-actions"><button id="copyLabJsonButton" class="secondary-button" type="button" disabled>Copier les diagnostics</button><button id="exportLabJsonButton" class="secondary-button" type="button" disabled>Télécharger les diagnostics (.json)</button></div>
       <p class="muted">Pour relancer un champ après interruption, réimporte la capture : les résultats par moteur, champ, variante et marge sont restaurés depuis le stockage temporaire.</p>
       <a class="lab-diagnostic-link" href="#diagnosticPanel">Ouvrir le comparateur A/B des trophées</a>
@@ -113,7 +139,8 @@
   <script src="./war-results-result-engine.js?v=1.0.0" defer></script>
   <script src="./war-results-vision-engine.js?v=6.2-numeric-geometry-lab" defer></script>
   <script src="./war-results-vision-data.js?v=2-rich-name" defer></script>
-  <script src="./war-results-vision.js?v=5.0-glyph-alignment" defer></script>
+  <script src="./war-results-numeric-library.js?v=1.0.0-glyph-library" defer></script>
+  <script src="./war-results-vision.js?v=5.1-numeric-glyph-library" defer></script>
 </body>
 </html>
 
