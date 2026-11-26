@@ -324,3 +324,38 @@ Le déploiement contrôlé de #218 et les lectures personnelles ponctuelles rest
 - La route `/admin/events-planner` du Worker a été vérifiée sans session : elle redirige vers la page de connexion Cloudflare Access et propose le fournisseur Cloudflare. C’est le comportement attendu. La page planner n’a pas été chargée dans ce navigateur; aucun grant LoSP n’a été utilisé et aucune requête personnelle Scopely n’a été déclenchée.
 - Le test réel sur iPhone reste à faire dans Safari par le propriétaire. L’ouverture peut demander l’authentification Cloudflare Access puis, si la session LoSP est absente, l’action existante « Autoriser LoSP avec Scopely ». Les appels autorisés ne démarrent qu’après l’accès propriétaire.
 - Le run de déploiement a réussi en 33 s et a publié la version attendue. GitHub signale un avertissement non bloquant : `actions/checkout@v4` et `actions/setup-node@v4` utilisent une version Node.js 20 dépréciée désormais forcée à Node.js 24; aucune étape n’a échoué. Ce point d’entretien du workflow n’a pas été modifié pendant la phase.
+
+
+### Validation iPhone propriétaire et corrections ciblées — 26 novembre 2026
+
+Le propriétaire rapporte un premier essai réel sur iPhone : page chargée, compte connecté, événements en français, navigation entre les quatre onglets et synchronisation de l’inventaire. Aucun écran contenant des identifiants ou données d’inventaire personnels n’est copié dans le dépôt. Ce retour concerne le Worker déjà déployé avant les corrections ci-dessous; il ne valide pas encore le nouveau SHA de #218 sur Safari iPhone.
+
+#### Causes des deux blocages
+
+- **Équipe personnelle** : l’API du planificateur cherchait auparavant le roster dans son propre cache temporaire PERSONAL_EVENT_CACHE. L’infrastructure LoSP existante range déjà le roster personnel consenti dans le bucket R2 privé, sous la clé sessionnée roster-batches/v1/connected-personal-rosters/<session-hash>/latest.json. L’API Maddoxx appelle maintenant le helper LoSP readConnectedPersonalRoster() après ses contrôles Access, propriétaire, session et scope. Le document doit être présent, valide et non expiré. La réponse reste privée; le chemin ne relance ni Scopely ni le collecteur et ne crée pas de stockage parallèle.
+- **Catalogue des ressources** : l’interface demandait le JSON à GitHub Pages dans msf, alors que ce fichier n’était que dans la PR #739 et absent de main. Le catalogue est maintenant embarqué comme asset statique privé du Worker; son blob est identique au fichier docs/data/msf-resource-catalog.json de #739 (e0d6139a6497b329b87a8a6313d5f07b01dbbd47). Le premier correctif avait placé par erreur son chemin sous lib/ dans l’allowlist du Worker. Ce chemin est désormais autorisé à sa véritable adresse /admin/events-planner/data/msf-resource-catalog.json et couvert par tests/event-planner-page.test.mjs. Le planificateur ne dépend plus d’une publication simultanée du catalogue par MSF.
+
+#### Vocabulaire joueur et diagnostics
+
+L’interface affiche « Planificateur d’événements LoSP », « Mon inventaire », « Compte MSF connecté » et « Données de calcul des points ». L’action de recalcul ne nomme plus Maddoxx. Les identifiants, nombres de reconnaissance et diagnostics ISO-8 restent dans des détails repliés « Diagnostic administrateur » sur la route owner-only. Le message de connexion ne montre plus les termes techniques OAuth ou Scopely. L’authentification Cloudflare Access et les contrôles d’administration n’ont pas été modifiés; la convergence vers l’authentification destinée aux joueurs reste reportée.
+
+#### Vérifications sur le SHA #218 930262593b6c36a20ea295376245cffa1a2ee42f
+
+- Tests ciblés du planificateur : run 45856451173, **129/129 réussis**, dont la route du catalogue, l’usage du cache de roster existant et le libellé de connexion.
+- Navigateurs simulés : run 45856451364, Chromium 141.0.7390.37 et WebKit 26.0 réussis aux largeurs 320, 360, 390 et 430 px, sans débordement horizontal. Les cinq onglets, y compris la matrice de test, sont couverts. Les captures de test utilisent uniquement des fixtures synthétiques : [artefact du run 45856451364](https://github.com/Keryas777/losp-roster-service/actions/runs/45856451364/artifacts/15136212670), digest sha256:32293338330c02534d9817c219a7ce7c831e30d65b67d87e7497b854c22cbf49. WebKit CI n’est pas une validation réelle sur iPhone.
+- Suite Worker OAuth : run 45856451147, 15 échecs sur 916. La liste est celle déjà documentée à la référence : deux tests du planificateur automatique tardif, trois tests DD9, deux tests de budget partagé et huit tests du navigateur R2, dont les fixtures échouent avec « Expired captain record ». Aucun test du planificateur Maddoxx n’est en échec; ces écarts ne sont pas corrigés ici.
+- Aucun changement de wrangler.jsonc, binding, secret, migration, OAuth, Access, collecte ou rétention.
+
+#### Données et vérification réelle restant à faire
+
+Le propriétaire a signalé des cristaux ISO-8 reconnus et non classifiés ainsi que deux consommables sans libellé français. Les identifiants réels correspondants ne sont pas présents dans les sources accessibles à cette reprise; ils ne sont ni devinés ni ajoutés au catalogue. Aucun payload d’inventaire, identifiant personnel ou capture privée n’est publié dans GitHub. La matrice réelle P4 et le poste de commandement n’ont pas été validés sur le nouveau code. La comparaison complète des identifiants ISO-8 et l’identification des deux consommables nécessitent l’affichage des diagnostics existants après déploiement, ou la communication des seuls identifiants techniques concernés.
+
+Aucun nouvel appel personnel Scopely et aucun déploiement n’ont été effectués pendant cette correction. Le déploiement contrôlé suivant doit viser exactement le SHA ci-dessus sur le Worker existant; il attend une nouvelle autorisation explicite. Le test fonctionnel de ce nouveau code sur iPhone reste donc à faire après ce déploiement.
+
+#### État des PR
+
+Au dernier contrôle, #218 reste ouverte et en brouillon, mergeable=true, basée sur le SHA 5af430a10cd636badb0f18d9055e44693a96ef90; sa branche est 77 commits devant et zéro derrière main. Aucun changement récent de production n’est perdu.
+
+#739 reste ouverte et en brouillon. Sa branche de suivi est 15 commits derrière le main MSF courant (b35d9a3f1c7d8066dd158049879a4f543c298a57); l’API GitHub directe ne signale pas de conflit de contenu (mergeable=true, état de contrôles unstable). Les contrôles historiques « Guest LoSP access » et « Validate unified season history » restent les échecs déjà documentés; cette reprise n’a modifié aucune de ces fonctionnalités et ne synchronise pas ces changements étrangers. Le présent complément est ajouté à cette branche existante, sans fusion ni déploiement.
+
+SHA de reprise du Worker au moment de ce journal : 930262593b6c36a20ea295376245cffa1a2ee42f.
