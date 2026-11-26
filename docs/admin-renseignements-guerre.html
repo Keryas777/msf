@@ -30,10 +30,10 @@
         <div id="intelCreatePanel" class="intelAdminCreate intelAdminCreatePrimary" role="tabpanel" aria-labelledby="intelTabCreate">
           <label class="intelAdminField" for="intelNewAlliance">Alliance du nouveau relevé</label>
           <p class="intelAdminFootnote">Saisis le nom : les alliances connues sont proposées en direct. Choisis une proposition ou crée une nouvelle alliance.</p>
-          <input id="intelNewAlliance" class="intelAdminInput" maxlength="80" type="text" autocomplete="off" placeholder="Nom classique de l’alliance" aria-controls="intelAllianceSuggestions" aria-expanded="false" />
+          <input id="intelNewAlliance" class="intelAdminInput" maxlength="80" type="text" autocomplete="off" placeholder="Rechercher ou créer une alliance…" aria-controls="intelAllianceSuggestions" aria-expanded="false" />
           <div id="intelAllianceSuggestions" class="intelAllianceSuggestions" role="listbox" aria-label="Alliances existantes proposées" hidden></div>
           <p id="intelCreateSelection" class="intelAdminFootnote">Aucune alliance sélectionnée.</p>
-          <button id="intelCreateAlliance" class="intelAdminButton" type="button">Créer cette alliance</button>
+          <button id="intelCreateAlliance" hidden class="intelAdminButton" type="button">Créer cette alliance</button>
         </div>
         <div id="intelEditPanel" class="intelAdminExisting" role="tabpanel" aria-labelledby="intelTabEdit" hidden><h3>Choisir un relevé existant</h3>
         <label class="intelAdminField" for="intelAllianceSearch">Rechercher dans les alliances enregistrées</label>
@@ -92,6 +92,6 @@
     </section>
   </main>
   <script src="./renseignements-guerre.js?v=14-refresh-return" defer></script>
-  <script src="./admin-renseignements-guerre.js?v=12-preserve-create-date" defer></script>
+  <script src="./admin-renseignements-guerre.js?v=13-alliance-dedup" defer></script>
 </body>
 </html>
