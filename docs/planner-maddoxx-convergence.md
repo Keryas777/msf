@@ -359,3 +359,33 @@ Au dernier contrôle, #218 reste ouverte et en brouillon, mergeable=true, basée
 #739 reste ouverte et en brouillon. Sa branche de suivi est 15 commits derrière le main MSF courant (b35d9a3f1c7d8066dd158049879a4f543c298a57); l’API GitHub directe ne signale pas de conflit de contenu (mergeable=true, état de contrôles unstable). Les contrôles historiques « Guest LoSP access » et « Validate unified season history » restent les échecs déjà documentés; cette reprise n’a modifié aucune de ces fonctionnalités et ne synchronise pas ces changements étrangers. Le présent complément est ajouté à cette branche existante, sans fusion ni déploiement.
 
 SHA de reprise du Worker au moment de ce journal : 930262593b6c36a20ea295376245cffa1a2ee42f.
+
+
+### Retour de validation iPhone et préparation de la seconde validation — 26 novembre 2026
+
+Le propriétaire a confirmé les résultats de sa première validation réelle : page accessible sur iPhone, compte MSF connecté, 15 événements affichés en français avec illustrations, navigation des quatre onglets, inventaire synchronisé et premières quantités ISO-8 visibles. Le poste de commandement et la matrice P4 ne sont pas encore validés sur iPhone. Les quantités et identifiants personnels détaillés ne sont pas recopiés dans le dépôt.
+
+#### Blocages constatés et corrections déjà livrées sur #218
+
+- Le roster était recherché dans le cache temporaire propre au planificateur au lieu du roster LoSP déjà consenti et stocké en privé dans R2. Le code du head #218 lit maintenant le record existant lié à la session, par le helper partagé, et conserve les vérifications d’accès, d’identité, de scope, d’expiration et de validité. Une absence produit un état vide explicite; aucun appel de collecte ou nouvel appel Scopely n’est déclenché.
+- Le catalogue des ressources était demandé sur GitHub Pages MSF alors qu’il n’était présent que dans la PR #739, encore en brouillon et non publiée. #218 embarque désormais ce catalogue identique comme asset statique protégé du Worker. La route est testée et le Worker n’a pas besoin d’une publication simultanée de MSF.
+- La formulation visible a été simplifiée, avec le titre « Planificateur d’événements LoSP ». Les identifiants techniques, statistiques de reconnaissance, caches et diagnostics restent dans l’espace administrateur replié. Aucun changement d’authentification ou de protection Access n’a été apporté.
+
+#### Vérifications du head #218 b4890dc698b8da4dfefc60bd7aa608dfb4b6af6c
+
+- Suite planificateur, run 45857862244 : 129/129 réussis.
+- Navigateurs simulés, run 45857862251 : Chromium 141.0.7390.37 et WebKit 26.0 réussis aux largeurs 320, 360, 390 et 430 px, sans débordement horizontal. Les captures sont synthétiques : https://github.com/Keryas777/losp-roster-service/actions/runs/45857862251/artifacts/15137005960, empreinte sha256:4291a1b1fda96b20c92c28f7dd07ece1b40dab1fd305fda19ee0d2d37c3afb7b. Cela ne remplace pas une validation réelle Safari iPhone.
+- Suite Worker OAuth, run 45857862243 : 901/916 réussis; les 15 échecs hors périmètre correspondent aux catégories déjà documentées : deux cas de tâches tardives/invitées, trois DD9, deux budgets partagés et huit contrôles de l’explorateur R2. Aucun test du planificateur n’est en échec.
+- Comparaison avec main losp-roster-service : main 5af430a10cd636badb0f18d9055e44693a96ef90, branche 78 commits devant et zéro derrière; PR #218 mergeable=true. Aucun changement récent de main n’est omis par la branche.
+
+#### Données réelles et limites
+
+Le propriétaire rapporte 103 objets d’inventaire reçus, dont 100 ISO-8 et 3 consommables, ainsi que 25 IDs ISO-8 reconnus et 75 encore non classifiés; ce sont des statistiques de validation fournies par le propriétaire, pas un inventaire publié. L’hypothèse de couverture des 4 paliers × 5 classes × 5 catégories n’est pas encore confirmée par l’examen des IDs réels. Les deux consommables sans libellé français ne sont pas identifiés dans les données accessibles à cette reprise. Aucun mapping n’a été inventé. La correction suivante devra exploiter les résultats déjà synchronisés et les diagnostics administrateur existants; aucun appel personnel supplémentaire n’a été effectué dans cette passe.
+
+Le roster, le catalogue et le nouveau vocabulaire ne peuvent être validés sur le nouveau code qu’après le redéploiement contrôlé de #218 puis le nouvel essai du propriétaire sur iPhone. Ce déploiement reste en attente d’une autorisation explicite; aucun déploiement, fusion ou appel personnel Scopely n’a été effectué dans cette passe.
+
+#### État courant des PR
+
+- #218 reste ouverte et en brouillon sur work/maddoxx-convergence-ui, head b4890dc698b8da4dfefc60bd7aa608dfb4b6af6c; comparaison GitHub : 78 commits devant et zéro derrière main.
+- #739 reste ouverte et en brouillon sur work/maddoxx-convergence-owner-entry, head 95f64fae68bb79d95b92b62bd475acd67cc198a2; main courant b35d9a3f1c7d8066dd158049879a4f543c298a57, branche 29 commits devant et 15 derrière, GitHub signale mergeable=true. Elle n’a pas été synchronisée car ces corrections n’y touchent pas et la phase actuelle ne nécessite pas cette modification.
+- Aucun merge ni déploiement de #739. Les PR restent en brouillon.
