@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 24526)
-Total output lines: 983
-
 (() => {
   "use strict";
   const $ = (selector) => document.querySelector(selector);
@@ -300,7 +297,441 @@ Total output lines: 983
   }
   function onScoreQualityChange(event) {
     const select = event.target.closest("select[data-score-quality]"); if (!select) return;
-    c…12526 tokens truncated…t WarResultsVisionEngine.release(); }
+    const entry = scoreLocatorSummary.find((item) => item.id === select.dataset.scoreQuality); if (!entry) return;
+    entry.quality = select.value; entry.qualityConfirmedAt = new Date().toISOString(); persistScoreLocatorResults();
+  }
+  async function copyScoreLocatorJson() {
+    const json = JSON.stringify(scoreLocatorPayload(), null, 2);
+    try { await navigator.clipboard.writeText(json); $("#scoreLocatorStatus").textContent = "Diagnostics géométriques copiés. Aucune valeur OCR ni image n’est incluse."; }
+    catch (_) { const area = document.createElement("textarea"); area.value = json; area.setAttribute("readonly", ""); area.style.position = "fixed"; area.style.opacity = "0"; document.body.appendChild(area); area.select(); const copied = document.execCommand("copy"); area.remove(); $("#scoreLocatorStatus").textContent = copied ? "Diagnostics copiés." : "Copie refusée; utilise le téléchargement JSON."; }
+  }
+  function exportScoreLocatorJson() { if (scoreLocatorSummary.length) download(scoreLocatorPayload(), `war-results-score-localization-${new Date().toISOString().slice(0, 10)}.json`); }
+  function clearScoreLocatorResults() {
+    scoreLocatorSummary.splice(0); liveScoreLocator.clear(); sessionStorage.removeItem(SCORE_LOCATOR_KEY);
+    scoreLocatorResults.innerHTML = ""; $("#scoreLocatorStatus").textContent = "Diagnostics de localisation des scores effacés."; updateLaboratoryControls();
+  }
+
+  async function runRecognitionLaboratory() {
+    if (analyzing) return;
+    const engine = labEngineSelect.value, fields = selectedLabFields();
+    const pending = records.filter((record) => record.file);
+    if (!fields.length || !pending.length) { labStatus.textContent = "Charge une capture et sélectionne au moins un champ."; return; }
+    analyzing = true; labProgress.hidden = false; labProgress.value = 0; labEngineSelect.disabled = true;
+    labFields.querySelectorAll("input,button").forEach((control) => { control.disabled = true; });
+    $("#labTrophyLocatorSelect").disabled = true; $("#labTrophyMarginSelect").disabled = true;
+    numericLocatorSelect.disabled = true;
+    render();
+    const desired = pending.flatMap((record) => fields.map((field) => laboratoryRecordKey(engine, field, record)));
+    const completed = new Set(laboratorySummary.filter((entry) => !entry.diagnostic?.error).map(WarResultsLocatorComparisonStore.laboratoryRecordKey));
+    const total = Math.max(1, desired.filter((key) => !completed.has(key)).length);
+    let done = 0;
+    try {
+      for (const record of pending) {
+        const missing = fields.filter((field) => !completed.has(laboratoryRecordKey(engine, field, record)));
+        if (!missing.length) { labStatus.textContent = `${record.fileName} : champs déjà traités, aucune relance OCR.`; continue; }
+        labStatus.textContent = `${record.fileName} — préparation du moteur ${LAB_ENGINE_LABELS[engine]}…`;
+        if (engine === "numeric") {
+          const marginPercent = Number($("#labTrophyMarginSelect").value || 18);
+          const variantId = $("#labTrophyLocatorSelect").value;
+          let result = null, engineError = null;
+          try {
+            result = await WarResultsVisionEngine.analyzeNumericFields(record.file, missing, (message) => {
+              if (message.status) labStatus.textContent = `${record.fileName} — ${message.status}`;
+              if (Number.isFinite(message.progress)) labProgress.value = Math.max(labProgress.value, Math.round((done + message.progress) / total * 100));
+            }, { variantId, marginPercent, geometryMode: numericLocatorSelect.value });
+          } catch (error) { engineError = errorMessage(error); }
+          for (const field of missing) {
+            const diagnostic = result?.fields?.[field] || { field, ...(engineError ? { error: engineError, uncertain: true, uncertainty: "execution" } : { warning: "zone-not-located", uncertainty: "localisation" }) };
+            const entry = { sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), file: record.fileName, engine, field,
+              variantId: labVariant(engine, field), marginPercent: labMargin(engine, field), diagnostic };
+            const key = WarResultsLocatorComparisonStore.laboratoryRecordKey(entry);
+            liveLabDiagnostics.set(key, { diagnostic, sourceUrl: record.url, dimensions: result.dimensions });
+            saveLaboratoryRecord(entry); done++; labProgress.value = Math.round(done / total * 100); renderLaboratoryResults();
+            await new Promise((resolve) => setTimeout(resolve, 0));
+          }
+        } else {
+          for (const field of missing) {
+            labStatus.textContent = `${record.fileName} — localisation de ${LABELS[field]}…`;
+            try {
+              const located = await WarResultsVisionEngine.locateLaboratoryField(record.file, field);
+              const fieldDiagnostic = await WarResultsVisionEngine.analyzeField(record.file, field, located.rect, (message) => {
+                if (message.status) labStatus.textContent = `${record.fileName} — ${LABELS[field]} : ${message.status}`;
+              });
+              const diagnostic = { ...fieldDiagnostic, locator: located,
+                locatorWarning: located.geometryConfidence === "fallback" ? "proportional-layout-fallback" : null };
+              const entry = { sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), file: record.fileName, engine, field,
+                variantId: "default", marginPercent: 0, diagnostic: { ...diagnostic, locator: located } };
+              const key = WarResultsLocatorComparisonStore.laboratoryRecordKey(entry);
+              liveLabDiagnostics.set(key, { diagnostic: entry.diagnostic, sourceUrl: record.url, dimensions: located.dimensions });
+              saveLaboratoryRecord(entry);
+            } catch (error) {
+              const entry = { sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), file: record.fileName, engine, field,
+                variantId: "default", marginPercent: 0, diagnostic: { field, error: errorMessage(error), uncertain: true } };
+              saveLaboratoryRecord(entry);
+            }
+            done++; labProgress.value = Math.round(done / total * 100); renderLaboratoryResults();
+            await new Promise((resolve) => setTimeout(resolve, 0));
+          }
+        }
+      }
+      labStatus.textContent = `Laboratoire ${LAB_ENGINE_LABELS[engine]} terminé. Aucun autre moteur n’a été lancé; aucune donnée n’a été publiée.`;
+    } finally {
+      try { await WarResultsVisionEngine.release(); } catch (_) {}
+      analyzing = false; labProgress.hidden = true; labEngineSelect.disabled = false;
+      labFields.querySelectorAll("input,button").forEach((control) => { control.disabled = false; });
+      $("#labTrophyLocatorSelect").disabled = false; $("#labTrophyMarginSelect").disabled = false;
+      numericLocatorSelect.disabled = false;
+      render(); updateLaboratoryControls();
+    }
+  }
+
+  function saveLaboratoryRecord(entry) {
+    laboratorySummary = WarResultsLocatorComparisonStore.mergeLaboratoryRecords(laboratorySummary, [entry]);
+    try { sessionStorage.setItem(LABORATORY_KEY, JSON.stringify(WarResultsLocatorComparisonStore.laboratorySnapshot(laboratorySummary))); }
+    catch (_) { labStatus.textContent = "Stockage temporaire saturé ou indisponible. Copie ou télécharge les diagnostics avant de quitter."; }
+    updateLaboratoryControls();
+  }
+
+  function restoreLaboratory() {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(LABORATORY_KEY) || "null");
+      if (saved?.diagnostic === "local-war-results-recognition-laboratory" && Array.isArray(saved.records)) {
+        laboratorySummary = WarResultsLocatorComparisonStore.mergeLaboratoryRecords([], saved.records);
+        labStatus.textContent = `${laboratorySummary.length} diagnostic(s) restauré(s). Réimporte les captures pour reprendre les champs déjà terminés sans relancer leur OCR.`;
+      }
+    } catch (_) { laboratorySummary = []; }
+  }
+
+  function renderLaboratoryResults() {
+    labResults.innerHTML = laboratorySummary.map((entry) => {
+      const key = WarResultsLocatorComparisonStore.laboratoryRecordKey(entry), live = liveLabDiagnostics.get(key);
+      const d = live?.diagnostic || entry.diagnostic || {}, rect = d.rect || d.locator?.rect || d.locator?.selectedRect;
+      const box = (item, className) => item ? `<rect class="${className}" x="${Number(item.x)}" y="${Number(item.y)}" width="${Number(item.width)}" height="${Number(item.height)}"/>` : "";
+      const original = live?.sourceUrl ? `<details><summary>Inspecter les rectangles sur la capture</summary><p class="muted">Jaune : estimation actuelle · cyan : zone retenue après sélection · vert : découpe finale OCR · rouge : glyphes d’ancrage · violet : candidats concurrents (sélection en trait plein).</p><div class="lab-source-wrap" style="aspect-ratio:${Number(live.dimensions?.width)||16}/${Number(live.dimensions?.height)||9}"><img src="${escapeAttr(live.sourceUrl)}" alt="Capture source ${escapeAttr(entry.file)}"><svg viewBox="0 0 ${Number(live.dimensions?.width)||1600} ${Number(live.dimensions?.height)||900}" preserveAspectRatio="none">${box(d.initialRect,"lab-rect-initial")}${(d.locator?.candidates || []).slice(0,8).map((candidate)=>box(candidate.rect,candidate.selected?"lab-rect-candidate-selected":"lab-rect-candidate")).join("")}${(d.locator?.candidates || []).slice(0,8).map((candidate)=>box(candidate.iconAnchor,"lab-rect-icon-anchor")).join("")}${box(d.correctedRect,"lab-rect-corrected")}${box(rect,"lab-rect-final")}${(d.locator?.anchors || []).map((anchor)=>box(anchor,"lab-rect-anchor")).join("")}</svg></div></details>` : "";
+      const crops = live && (d.originalPreview || d.correctedPreview || d.preview) ? `<div class="lab-crop-grid">${d.originalPreview ? `<figure><a href="${escapeAttr(d.originalPreview)}" target="_blank" rel="noopener"><img src="${escapeAttr(d.originalPreview)}" alt="Zone estimée ${escapeAttr(LABELS[entry.field])}"></a><figcaption>Estimation actuelle · toucher pour agrandir</figcaption></figure>` : ""}${d.correctedPreview ? `<figure><a href="${escapeAttr(d.correctedPreview)}" target="_blank" rel="noopener"><img src="${escapeAttr(d.correctedPreview)}" alt="Zone rectifiée ${escapeAttr(LABELS[entry.field])}"></a><figcaption>Zone localisée avant raffinement · toucher pour agrandir</figcaption></figure>` : ""}${d.preview ? `<figure><a href="${escapeAttr(d.preview)}" target="_blank" rel="noopener"><img src="${escapeAttr(d.preview)}" alt="Découpe OCR prétraitée ${escapeAttr(LABELS[entry.field])}"></a><figcaption>Découpe finale envoyée à l’OCR · toucher pour agrandir</figcaption></figure>` : ""}</div>` : "";
+      const warnings = [...(Array.isArray(d.warnings) ? d.warnings : []), ...(d.warning ? [d.warning] : []), ...(d.locator?.reason ? [d.locator.reason] : []), ...(d.locatorWarning ? [d.locatorWarning] : []), ...(d.error ? [d.error] : [])];
+      const details = { zone_initiale: d.initialRect || null, candidats: d.locator?.candidates || [], candidat_retenu: d.locator?.selectedCandidate || null,
+        repères: d.locator?.anchors || [], zone_corrigée: d.correctedRect || null,
+        découpe_finale_ocr: rect || null, méthode_localisation: d.locator?.method || d.locatorMethod || null,
+        localisateur: d.locator || d.locatorMethod || null, prétraitement: d.preprocessing || null,
+        OCR_brut: d.raw ?? null, candidat: d.candidate ?? d.value ?? null, valeur_retenue: d.value ?? null, durée_ms: d.ms ?? null,
+        confiance: d.confidence ?? null, incertitude: d.uncertainty || (d.uncertain ? "à vérifier" : null), avertissements: warnings.length ? warnings : d.warning || null,
+        diagnostics_moteur: d.identityDiagnostics || d.resultDiagnostics || null };
+      const caution = warnings.length || d.uncertain ? `<p class="lab-warning">${escapeHtml(warnings.join(" · ") || "Lecture à vérifier")}${d.uncertainty ? ` · étape : ${escapeHtml(d.uncertainty)}` : ""}</p>` : `<p class="lab-success">Lecture sans avertissement explicite. Vérification humaine recommandée.</p>`;
+      const recognized = `<p class="lab-recognized">Valeur retenue : <strong>${escapeHtml(d.value || "—")}</strong>${d.raw ? ` · OCR brut : ${escapeHtml(d.raw)}` : ""}${Number.isFinite(d.ms) ? ` · ${d.ms} ms` : ""}${Number.isFinite(d.confidence) ? ` · confiance ${Math.round(d.confidence)} %` : ""}</p>`;
+      return `<article class="lab-result-card"><h3>${escapeHtml(LAB_ENGINE_LABELS[entry.engine] || entry.engine)} · ${escapeHtml(LABELS[entry.field] || entry.field)}</h3><p>${escapeHtml(entry.file || "Capture réimportée")} · variante ${escapeHtml(entry.variantId)}${entry.marginPercent ? ` · marge ${Number(entry.marginPercent)} %` : ""}</p>${recognized}${original}${crops}${caution}<details><summary>Diagnostic détaillé</summary><pre>${escapeHtml(JSON.stringify(details, null, 2))}</pre></details></article>`;
+    }).join("");
+    updateLaboratoryControls();
+  }
+
+  function laboratoryPayload() { return WarResultsLocatorComparisonStore.laboratorySnapshot(laboratorySummary); }
+  async function copyLaboratoryJson() {
+    if (!laboratorySummary.length) return;
+    const json = JSON.stringify(laboratoryPayload(), null, 2);
+    try { await navigator.clipboard.writeText(json); labStatus.textContent = "Diagnostics copiés. Les images et découpes ne figurent pas dans le JSON."; }
+    catch (_) { const area = document.createElement("textarea"); area.value = json; area.setAttribute("readonly", ""); area.style.position = "fixed"; area.style.opacity = "0"; document.body.appendChild(area); area.select(); const copied = document.execCommand("copy"); area.remove(); labStatus.textContent = copied ? "Diagnostics copiés. Les images et découpes ne figurent pas dans le JSON." : "Copie refusée; télécharge le JSON local."; }
+  }
+  function exportLaboratoryJson() { if (laboratorySummary.length) download(laboratoryPayload(), `war-results-laboratory-${new Date().toISOString().slice(0, 10)}.json`); }
+
+  function restoreNumericOcrResults() {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(NUMERIC_OCR_KEY) || "[]");
+      if (Array.isArray(saved)) numericOcrSummary.push(...saved.filter((item) => item && item.captureId && item.field && item.variants).map((item) => ({ ...item, compact: item })));
+      if (numericOcrSummary.length) renderNumericOcrResults("Mesures OCR textuelles restaurées. Réimporte les captures pour relancer les lectures ou afficher les découpes.");
+    } catch (_) { sessionStorage.removeItem(NUMERIC_OCR_KEY); }
+  }
+
+  function compactNumericOcrEntry(entry) {
+    const { diagnostic: d } = entry;
+    return { captureId: entry.captureId, field: entry.field, dimensions: entry.dimensions, rect: d.rect, initialRect: d.initialRect,
+      correctedRect: d.correctedRect, rectFrozen: d.ocrRectFrozen === true,
+      variants: (d.ocrComparison?.strategies || []).map((item) => ({ strategy: item.strategy, label: item.label, psm: item.psm, preprocessing: item.preprocessing, raw: item.raw, value: item.value, digits: item.digits, digitCount: item.digitCount, confidence: item.confidence, ms: item.ms, ocrMs: item.ocrMs, warnings: item.warnings, segmentation: item.segmentation, morphology: item.morphology, proposedCorrection: item.proposedCorrection,
+        glyphs: item.glyphs?.map((glyph) => ({ bounds: glyph.bounds, raw: glyph.raw, value: glyph.value, digits: glyph.digits,
+          digitCount: glyph.digitCount, confidence: glyph.confidence, ms: glyph.ms, warnings: glyph.warnings })) || undefined,
+        ocrSymbols: item.ocrSymbols, alignment: item.alignment, morphologyChecks: item.morphologyChecks, decision: item.decision,
+        decisionRationale: item.decisionRationale, stageTimings: item.stageTimings, ocrReused: item.ocrReused })),
+      consensus: d.ocrComparison?.consensus || null, totalMs: d.ocrComparison?.totalMs ?? null, warning: d.warning || null };
+  }
+
+  function initializeOcrCombinations() {
+    const psms=[7,8,13], preps=[["reference","Référence sans correction"],["grayscale","Niveaux de gris"],["otsu","Seuillage global Otsu"],["adaptive","Seuillage local adaptatif"],["tight-crop","Marge horizontale réduite"],["thin-strokes","Amincissement morphologique"]];
+    $("#ocrCombinationOptions").innerHTML=preps.flatMap(([prep,label])=>psms.map(psm=>{
+      const combo={id:`combo:${prep}:psm${psm}`,label:`PSM ${psm} · ${label}`,group:prep==="reference"?"baseline":"preprocess",psm,prep,parameters:{}};
+      return `<label><input type="checkbox" value="${escapeAttr(JSON.stringify(combo))}" ${prep==="reference"?"checked":""}> ${escapeHtml(combo.label)}</label>`;
+    })).join("");
+    updateOcrCombinationCount();
+  }
+  function updateOcrCombinationCount() {
+    const count=document.querySelectorAll("#ocrCombinationOptions input:checked").length+($("#ocrGlyphOption").checked?1:0)+($("#ocrMorphologyOption").checked?1:0)+($("#ocrAlignmentOption").checked?1:0);
+    $("#ocrCombinationCount").textContent=`${count} combinaison${count===1?"":"s"} sélectionnée${count===1?"":"s"}`;
+  }
+  function applyRecommendedOcrPreset() {
+    document.querySelectorAll("#ocrCombinationOptions input").forEach(input=>{
+      const c=JSON.parse(input.value);
+      input.checked=(c.psm===7&&c.prep==="reference")||(c.psm!==7&&["reference","tight-crop","thin-strokes"].includes(c.prep));
+    });
+    $("#ocrGlyphOption").checked=false;
+    $("#ocrMorphologyOption").checked=false;
+    $("#ocrAlignmentOption").checked=false;
+    updateOcrCombinationCount();
+  }
+
+  async function compareNumericOcr() {
+    if (analyzing) return;
+    const batch = records.filter((record) => record.file);
+    const selected = [...document.querySelectorAll("#ocrCombinationOptions input:checked")].map((input) => JSON.parse(input.value));
+    if ($("#ocrMorphologyOption").checked) selected.push("psm8-morphology");
+    if ($("#ocrAlignmentOption").checked) selected.push("psm8-glyph-alignment");
+    if ($("#ocrGlyphOption").checked) selected.push("glyphs");
+    if (!batch.length) { $("#numericOcrStatus").textContent = "Charge une ou plusieurs captures dans le laboratoire."; return; }
+    if (!selected.length) { $("#numericOcrStatus").textContent = "Sélectionne au moins une stratégie OCR."; return; }
+    analyzing = true;
+    $("#compareNumericOcrButton").disabled = true;
+    $("#numericOcrStatus").textContent = "Localisation fixe des trophées, puis comparaisons OCR séquentielles…";
+    try {
+      for (const [index, record] of batch.entries()) {
+        const fields = ["localTrophies", "opponentTrophies"];
+        const result = await WarResultsVisionEngine.analyzeNumericFields(record.file, fields, (message) => {
+          if (message.status) $("#numericOcrStatus").textContent = `${record.fileName} — ${message.status}`;
+        }, { geometryMode: "pixel-content", variantId: "vertical-recovery-combined", marginPercent: 18, compareOcr: true, ocrStrategies: selected });
+        for (const field of fields) {
+          const diagnostic = result.fields[field];
+          const item = { captureId: `Capture ${index + 1}`, file: record.fileName, field, dimensions: result.dimensions, diagnostic };
+          const key = `${record.fileKey || record.fileName}:${field}`;
+          const prior = numericOcrSummary.findIndex((entry) => entry.key === key || (entry.captureId === `Capture ${index + 1}` && entry.field === field));
+          const stored = { key, ...item, compact: compactNumericOcrEntry(item) };
+          if (prior >= 0) numericOcrSummary[prior] = stored; else numericOcrSummary.push(stored);
+          try { sessionStorage.setItem(NUMERIC_OCR_KEY, JSON.stringify(numericOcrSummary.map((entry) => entry.compact))); }
+          catch (_) { $("#numericOcrStatus").textContent = "Le stockage temporaire est saturé; les résultats restent visibles dans cette page. Exporte le JSON avant de quitter."; }
+          renderNumericOcrResults(`${record.fileName} terminé · capture ${index + 1}/${batch.length}. Les rectangles sont figés à 18 %.`);
+          await new Promise((resolve) => setTimeout(resolve, 0));
+        }
+      }
+    } finally {
+      analyzing = false;
+      updateLaboratoryControls();
+    }
+  }
+
+  function renderNumericOcrResults(statusText) {
+    const target = $("#numericOcrResults");
+    const tableRows=numericOcrSummary.flatMap(entry=>(entry.diagnostic?.ocrComparison?.strategies||entry.compact?.variants||[]).map(item=>`<tr><td>${escapeHtml(entry.captureId||"Capture")} · ${escapeHtml(LABELS[entry.field]||entry.field)}</td><td>${escapeHtml(item.label||item.strategy)}</td><td>${escapeHtml(item.value||"—")}</td><td>${Number.isFinite(item.digitCount)?item.digitCount:"—"}</td><td>${Number.isFinite(item.confidence)?Math.round(item.confidence)+" %":"—"}</td><td>${Number.isFinite(item.ms)?item.ms+" ms":"—"}</td></tr>`));
+    $("#numericOcrTable").innerHTML=tableRows.length?`<div class="numeric-ocr-table-wrap"><table class="numeric-ocr-table"><thead><tr><th>Champ</th><th>Combinaison</th><th>Valeur</th><th>Chiffres</th><th>Confiance</th><th>Durée</th></tr></thead><tbody>${tableRows.join("")}</tbody></table></div>`:"";
+
+    const rows = numericOcrSummary.map((entry) => {
+      const d = entry.diagnostic || {}, data = entry.compact || compactNumericOcrEntry(entry);
+      const strategies = d.ocrComparison?.strategies || data.variants || [];
+      const alignmentPanel=(item)=>{
+        const a=item.alignment;if(!a)return "";
+        const decisionLabels={"keep-ocr":"Conserver OCR","propose-correction":"Proposition ciblée","abstain":"Abstention"};
+        const association=(a.groups||[]).map(g=>`OCR ${g.ocr.map(c=>`${c.index}:${c.text}`).join("+")||"∅"} ↔ glyphes ${g.glyphs.map(x=>x.index).join("+")||"∅"} · ${g.relation} · ${Math.round(g.confidence*100)} %`).join("; ");
+        const inspections=(item.morphologyChecks||[]).map(g=>`<li>Glyphe ${g.glyphIndex} · ${g.relation} · classe ${g.features.classification} (${Math.round(g.features.confidence*100)} %, marge ${Math.round(g.features.margin*100)} %) · cavités ${g.features.holeCount} · bas ${Math.round(g.features.lowerInkRatio*100)} % · bas droite ${Math.round(g.features.lowerRightInkRatio*100)} % · exclu 9 : ${escapeHtml(g.features.exclusionReasons.join(", ")||"aucun")}</li>`).join("");
+        const width=Number(a.coordinateSpace?.width)||1,height=Number(a.coordinateSpace?.height)||1;
+        const overlayRects=[...(a.ocrCharacters||[]).filter(c=>c.bounds).map(c=>`<rect class="ocr-align-symbol" x="${c.bounds.x}" y="${c.bounds.y}" width="${c.bounds.width}" height="${c.bounds.height}"><title>OCR ${escapeHtml(c.index+": "+c.text)}</title></rect>`),...(a.physicalGlyphs||[]).map(g=>`<rect class="ocr-align-glyph" x="${g.bounds.x}" y="${g.bounds.y}" width="${g.bounds.width}" height="${g.bounds.height}"><title>Glyphe ${g.index}</title></rect>`)].join("");
+        const overlay=item.preview&&overlayRects?`<details class="ocr-alignment-visual"><summary>Visualiser les rectangles OCR et glyphes</summary><p class="muted">Cyan : caractères OCR · vert : glyphes physiques. Les rectangles sont exprimés dans la découpe source.</p><div class="ocr-alignment-overlay" style="aspect-ratio:${width}/${height}"><img src="${escapeAttr(item.preview)}" alt="Découpe numérique avec rectangles d’alignement"><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Rectangles OCR et glyphes superposés">${overlayRects}</svg></div></details>`:"";
+        return `<details class="ocr-alignment-details"><summary>Diagnostic alignement OCR/glyphes · ${escapeHtml(decisionLabels[item.decision]||item.decision||"à examiner")}</summary><p>Initial : <strong>${escapeHtml(item.raw||"—")}</strong> · ${item.digitCount} caractère(s) OCR / ${a.selectedGlyphCount??"—"} glyphe(s) physique(s) · source coordonnées : ${escapeHtml(a.source)} · confiance alignement ${Math.round(a.confidence*100)} % · marge segmentation ${Math.round((a.candidateMargin||0)*100)} %${item.ocrReused?" · lecture PSM 8 partagée":""}.</p><p>Associations : ${escapeHtml(association||"aucune")}</p><p>Anomalies : ${escapeHtml(JSON.stringify(a.anomalies||[]))}</p>${inspections?`<ul>${inspections}</ul>`:"<p>Aucun glyphe n’a nécessité de vérification morphologique ciblée.</p>"}<p>Décision : <strong>${escapeHtml(decisionLabels[item.decision]||item.decision||"—")}</strong> · ${escapeHtml(item.decisionRationale||"")}</p>${item.proposedCorrection?`<p class="lab-warning">Proposition ${escapeHtml(item.proposedCorrection.from)} → ${escapeHtml(item.proposedCorrection.to)} · ${escapeHtml(item.proposedCorrection.rationale)}. La lecture initiale n’est pas remplacée.</p>`:""}<p>Temps : OCR ${item.stageTimings?.ocrMs??"—"} ms · segmentation ${item.stageTimings?.segmentationMs??"—"} ms · alignement ${item.stageTimings?.alignmentMs??"—"} ms · morphologie ${item.stageTimings?.morphologyMs??"—"} ms · total ${item.stageTimings?.totalMs??"—"} ms.</p>${overlay}</details>`;
+      };
+      const family = (item) => `<article class="numeric-ocr-variant"><h4>${escapeHtml(item.label || item.strategy)}</h4>${item.preview ? `<a href="${escapeAttr(item.preview)}" target="_blank" rel="noopener"><img src="${escapeAttr(item.preview)}" alt="Prétraitement ${escapeAttr(item.label || item.strategy)}" loading="lazy"></a>` : ""}<p>Brut : <strong>${escapeHtml(item.raw || "—")}</strong> · valeur à 4 chiffres : ${escapeHtml(item.value || "—")}<br>Chiffres : ${Number.isFinite(item.digitCount) ? item.digitCount : "—"} · confiance : ${Number.isFinite(item.confidence) ? `${Math.round(item.confidence)} %` : "—"} · temps total ${Number.isFinite(item.ms) ? `${item.ms} ms` : "—"}${Number.isFinite(item.ocrMs) ? ` (${item.ocrMs} ms Tesseract)` : ""}<br>PSM ${Number.isFinite(item.psm) ? item.psm : "—"} · ${escapeHtml(item.preprocessing || "—")}${item.warnings?.length ? `<br>Avertissements : ${escapeHtml(item.warnings.join(", "))}` : ""}</p>${item.morphology ? `<p>Segmentation morphologique : ${item.morphology.selectedCount ?? "incertaine"} glyphe(s) retenu(s); lectures OCR ${item.morphology.ocrDigitCount} chiffre(s).</p>${item.morphology.glyphs.map(g=>`<p>Glyphe ${g.index}: boucle(s) ${g.features.holeCount}, bas ${Math.round(g.features.lowerInkRatio*100)} %, barre haute ${Math.round(g.features.topBar*100)} %, barre médiane ${Math.round(g.features.midBar*100)} %; hypothèses ${g.features.hypotheses.map(h=>h.digit+":"+h.score).join(", ")}; ${g.features.classification?"classe morphologique "+g.features.classification:"classe indécise"}.</p>`).join("")}${item.proposedCorrection?`<p class="lab-warning">Correction proposée ${escapeHtml(item.proposedCorrection.from)} → ${escapeHtml(item.proposedCorrection.to)} · ${escapeHtml(item.proposedCorrection.rationale)}</p>`:""}` : ""}${item.glyphs?.length ? `<div class="numeric-glyph-grid">${item.glyphs.map((glyph, i) => `<figure>${glyph.preview ? `<img src="${escapeAttr(glyph.preview)}" alt="Glyphe ${i + 1}" loading="lazy">` : ""}<figcaption>${i + 1}. ${escapeHtml(glyph.raw || "—")} · ${glyph.confidence ?? "—"} %</figcaption></figure>`).join("")}</div>` : ""}${alignmentPanel(item)}</article>`;
+      const consensus = d.ocrComparison?.consensus || data.consensus;
+      return `<article class="numeric-ocr-card"><h3>${escapeHtml(entry.captureId || "Capture")} · ${escapeHtml(LABELS[entry.field] || entry.field)}</h3><p>Image ${Number(entry.dimensions?.width) || "?"} × ${Number(entry.dimensions?.height) || "?"} · rectangle fixe : ${escapeHtml(JSON.stringify(d.rect || data.rect || null))} · combinaison, marge 18 % · rectangle conservé pour toutes les stratégies : ${data.rectFrozen ? "oui" : "diagnostic restauré"}</p><p>Consensus expérimental : <strong>${escapeHtml(consensus?.value || "lecture divergente")}</strong>${consensus?.warnings?.length ? ` · ${escapeHtml(consensus.warnings.join(", "))}` : ""} · temps total ${Number(d.ocrComparison?.totalMs ?? data.totalMs) || 0} ms</p><div class="numeric-ocr-variant-grid">${strategies.map(family).join("")}</div></article>`;
+    }).join("");
+    target.innerHTML = rows;
+    $("#numericOcrStatus").textContent = statusText || `${numericOcrSummary.length} lecture(s) conservée(s) dans cette session.`;
+    $("#clearNumericOcrButton").disabled = !numericOcrSummary.length;
+    $("#copyNumericOcrButton").disabled = !numericOcrSummary.length;
+    $("#exportNumericOcrButton").disabled = !numericOcrSummary.length;
+  }
+
+  function numericOcrPayload() {
+    return { schemaVersion: "1.0.0", scope: "numeric-laboratory-only", engine: "Tesseract.js v5 local", locator: "pixel-content + vertical-recovery-combined", marginPercent: 18,
+      privacy: "No source image pixels, crops, Base64 data, or expected benchmark values are included.", entries: numericOcrSummary.map((entry) => entry.compact || compactNumericOcrEntry(entry)) };
+  }
+  async function copyNumericOcrJson() {
+    const json = JSON.stringify(numericOcrPayload(), null, 2);
+    try { await navigator.clipboard.writeText(json); $("#numericOcrStatus").textContent = "Rapport OCR JSON copié sans images ni valeurs attendues."; }
+    catch (_) { const area = document.createElement("textarea"); area.value = json; area.setAttribute("readonly", ""); area.style.position = "fixed"; area.style.opacity = "0"; document.body.appendChild(area); area.select(); const copied = document.execCommand("copy"); area.remove(); $("#numericOcrStatus").textContent = copied ? "Rapport OCR JSON copié sans images ni valeurs attendues." : "Copie refusée; utilise le téléchargement JSON."; }
+  }
+  function exportNumericOcrJson() { if (numericOcrSummary.length) download(numericOcrPayload(), `war-results-numeric-ocr-${new Date().toISOString().slice(0, 10)}.json`); }
+  function clearNumericOcrResults() { numericOcrSummary.splice(0); sessionStorage.removeItem(NUMERIC_OCR_KEY); $("#numericOcrResults").innerHTML = ""; renderNumericOcrResults("Résultats du comparateur OCR effacés."); }
+
+  function cardHtml(r, index) {
+    const stateText = { queued: "En attente", analyzing: "Analyse en cours", review: "À vérifier", validated: "Validée localement", error: "Erreur" }[r.state];
+    const badgeClass = r.state === "validated" ? "is-ready" : r.state === "error" ? "is-error" : "";
+    const dimensions = r.analysis?.metrics?.dimensions;
+    const preview = r.url ? `<div class="zone-editor"><p class="muted">Zones détectées — touche une zone pour la sélectionner, déplace-la ou ajuste son coin. Les coordonnées restent celles de l’image originale.</p><div class="zone-source-wrap" style="aspect-ratio:${dimensions?.width || 16}/${dimensions?.height || 9}"><img class="result-preview" src="${r.url}" alt="Aperçu de ${escapeAttr(r.fileName)}" loading="lazy"><svg class="zone-overlay" data-zone-overlay data-id="${r.id}" viewBox="0 0 ${dimensions?.width || 1600} ${dimensions?.height || 900}" preserveAspectRatio="none">${Object.entries(r.analysis?.zones || {}).map(([key,z])=>`<g class="zone-mark ${r.selectedZone===key?"is-selected":""}" data-zone-key="${key}"><rect x="${z.rect.x}" y="${z.rect.y}" width="${z.rect.width}" height="${z.rect.height}"/><circle cx="${z.rect.x+z.rect.width}" cy="${z.rect.y+z.rect.height}" r="${Math.max(8,Math.min(z.rect.width,z.rect.height)*.08)}"/></g>`).join("")}</svg></div><label class="zone-picker">Champ à corriger<select data-zone-select="${r.id}">${FIELDS.map(k=>`<option value="${k}" ${r.selectedZone===(k)?"selected":""}>${LABELS[k]}</option>`).join("")}</select></label><button class="secondary-button" data-action="reread-zone" data-id="${r.id}">Relire la zone sélectionnée</button></div>` : `<p class="result-status">Image à sélectionner de nouveau pour afficher l’aperçu.</p>`;
+    const fieldSections = `<section class="zone-fields-group"><h3>Alliance LoSP</h3><div class="zone-fields-grid">${fieldHtml(r, "localAlliance", "text", "Nom de l’alliance", "Nom affiché dans MSF")}${fieldHtml(r, "localScore", "numeric", "Score", "6 chiffres")}${fieldHtml(r, "localTrophies", "numeric", "Trophées", "4 chiffres")}</div></section><section class="zone-fields-group"><h3>Alliance adverse</h3><div class="zone-fields-grid">${fieldHtml(r, "opponentAlliance", "text", "Nom de l’alliance", "Nom original affiché dans MSF")}${fieldHtml(r, "opponentScore", "numeric", "Score", "6 chiffres")}${fieldHtml(r, "opponentTrophies", "numeric", "Trophées", "4 chiffres")}</div></section><section class="zone-fields-group"><h3>Résultat</h3><div class="zone-fields-grid">${fieldHtml(r, "result", "select", "Résultat", "")}</div></section>${fieldHtml(r, "warDate", "date", "Date réelle de la guerre", "Saisie manuelle obligatoire")}`;
+    const diag = r.analysis ? `<details class="result-diagnostics"><summary>Diagnostics OCR et couleurs</summary><p>${escapeHtml(JSON.stringify(r.analysis.metrics, null, 2))}</p><pre>${escapeHtml(r.rawText)}</pre></details>` : "";
+    return `<article class="capture-card result-card ${r.state === "error" ? "is-error" : ""}" data-id="${r.id}" id="result-${r.id}">
+      <div class="result-card-top"><div><h2>Capture ${index + 1} · ${escapeHtml(r.fileName)}</h2><p class="capture-meta">État : <span class="status-chip ${badgeClass}">${stateText}</span></p></div><div class="result-card-actions"><button class="secondary-button" data-action="analyze-one" data-id="${r.id}" ${analyzing || !r.file ? "disabled" : ""}>Relancer l’analyse</button><button class="secondary-button" data-action="remove" data-id="${r.id}" ${r.state === "analyzing" ? "disabled" : ""}>Supprimer</button></div></div>
+      ${preview}<p class="result-status" role="status">${escapeHtml(r.error || (r.state === "analyzing" ? "Traitement local en cours…" : r.state === "queued" ? "Prête pour l’analyse." : r.state === "validated" ? "Vérification manuelle confirmée. Fiche locale uniquement." : "Vérifie les propositions et les incertitudes avant de continuer."))}</p>
+      <div class="result-fields">${fieldSections}</div>
+      <p class="result-status">Clé de rapprochement de l’adversaire : <strong class="match-key-value">${escapeHtml(WarResultsVisionData.toMatchKey(r.values.opponentAlliance) || "—")}</strong> (aucun rapprochement automatique)</p>
+      ${diag}
+      <label class="result-review"><input type="checkbox" data-confirm="${r.id}" ${r.confirmed ? "checked" : ""}> J’ai comparé les huit champs, y compris la date, à mes informations de guerre.</label>
+      <div class="result-card-footer"><button class="primary-button" data-action="validate" data-id="${r.id}" ${r.state === "analyzing" ? "disabled" : ""}>Valider cette fiche localement</button><button class="secondary-button" data-action="export-one" data-id="${r.id}" ${r.state !== "validated" ? "disabled" : ""}>Télécharger cette fiche (.json)</button></div>
+    </article>`;
+  }
+
+  function fieldHtml(r, key, kind, label, help) {
+    if (key === "warDate") return `<label class="result-field" data-field-wrap="warDate"><span>${label} *</span><input data-date="${r.id}" type="date" value="${escapeAttr(r.date)}" aria-label="${label}"><small>${help}</small></label>`;
+    const meta = r.fields[key] || {};
+    const value = r.values[key] ?? "";
+    const state = meta.alternatives?.length ? "conflict" : meta.uncertain && value ? "uncertain" : !value ? "missing" : r.corrected.includes(key) ? "corrected" : "recognized";
+    const statusText = { conflict: "Lectures contradictoires — choisis ou corrige", uncertain: "À vérifier — confiance insuffisante ou indices contradictoires", missing: "Valeur absente — saisie manuelle requise", corrected: "Corrigé manuellement", recognized: `${key === "result" ? "Résultat couleur" : key.endsWith("Alliance") ? "Identité OCR" : "Proposition OCR"}${meta.confidence != null ? ` · confiance ${Math.round(meta.confidence)} %` : ""}` }[state];
+    let control = kind === "select" ? `<select data-field="${key}" data-id="${r.id}" aria-label="${label}"><option value="">À vérifier</option><option value="win" ${value === "win" ? "selected" : ""}>Victoire LoSP</option><option value="loss" ${value === "loss" ? "selected" : ""}>Défaite LoSP</option></select>` : `<input data-field="${key}" data-id="${r.id}" type="text" value="${escapeAttr(value)}" ${kind === "numeric" ? `inputmode="numeric" pattern="[0-9]*" maxlength="${key.includes("Score") ? 6 : 4}" autocomplete="off"` : `autocomplete="off" autocapitalize="off"`} aria-label="${label}">`;
+    const alternatives = meta.alternatives?.length ? `<div class="field-proposals" aria-label="Propositions OCR">${[...new Set(meta.alternatives)].map((v) => `<button type="button" data-action="choose" data-id="${r.id}" data-field="${key}" data-value="${escapeAttr(v)}">Utiliser « ${escapeHtml(v)} »</button>`).join("")}</div>` : "";
+    const richSegments = meta.richName?.schemaVersion === 1 && Array.isArray(meta.richName.segments) ? meta.richName.segments : [];
+    const richPreview = kind === "text" && key.endsWith("Alliance") && value && !r.corrected.includes(key) && !meta.manuallyEdited && !meta.uncertain && !meta.colorUncertain && richSegments.some((segment) => /^#[0-9a-f]{6}$/i.test(String(segment.color || "")))
+      ? `<div class="identity-color-preview" aria-label="Couleurs estimées du nom"><span>Couleurs estimées</span>${richSegments.map((segment) => `<span${/^#[0-9a-f]{6}$/i.test(String(segment.color || "")) ? ` style="color:${segment.color}"` : ""}>${escapeHtml(segment.text || "")}</span>`).join("")}</div>` : "";
+    const rereadProposal = meta.ocrProposal ? `<div class="field-proposals"><small>Nouvelle lecture de la zone : ${escapeHtml(meta.ocrProposal)}${meta.ocrProposalConfidence != null ? ` (${Math.round(meta.ocrProposalConfidence)} %)` : ""}</small><button type="button" data-action="accept-reread" data-id="${r.id}" data-field="${key}">Utiliser cette proposition</button></div>` : "";
+    const zone = r.analysis?.zones?.[key];
+    const evidence = zone ? `<div class="zone-evidence"><div class="zone-crop-comparison"><figure><img src="${zone.sourcePreview || zone.preview}" alt="Découpe originale de ${label}" loading="lazy"><figcaption>Capture originale</figcaption></figure><figure><img src="${zone.preview}" alt="Traitement réellement lu pour ${label}" loading="lazy"><figcaption>Image utilisée par la lecture</figcaption></figure></div><small>Localisation : ${escapeHtml(zone.method)} · ${zone.geometryConfidence || "non évaluée"}<br>Lecture : ${escapeHtml(zone.ocrMethod || "lecture ciblée")} · ${zone.rect.width}×${zone.rect.height} px · disposition ${zone.layout}</small><details><summary>Agrandir les découpes</summary><div class="zone-crop-comparison"><img class="zone-crop-large" src="${zone.sourcePreview || zone.preview}" alt="Découpe originale agrandie ${label}" loading="lazy"><img class="zone-crop-large" src="${zone.preview}" alt="Traitement OCR agrandi ${label}" loading="lazy"></div></details><button type="button" data-action="select-zone" data-id="${r.id}" data-field="${key}">Sélectionner cette zone</button><button type="button" data-action="reread-field" data-id="${r.id}" data-field="${key}">Relancer l’OCR de ce champ</button></div>` : `<small class="zone-not-found">Zone indisponible — vérifie le cadrage avant toute saisie.</small>`;
+    return `<div class="result-field is-${state}" data-field-wrap="${key}"><span>${label}</span>${control}${richPreview}<small class="field-state">${statusText}</small>${help ? `<small>${help}</small>` : ""}${alternatives}${rereadProposal}${evidence}</div>`;
+  }
+
+  function onEdit(event) {
+    const el = event.target;
+    const record = records.find((r) => r.id === el.dataset.id || r.id === el.dataset.date || r.id === el.dataset.confirm || r.id === el.dataset.zoneSelect);
+    if (!record) return;
+    if (el.dataset.field) {
+      const key = el.dataset.field;
+      record.values[key] = el.value;
+      if (!record.corrected.includes(key)) record.corrected.push(key);
+      if (record.state === "validated") record.state = "review";
+      record.confirmed = false;
+      const prior = record.fields[key] || {};
+      record.fields[key] = { ...prior, value: el.value, uncertain: false, manuallyEdited: true, alternatives: [] };
+      const wrap = el.closest(".result-field");
+      wrap.classList.remove("is-missing", "is-uncertain", "is-conflict"); wrap.classList.add("is-corrected");
+      wrap.querySelector(".field-state").textContent = "Corrigé manuellement";
+      if (key.endsWith("Alliance")) wrap.querySelector(".identity-color-preview")?.remove();
+      el.closest(".result-card").querySelector(`[data-confirm="${record.id}"]`).checked = false;
+      if (key === "opponentAlliance") el.closest(".result-card").querySelector(".match-key-value").textContent = WarResultsVisionData.toMatchKey(el.value) || "—";
+    } else if (el.dataset.date) { record.date = el.value; record.confirmed = false; if (record.state === "validated") record.state = "review"; el.closest(".result-card").querySelector(`[data-confirm="${record.id}"]`).checked = false; }
+    else if (el.dataset.confirm) record.confirmed = el.checked;
+    else if (el.dataset.zoneSelect) { record.selectedZone = el.value; render(); }
+    saveDrafts();
+  }
+
+  async function analyzePending(oneId = null) {
+    if (analyzing) return;
+    try {
+      const targetId = typeof oneId === "string" ? oneId : null;
+      const pending = records.filter((r) => r.file && (!targetId ? ["queued", "error"].includes(r.state) : r.id === targetId));
+      if (!pending.length) {
+        status.textContent = targetId
+          ? "Cette capture n’est plus disponible pour une nouvelle analyse."
+          : "Aucune capture en attente. Sélectionne d’abord une ou plusieurs images.";
+        return;
+      }
+      analyzing = true;
+      progress.hidden = false;
+      progress.value = 0;
+      diagnostics = [];
+      status.textContent = `Démarrage de l’analyse (${pending.length} capture${pending.length > 1 ? "s" : ""})…`;
+      render();
+      let done = 0;
+      for (const record of pending) {
+        record.state = "analyzing"; record.error = ""; render();
+        status.textContent = `Analyse ${done + 1}/${pending.length} : préparation de ${record.fileName}…`;
+        try {
+          const before = performance.now();
+          const result = await WarResultsVisionEngine.analyze(record.file, (message) => {
+            if (message.status) status.textContent = `${record.fileName} — ${message.status}`;
+            if (Number.isFinite(message.progress)) progress.value = Math.max(progress.value, Math.round((done + message.progress) / pending.length * 100));
+          }, record.zoneOverrides || {});
+          const previousFields = record.fields || {};
+          record.fields = result.fields;
+          record.values = Object.fromEntries(FIELDS.map((key) => [key, record.corrected.includes(key) ? record.values[key] : (result.fields[key]?.value || "")]));
+          for (const key of record.corrected) if (previousFields[key]?.manuallyEdited) record.fields[key] = previousFields[key];
+          record.confirmed = false;
+          record.analysis = result;
+          record.rawText = result.rawText;
+          record.warnings = result.warnings;
+          record.state = "review";
+          record.error = "";
+          diagnostics.push({ file: record.fileName, ...result.metrics, pageElapsedMs: Math.round(performance.now() - before) });
+        } catch (error) {
+          record.state = "error";
+          record.error = errorMessage(error);
+          diagnostics.push({ file: record.fileName, error: record.error });
+        }
+        done++;
+        progress.value = Math.round(done / pending.length * 100);
+        saveDrafts(); render();
+      }
+      status.textContent = "Analyse terminée. Vérifie et corrige chaque fiche avant validation locale.";
+    } catch (error) {
+      const message = `Erreur avant ou pendant le démarrage de l’analyse : ${errorMessage(error)}`;
+      status.textContent = message;
+      diagnostics.push({ error: message });
+      const failed = records.find((r) => r.state === "analyzing");
+      if (failed) { failed.state = "error"; failed.error = message; }
+      saveDrafts(); render();
+    } finally {
+      if (analyzing) {
+        try { await WarResultsVisionEngine.release(); }
+        catch (error) { status.textContent = `Analyse terminée, mais libération du moteur impossible : ${errorMessage(error)}`; }
+        analyzing = false;
+        progress.hidden = true;
+        render();
+      }
+      updateDiagnostics();
+    }
+  }
+
+  async function compareTrophyLocators() {
+    if (analyzing) return;
+    if (labEngineSelect.value !== "numeric") { locatorCompareStatus.textContent = "Sélectionne le moteur Numérique dans le laboratoire pour utiliser le comparateur A/B."; return; }
+    const selectedTrophies = selectedLabFields().filter((field) => field === "localTrophies" || field === "opponentTrophies");
+    if (!selectedTrophies.length) { locatorCompareStatus.textContent = "Coche au moins un champ de trophées dans le laboratoire numérique."; return; }
+    const marginPercent = [0, 18, 30].includes(Number(trophyMarginSelect?.value)) ? Number(trophyMarginSelect.value) : 18;
+    const selection = trophyRecoverySelect?.value;
+    const variantId = selection === "vertical-recovery-combined" ? "adaptive-vertical-recovery-combined" : selection === "vertical-recovery-icon-aware" ? "adaptive-vertical-recovery-icon-aware" : selection === "vertical-recovery-edge-safe" ? "adaptive-vertical-recovery-edge-safe" : selection === "vertical-recovery" ? "adaptive-vertical-recovery" : "adaptive";
+    const variantLabel = variantId === "adaptive-vertical-recovery-combined" ? "Adaptatif + reprise + corrections combinées" : variantId === "adaptive-vertical-recovery-icon-aware" ? "Adaptatif + reprise + rejet d’icône" : variantId === "adaptive-vertical-recovery-edge-safe" ? "Adaptatif + reprise + marge bord" : variantId === "adaptive-vertical-recovery" ? "Adaptatif + reprise verticale" : "Adaptatif sans reprise";
+    const verticalRecovery = variantId !== "adaptive";
+    const edgeSafePadding = variantId === "adaptive-vertical-recovery-edge-safe" || variantId === "adaptive-vertical-recovery-combined";
+    const iconAware = variantId === "adaptive-vertical-recovery-icon-aware" || variantId === "adaptive-vertical-recovery-combined";
+    const batch = records.filter((record) => record.file && !locatorComparisonSummary.some((item) => selectedTrophies.every((key) => item.fields?.some((field) => field.field === key)) && item.sourceKey === (record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file)) && Number(item.marginPercent ?? 18) === marginPercent && (item.variantId || "adaptive") === variantId));
+    if (!batch.length) {
+      locatorCompareStatus.textContent = records.some((record) => record.file)
+        ? "Toutes les captures chargées disposent déjà d’un résultat conservé. Aucune image n’a été retraitée."
+        : "Charge une capture avant de lancer la comparaison.";
+      return;
+    }
+    analyzing = true;
+    render();
+    $("#clearLocatorComparisonButton").disabled = true;
+    try {
+      for (const [index, record] of batch.entries()) {
+        locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} : ${record.fileName} — chargement OCR local…`;
+        try {
+          const result = await WarResultsVisionEngine.compareTrophyLocators(record.file, (message) => {
+            if (message.status) locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} : ${record.fileName} — ${message.status}`;
+          }, { marginPercent, verticalRecovery, edgeSafePadding, iconAware, fields: selectedTrophies });
+          const sourceKey = record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file);
+          const prior = locatorComparisonSummary.find((item) => item.sourceKey === sourceKey && Number(item.marginPercent ?? 18) === marginPercent && (item.variantId || "adaptive") === variantId);
+          const fieldsByKey = new Map((prior?.fields || []).map((field) => [field.field, field]));
+          for (const field of result.fields || []) fieldsByKey.set(field.field, { ...field, current: { ...field.current, preview: undefined }, adaptive: { ...field.adaptive, preview: undefined } });
+          const summary = { file: record.fileName, sourceKey, marginPercent, variantId, variantLabel, metrics: result.metrics, fields: [...fieldsByKey.values()] };
+          locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords(locatorComparisonSummary, [summary]);
+          saveLocatorComparison();
+          locatorComparisonResults.insertAdjacentHTML("beforeend", locatorComparisonHtml(record.fileName, { ...result, variantLabel }));
+          locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} terminée : ${record.fileName}, marge ${marginPercent} % (${result.metrics.totalMs} ms).`;
+        } catch (error) {
+          const message = errorMessage(error);
+          const failed = { file: record.fileName, sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), marginPercent, variantId, variantLabel, error: message };
+          locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords(locatorComparisonSummary, [failed]);
+          saveLocatorComparison();
+          locatorComparisonResults.insertAdjacentHTML("beforeend", `<article class="locator-comparison-card is-error"><h3>${escapeHtml(record.fileName)} · ${escapeHtml(variantLabel)} · marge ${marginPercent} %</h3><p>Erreur du diagnostic : ${escapeHtml(message)}</p></article>`);
+        }
+        updateLocatorComparisonButtons();
+      }
+      locatorCompareStatus.textContent = `${batch.length} capture(s) traitée(s). Les propositions affichées sont expérimentales et n’ont modifié aucun champ du formulaire.`;
+      updateLocatorComparisonButtons();
+      updateDiagnostics();
+    } finally {
+      try { await WarResultsVisionEngine.release(); }
       catch (error) { locatorCompareStatus.textContent += ` Libération OCR : ${errorMessage(error)}`; }
       analyzing = false;
       $("#clearLocatorComparisonButton").disabled = !locatorComparisonResults.childElementCount;

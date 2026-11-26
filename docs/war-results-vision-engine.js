@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 12884)
-Total output lines: 693
-
 /* Browser-only adapter around the existing WarResultRecognition core. */
 (() => {
   "use strict";
@@ -361,7 +358,42 @@ Total output lines: 693
           const readBandImageData = (bandRect) => {
             const bandCanvas = crop(source, bandRect, 1, false);
             try { return bandCanvas.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, bandCanvas.width, bandCanvas.height); }
-            finally { bandCanvas.width…884 tokens truncated…Psm: 7, whitelist: "0123456789", sourceCropScale: 3, grayscaleContrast: 1.7, adaptiveMarginPercent: marginPercent, verticalRecovery, edgeSafePadding, iconAware } } };
+            finally { bandCanvas.width = bandCanvas.height = 1; }
+          };
+          const primaryBand = TROPHY_LOCATOR.proportionalBand(source.width, source.height, yBand, field.side, locatorOptions);
+          const located = verticalRecovery
+            ? TROPHY_LOCATOR.locateWithVerticalRecovery(readBandImageData, source.width, source.height, yBand, field.side, DIGIT_READER, locatorOptions)
+            : primaryBand
+              ? TROPHY_LOCATOR.locateBand(readBandImageData(primaryBand), primaryBand, source.width, source.height, DIGIT_READER, locatorOptions)
+              : { rect: null, reason: "invalid-search-band", recovery: null };
+          if (located.reason) adaptive = { rect: null, value: "", raw: "", confidence: null, ms: null, reason: located.reason, preview: "", segmentation: located.segmented || null, recovery: located.recovery || null };
+          else {
+            adaptive = await readTrophyVariant(source, located.rect, field.key, "proportionnel+composantes", run, callTimings, located.segmented, located.bandRect, marginPercent);
+            adaptive.recovery = located.recovery || null;
+            adaptive.appliedMarginPercent = located.appliedMarginPercent ?? marginPercent;
+          }
+        }
+        results.push({ field: field.key, label: field.label, current, adaptive: { ...adaptive, initialRect: originalRect, finalRect: adaptive.rect || null,
+          requestedMarginPercent: marginPercent, marginPercent, appliedMarginPercent: adaptive.appliedMarginPercent ?? marginPercent,
+          componentsDetected: adaptive.segmentation?.componentCount ?? adaptive.segmentation?.components?.length ?? adaptive.componentsDetected ?? null,
+          edgeWarning: adaptive.segmentation?.edgeWarning ?? adaptive.segmentation?.warnings?.includes("glyph-touches-crop-edge") ?? adaptive.edgeWarning ?? false,
+          iconRejection: adaptive.segmentation?.iconRejection || adaptive.iconRejection || { requested: iconAware, applied: false, excludedComponentCount: 0, reason: iconAware ? "segmentation-unavailable" : "disabled" },
+          verticalRecovery: adaptive.recoveries?.find((step) => step.method === "proportional-vertical-search") || (adaptive.recovery?.method === "proportional-vertical-search" ? adaptive.recovery : null),
+          edgeSafePadding: adaptive.edgeSafePadding || adaptive.recoveries?.find((step) => step.method === "edge-safe-padding") || null },
+          rectDelta: current.rect && adaptive.rect ? {
+            x: adaptive.rect.x - current.rect.x, y: adaptive.rect.y - current.rect.y,
+            width: adaptive.rect.width - current.rect.width, height: adaptive.rect.height - current.rect.height
+          } : null });
+      }
+      const overviewScale = Math.min(1, 1200 / source.width, 1200 / source.height);
+      const overview = crop(source, { x: 0, y: 0, width: source.width, height: source.height }, overviewScale, false);
+      const sourcePreview = overview?.toDataURL("image/jpeg", .82) || "";
+      if (overview) overview.width = overview.height = 1;
+      return { fields: results, preview: sourcePreview, dimensions: { width: source.width, height: source.height }, metrics: { engine: "Tesseract.js v5 local browser", workerLoadMs,
+        totalMs: Math.round(performance.now() - totalStart), calls: callMetrics,
+        dimensions: { width: source.width, height: source.height }, analyzedCanvas: { width: analysisCanvas.width, height: analysisCanvas.height },
+        layout: localized.zones.layout, anchorsFound: localized.anchorsFound,
+        OCRParams: { fullPsm: 6, sparsePsm: 11, fieldPsm: 7, whitelist: "0123456789", sourceCropScale: 3, grayscaleContrast: 1.7, adaptiveMarginPercent: marginPercent, verticalRecovery, edgeSafePadding, iconAware } } };
     } finally {
       source.close?.();
       if (analysisCanvas) analysisCanvas.width = analysisCanvas.height = 1;
