@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "status": "ok",
   "source": "verified-daily-game-events",
-  "updatedAt": "2026-11-24T21:05:17.520Z",
-  "revision": "038fb242e016600c19f4",
-  "total": 144,
-  "count": 144,
+  "updatedAt": "2026-11-25T21:05:13.139Z",
+  "revision": "0ced96a6715c4b2fad76",
+  "total": 135,
+  "count": 135,
   "pages": 2,
   "events": [
     {
@@ -379,18 +379,9 @@
       "startTime": 1795035600,
       "endTime": 1802811600,
       "name": "INCURSION",
-      "subName": "Unlock 3 Diamond Doctor Doom!",
+      "subName": "Débloquez Fatalis à 3 losanges !",
       "cardArt": "https://assets.marvelstrikeforce.com/key_art/DoomsdayIncursion_ECM_TopCard_6b04d7feb6ff03a25ed5e3881781b71d7d8e.jpg",
       "popupArt": "https://assets.marvelstrikeforce.com/key_art/DoomsdayIncursion_ECM_InboxBanner_6b04d82fb6ff03a25ed5e389d95bb5091726.jpg"
-    },
-    {
-      "id": "6aff5fcd2c6b04c8d8a626f8",
-      "type": "raid",
-      "startTime": 1795640400,
-      "endTime": 1795726500,
-      "name": "Raids d'appréhension",
-      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
-      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
     },
     {
       "id": "6b00b14c2c6b04c8d8a62d24",
@@ -509,146 +500,6 @@
       "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
     },
     {
-      "id": "6b04a5cd2c6b04c8d8a63d31",
-      "type": "milestone",
-      "startTime": 1795467600,
-      "endTime": 1795554000,
-      "name": "Phases quotidiennes exclusives du web",
-      "details": "Gagnez des récompenses en interagissant avec MSF sur le web, en exclusivité sur MarvelStrikeForce.com ! Jouez à la version web de MSF, récupérez vos cadeaux quotidiens et effectuez des achats dans la boutique web ou la boutique du Strike pour progresser.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_Generic_Card_6863aeca0459d9fd89c3f2b8a4e170b2ffd4_6aecb6c7ef88d351ed5dfef244d14ed24c44.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_Generic_Banner_6863ae980459d9fd89c3f2b77fc64851b9e6_6aecb738ef88d351ed5dfef467e049f14186.jpg",
-      "locationHints": [
-        "web_exclusive"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "",
-          "methods": [],
-          "cappedScorings": [
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Récoltez une offre gratuite.",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 2
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Effectuez un achat dans la boutique du web.",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 6
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Effectuez un achat sur la boutique du Strike",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 3
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Dépensez des noyaux d’énergie",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 5
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6b04a5cc2c6b04c8d8a63d2e",
-      "type": "milestone",
-      "startTime": 1795467600,
-      "endTime": 1795554000,
-      "name": "Récomp. quot. du web",
-      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
-      "locationHints": [
-        "portal_featured",
-        "portal_standard"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Dépensez des noyaux d’énergie",
-          "methods": [
-            {
-              "description": "Dépenser 1 noyau d'énergie",
-              "points": 1
-            }
-          ],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "levels_1_55"
-          },
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6b03544c2c6b04c8d8a6374c",
-      "type": "milestone",
-      "startTime": 1795381200,
-      "endTime": 1795467600,
-      "name": "Récomp. quot. du web",
-      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
-      "locationHints": [
-        "portal_featured",
-        "portal_standard"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Dépensez des noyaux d’énergie",
-          "methods": [
-            {
-              "description": "Dépenser 1 noyau d'énergie",
-              "points": 1
-            }
-          ],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "levels_1_55"
-          },
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
       "id": "6b05d0a02c6b04c8d8a642eb",
       "type": "milestone",
       "startTime": 1795545900,
@@ -680,15 +531,6 @@
       }
     },
     {
-      "id": "6afcbccdfb365c004bfbd35a",
-      "type": "raid",
-      "startTime": 1795467600,
-      "endTime": 1795553700,
-      "name": "Raids d'appréhension",
-      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
-      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
-    },
-    {
       "id": "6b05f74c2c6b04c8d8a64535",
       "type": "raid",
       "startTime": 1796072400,
@@ -698,13 +540,58 @@
       "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
     },
     {
-      "id": "6afe0e4cfb365c004bfbd933",
+      "id": "6b0748ccfbfcb2dfafa648c4",
       "type": "raid",
-      "startTime": 1795554000,
-      "endTime": 1795640100,
+      "startTime": 1796158800,
+      "endTime": 1796244900,
       "name": "Raids d'appréhension",
       "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
       "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
+    },
+    {
+      "id": "6aff5fcd2c6b04c8d8a626f8",
+      "type": "raid",
+      "startTime": 1795640400,
+      "endTime": 1795726500,
+      "name": "Raids d'appréhension",
+      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
+      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
+    },
+    {
+      "id": "6b05f74c2c6b04c8d8a64533",
+      "type": "milestone",
+      "startTime": 1795554000,
+      "endTime": 1795640400,
+      "name": "Récomp. quot. du web",
+      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
+      "locationHints": [
+        "portal_featured",
+        "portal_standard"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Dépensez des noyaux d’énergie",
+          "methods": [
+            {
+              "description": "Dépenser 1 noyau d'énergie",
+              "points": 1
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "levels_1_55"
+          },
+          {
+            "id": "default"
+          }
+        ]
+      }
     },
     {
       "id": "6b05f74c2c6b04c8d8a64536",
@@ -775,10 +662,123 @@
       }
     },
     {
-      "id": "6b05f74c2c6b04c8d8a64533",
+      "id": "6b0748ccfbfcb2dfafa648c5",
       "type": "milestone",
+      "startTime": 1795640400,
+      "endTime": 1795726800,
+      "name": "Phases quotidiennes exclusives du web",
+      "details": "Gagnez des récompenses en interagissant avec MSF sur le web, en exclusivité sur MarvelStrikeForce.com ! Jouez à la version web de MSF, récupérez vos cadeaux quotidiens et effectuez des achats dans la boutique web ou la boutique du Strike pour progresser.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_Generic_Card_6863aeca0459d9fd89c3f2b8a4e170b2ffd4_6aecb6c7ef88d351ed5dfef244d14ed24c44.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_Generic_Banner_6863ae980459d9fd89c3f2b77fc64851b9e6_6aecb738ef88d351ed5dfef467e049f14186.jpg",
+      "locationHints": [
+        "web_exclusive"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Récoltez une offre gratuite.",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 2
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Effectuez un achat dans la boutique du web.",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 6
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Effectuez un achat sur la boutique du Strike",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 3
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Dépensez des noyaux d’énergie",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 5
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b0748ccfbfcb2dfafa648c2",
+      "type": "milestone",
+      "startTime": 1795640400,
+      "endTime": 1795726800,
+      "name": "Récomp. quot. du web",
+      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
+      "locationHints": [
+        "portal_featured",
+        "portal_standard"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Dépensez des noyaux d’énergie",
+          "methods": [
+            {
+              "description": "Dépenser 1 noyau d'énergie",
+              "points": 1
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "levels_1_55"
+          },
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6afe0e4cfb365c004bfbd933",
+      "type": "raid",
       "startTime": 1795554000,
-      "endTime": 1795640400,
+      "endTime": 1795640100,
+      "name": "Raids d'appréhension",
+      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
+      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
+    },
+    {
+      "id": "6b04a5cc2c6b04c8d8a63d2e",
+      "type": "milestone",
+      "startTime": 1795467600,
+      "endTime": 1795554000,
       "name": "Récomp. quot. du web",
       "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
       "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
@@ -1570,26 +1570,6 @@
       }
     },
     {
-      "id": "6b0349c02c6b04c8d8a63723",
-      "type": "blitz",
-      "startTime": 1795381200,
-      "endTime": 1795467600,
-      "name": "Explosion d'étoiles rouges",
-      "subName": "Gagnez des orbes d'étoile rouge !",
-      "details": "Affrontez des équipes d'autres joueurs pour gagner des orbes d'étoile rouge en récompenses de phase et de classement !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Generic_Card_RedStar2_6ab1b6bc701df087179b2220a4101030b465.jpg"
-    },
-    {
-      "id": "6b0349c02c6b04c8d8a63724",
-      "type": "blitz",
-      "startTime": 1795381200,
-      "endTime": 1795467600,
-      "name": "Avalanche d’orbes",
-      "subName": "Gagnez des fragments d’orbe !",
-      "details": "Affrontez d’autres joueurs pour gagner des fragments d’orbe et autres récompenses de phase !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Blitz_OrbAssault_Card_6288394120f847539e0b722b01ce967ad7cd.jpg"
-    },
-    {
       "id": "63bf36c18d37c83eaa75a446",
       "type": "episodic",
       "startTime": 1673989200,
@@ -1790,66 +1770,6 @@
         "scoring": {
           "description": "Récupérez de la nourriture pour débloquer les missions du Festin du quartier !",
           "methods": [],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6ab0495009710d728cd99b97",
-      "type": "milestone",
-      "startTime": 1790024400,
-      "endTime": 1795467600,
-      "name": "Faite pour piquer",
-      "subName": "Obtenez la Guêpe (Janet) à 2 losanges !",
-      "details": "Phase Faite pour piquerProfitez pleinement de cet événement en participant aux Battle Pass du chapitre exclusifs pour la Guêpe (Janet) et en achetant le Pass supérieur pour accumuler des points de phase Faite pour piquer.Enchaînez les paliers du Battle Pass, atteignez de nouvelles phases et obtenez la Guêpe (Janet) à 7 étoiles rouges, 3 losanges pour Hawkeye, Oiseau moqueur, Tigra et War Machine, des pièces de palier d’équipement 21 techno, des composants de capacité, des crédits de losange noirs et d’argent, de l’iso orange et, surtout, la Guêpe (Janet) à 2 losanges !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_WaspJanet_PremiumEventCard_6aa7b20ab30bd62d9c81edff8ffee004ff8c.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_WaspJanet_PremiumEventBanner_6aa7b218b30bd62d9c81ee0085b464fcc0a3.jpg",
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Obtenez la Guêpe (Janet) à 2 losanges !",
-          "methods": [
-            {
-              "description": "Obtenir 1 point de phase Faite pour piquer dans les Battle Pass de la Guêpe (Janet) et les offres",
-              "points": 1
-            }
-          ],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6ab0495009710d728cd99b96",
-      "type": "milestone",
-      "startTime": 1790024400,
-      "endTime": 1795467600,
-      "name": "Force fondatrice",
-      "subName": "Obtenez la Guêpe (Janet) à 4 étoiles rouges !",
-      "details": "Phase Force fondatriceProgressez dans cet événement en participant aux Battle Pass du chapitre exclusifs pour la Guêpe (Janet) pour gagner des points de phase Force fondatrice.Continuez à progresser dans le Battle Pass et gagnez de l’iso violet, des crédits de boutique, des éclats pour Hawkeye, Oiseau moqueur, Tigra et War Machine, des orbes d’armurerie 19 et 20, des crédits de losange noirs et d’argent, ainsi que la Guêpe (Janet) à 4 étoiles rouges !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_WaspJanet_FreeEventCard_6aa7b1d2b30bd62d9c81edf75678f1592d26.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_WaspJanet_FreeEventBanner_6aa7b1dfb30bd62d9c81edfd56402c533016.jpg",
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Obtenez la Guêpe (Janet) à 4 étoiles rouges !",
-          "methods": [
-            {
-              "description": "Obtenir 1 point de phase Force fondatrice dans les Battle Pass de la Guêpe (Janet)",
-              "points": 1
-            }
-          ],
           "cappedScorings": []
         },
         "brackets": [
@@ -2680,177 +2600,6 @@
       }
     },
     {
-      "id": "6b04a5cd2c6b04c8d8a63d36",
-      "type": "milestone",
-      "startTime": 1795467600,
-      "endTime": 1795554000,
-      "name": "Briseur de volontés - Plan de bataille du mois 1",
-      "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
-      "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
-      "locationHints": [
-        "lohub_feeder"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "",
-          "methods": [],
-          "cappedScorings": [
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Se connecter",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 2
-            },
-            {
-              "cap": 3,
-              "methods": [
-                {
-                  "description": "Jouer n’importe quel combat",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 3
-            },
-            {
-              "cap": 10,
-              "methods": [
-                {
-                  "description": "Jouer n’importe quel combat",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 4
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6b04a5cd2c6b04c8d8a63d34",
-      "type": "milestone",
-      "startTime": 1795467600,
-      "endTime": 1795554000,
-      "name": "Briseur de volontés - Plan de bataille du mois 1",
-      "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
-      "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
-      "locationHints": [
-        "lohub_feeder"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
-          "methods": [],
-          "cappedScorings": [
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Se connecter",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 2
-            },
-            {
-              "cap": 3,
-              "methods": [
-                {
-                  "description": "Jouer n’importe quel combat",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 3
-            },
-            {
-              "cap": 10,
-              "methods": [
-                {
-                  "description": "Jouer n’importe quel combat",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 4
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6b04a5cd2c6b04c8d8a63d33",
-      "type": "milestone",
-      "startTime": 1795467600,
-      "endTime": 1795554000,
-      "name": "Briseur de volontés - Plan de bataille du mois 1",
-      "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
-      "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
-      "locationHints": [
-        "lohub_feeder"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "",
-          "methods": [],
-          "cappedScorings": [
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Combattre avec Vision",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 2
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Combattre avec Crossbones",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 3
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages de l’Ordre noir",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 4
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
       "id": "6b04a5cd2c6b04c8d8a63d41",
       "type": "milestone",
       "startTime": 1795467600,
@@ -3094,188 +2843,6 @@
       }
     },
     {
-      "id": "6b04a5cd2c6b04c8d8a63d42",
-      "type": "milestone",
-      "startTime": 1795467600,
-      "endTime": 1795554000,
-      "name": "Festin de quartier amical",
-      "subName": "Récupérez de la nourriture pour débloquer les missions du Festin du quartier !",
-      "details": "Récupérez de la nourriture pour débloquer les missions du Festin du quartier !",
-      "locationHints": [
-        "lohub_feeder"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Récupérez de la nourriture pour débloquer les missions du Festin du quartier !",
-          "methods": [],
-          "cappedScorings": [
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages technos",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 2
-            },
-            {
-              "cap": 10,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages technos",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 3
-            },
-            {
-              "cap": 75,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages technos",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 4,
-              "isPremium": true
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages biotechniques",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 5
-            },
-            {
-              "cap": 10,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages biotechniques",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 6
-            },
-            {
-              "cap": 75,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages biotechniques",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 7,
-              "isPremium": true
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages expertises",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 8
-            },
-            {
-              "cap": 10,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages expertises",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 9
-            },
-            {
-              "cap": 75,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages expertises",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 10,
-              "isPremium": true
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages mystiques",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 11
-            },
-            {
-              "cap": 10,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages mystiques",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 12
-            },
-            {
-              "cap": 75,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages mystiques",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 13,
-              "isPremium": true
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages mutants",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 14
-            },
-            {
-              "cap": 10,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages mutants",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 15
-            },
-            {
-              "cap": 75,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages mutants",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 16,
-              "isPremium": true
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
       "id": "6b05d0a02c6b04c8d8a642ec",
       "type": "info",
       "startTime": 1795545900,
@@ -3286,10 +2853,10 @@
       "popupArt": "https://assets.marvelstrikeforce.com/key_art/SuperDealGeneric_Banner_6a3d9014b10737d5512ca57b88f9bc6be117_6ae95d0bbf9d8851a9c5e676c1576ce72264.jpg"
     },
     {
-      "id": "6b05f74d2c6b04c8d8a6453a",
+      "id": "6b0748cdfbfcb2dfafa648c9",
       "type": "milestone",
-      "startTime": 1795554000,
-      "endTime": 1795640400,
+      "startTime": 1795640400,
+      "endTime": 1795726800,
       "name": "Battle Pass du chapitre : Objectifs quotidiens",
       "subName": "Aperçu du Black Friday pour le palier d'équipement 21 !",
       "details": "Aperçu du Black Friday pour le palier d'équipement 21 !",
@@ -3328,120 +2895,6 @@
               "methods": [
                 {
                   "description": "Jouer dans l’arène, en guerre, en arène en temps réel ou dans l’Épreuve",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 4
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6b05f74d2c6b04c8d8a64538",
-      "type": "milestone",
-      "startTime": 1795554000,
-      "endTime": 1795640400,
-      "name": "Briseur de volontés - Plan de bataille du mois 1",
-      "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
-      "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
-      "locationHints": [
-        "lohub_feeder"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
-          "methods": [],
-          "cappedScorings": [
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Se connecter",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 2
-            },
-            {
-              "cap": 3,
-              "methods": [
-                {
-                  "description": "Jouer n’importe quel combat",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 3
-            },
-            {
-              "cap": 10,
-              "methods": [
-                {
-                  "description": "Jouer n’importe quel combat",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 4
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6b05f74c2c6b04c8d8a64537",
-      "type": "milestone",
-      "startTime": 1795554000,
-      "endTime": 1795640400,
-      "name": "Briseur de volontés - Plan de bataille du mois 1",
-      "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
-      "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
-      "locationHints": [
-        "lohub_feeder"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "",
-          "methods": [],
-          "cappedScorings": [
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Combattre avec Ultron",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 2
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Combattre avec Yellowjacket",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 3
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages Mercenaires pour l'argent",
                   "points": 1
                 }
               ],
@@ -3696,6 +3149,473 @@
       }
     },
     {
+      "id": "6b05f74d2c6b04c8d8a64538",
+      "type": "milestone",
+      "startTime": 1795554000,
+      "endTime": 1795640400,
+      "name": "Briseur de volontés - Plan de bataille du mois 1",
+      "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
+      "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
+      "locationHints": [
+        "lohub_feeder"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Se connecter",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 2
+            },
+            {
+              "cap": 3,
+              "methods": [
+                {
+                  "description": "Jouer n’importe quel combat",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 3
+            },
+            {
+              "cap": 10,
+              "methods": [
+                {
+                  "description": "Jouer n’importe quel combat",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 4
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b05f74c2c6b04c8d8a64537",
+      "type": "milestone",
+      "startTime": 1795554000,
+      "endTime": 1795640400,
+      "name": "Briseur de volontés - Plan de bataille du mois 1",
+      "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
+      "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
+      "locationHints": [
+        "lohub_feeder"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec Ultron",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 2
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec Yellowjacket",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 3
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages Mercenaires pour l'argent",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 4
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b0748cdfbfcb2dfafa648ca",
+      "type": "milestone",
+      "startTime": 1795640400,
+      "endTime": 1795726800,
+      "name": "Festin de quartier amical",
+      "subName": "Récupérez de la nourriture pour débloquer les missions du Festin du quartier !",
+      "details": "Récupérez de la nourriture pour débloquer les missions du Festin du quartier !",
+      "locationHints": [
+        "lohub_feeder"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Récupérez de la nourriture pour débloquer les missions du Festin du quartier !",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages technos",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 2
+            },
+            {
+              "cap": 10,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages technos",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 3
+            },
+            {
+              "cap": 75,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages technos",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 4,
+              "isPremium": true
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages biotechniques",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 5
+            },
+            {
+              "cap": 10,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages biotechniques",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 6
+            },
+            {
+              "cap": 75,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages biotechniques",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 7,
+              "isPremium": true
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages expertises",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 8
+            },
+            {
+              "cap": 10,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages expertises",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 9
+            },
+            {
+              "cap": 75,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages expertises",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 10,
+              "isPremium": true
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages mystiques",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 11
+            },
+            {
+              "cap": 10,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages mystiques",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 12
+            },
+            {
+              "cap": 75,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages mystiques",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 13,
+              "isPremium": true
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages mutants",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 14
+            },
+            {
+              "cap": 10,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages mutants",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 15
+            },
+            {
+              "cap": 75,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages mutants",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 16,
+              "isPremium": true
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b0748cdfbfcb2dfafa648c8",
+      "type": "milestone",
+      "startTime": 1795640400,
+      "endTime": 1795726800,
+      "name": "Briseur de volontés - Plan de bataille du mois 1",
+      "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
+      "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
+      "locationHints": [
+        "lohub_feeder"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Se connecter",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 2
+            },
+            {
+              "cap": 3,
+              "methods": [
+                {
+                  "description": "Jouer n’importe quel combat",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 3
+            },
+            {
+              "cap": 10,
+              "methods": [
+                {
+                  "description": "Jouer n’importe quel combat",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 4
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b0748ccfbfcb2dfafa648c7",
+      "type": "milestone",
+      "startTime": 1795640400,
+      "endTime": 1795726800,
+      "name": "Briseur de volontés - Plan de bataille du mois 1",
+      "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
+      "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
+      "locationHints": [
+        "lohub_feeder"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Se connecter",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 2
+            },
+            {
+              "cap": 3,
+              "methods": [
+                {
+                  "description": "Jouer n’importe quel combat",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 3
+            },
+            {
+              "cap": 10,
+              "methods": [
+                {
+                  "description": "Jouer n’importe quel combat",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 4
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b0748ccfbfcb2dfafa648c6",
+      "type": "milestone",
+      "startTime": 1795640400,
+      "endTime": 1795726800,
+      "name": "Briseur de volontés - Plan de bataille du mois 1",
+      "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
+      "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
+      "locationHints": [
+        "lohub_feeder"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec Jocaste",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 2
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec Ulysses Klaue",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 3
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages Nightstalker",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 4
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
       "id": "6abd9efce1ef7637bd7365b4",
       "type": "milestone",
       "startTime": 1790812800,
@@ -3765,71 +3685,6 @@
           ]
         },
         "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6abd9efde1ef7637bd7365b7",
-      "type": "milestone",
-      "startTime": 1790812800,
-      "endTime": 1796082300,
-      "name": "Coup du S.T.R.I.K.E.",
-      "subName": "Jouez à la campagne et combattez pour gagner des récompenses !",
-      "details": "Utilisez de l'énergie de campagne et combattez en choc, en raid, en arène, en guerre et dans l'Épreuve cosmique pour remporter de superbes récompenses dans Coup du S.T.R.I.K.E., une phase spéciale pour les commandants sur le retour !Obtenez des personnages et des ressources pour relever les derniers défis.Ne manquez pas cette occasion, commandant.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_2192DaysOfMSF_Card_683d4ce4b27485cb0c34e065518d29b2637a_6a6bc8a1c570e0031951c353eb7cf9737e0a.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/WBE_BND_Teams_Small_6a6bc869c570e0031951c3503f1a4d36a471.jpg",
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Jouez à la campagne et combattez pour gagner des récompenses !",
-          "methods": [
-            {
-              "description": "Dépenser 1 point d'énergie de campagne",
-              "points": 1
-            },
-            {
-              "description": "Combattre en choc",
-              "points": 15
-            },
-            {
-              "description": "Combattez en raid (niveau 25)",
-              "points": 75
-            },
-            {
-              "description": "Combattez en arène (niveau 30)",
-              "points": 200
-            },
-            {
-              "description": "Combattez en guerre (niveau 45)",
-              "points": 600
-            }
-          ],
-          "cappedScorings": [
-            {
-              "cap": 12000,
-              "methods": [
-                {
-                  "description": "Combattez dans l'Épreuve cosmique (niveau 60)",
-                  "points": 1000
-                }
-              ]
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "42_54"
-          },
-          {
-            "id": "55_74"
-          },
-          {
-            "id": "75up"
-          },
           {
             "id": "default"
           }
@@ -3917,6 +3772,71 @@
       "type": "milestone",
       "startTime": 1793491200,
       "endTime": 1798760700,
+      "name": "Coup du S.T.R.I.K.E.",
+      "subName": "Jouez à la campagne et combattez pour gagner des récompenses !",
+      "details": "Utilisez de l'énergie de campagne et combattez en choc, en raid, en arène, en guerre et dans l'Épreuve cosmique pour remporter de superbes récompenses dans Coup du S.T.R.I.K.E., une phase spéciale pour les commandants sur le retour !Obtenez des personnages et des ressources pour relever les derniers défis.Ne manquez pas cette occasion, commandant.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_2192DaysOfMSF_Card_683d4ce4b27485cb0c34e065518d29b2637a_6a6bc8a1c570e0031951c353eb7cf9737e0a.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/WBE_BND_Teams_Small_6a6bc869c570e0031951c3503f1a4d36a471.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Jouez à la campagne et combattez pour gagner des récompenses !",
+          "methods": [
+            {
+              "description": "Dépenser 1 point d'énergie de campagne",
+              "points": 1
+            },
+            {
+              "description": "Combattre en choc",
+              "points": 15
+            },
+            {
+              "description": "Combattez en raid (niveau 25)",
+              "points": 75
+            },
+            {
+              "description": "Combattez en arène (niveau 30)",
+              "points": 200
+            },
+            {
+              "description": "Combattez en guerre (niveau 45)",
+              "points": 600
+            }
+          ],
+          "cappedScorings": [
+            {
+              "cap": 12000,
+              "methods": [
+                {
+                  "description": "Combattez dans l'Épreuve cosmique (niveau 60)",
+                  "points": 1000
+                }
+              ]
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "42_54"
+          },
+          {
+            "id": "55_74"
+          },
+          {
+            "id": "75up"
+          },
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6abd9efde1ef7637bd7365b7",
+      "type": "milestone",
+      "startTime": 1790812800,
+      "endTime": 1796082300,
       "name": "Coup du S.T.R.I.K.E.",
       "subName": "Jouez à la campagne et combattez pour gagner des récompenses !",
       "details": "Utilisez de l'énergie de campagne et combattez en choc, en raid, en arène, en guerre et dans l'Épreuve cosmique pour remporter de superbes récompenses dans Coup du S.T.R.I.K.E., une phase spéciale pour les commandants sur le retour !Obtenez des personnages et des ressources pour relever les derniers défis.Ne manquez pas cette occasion, commandant.",
@@ -4606,37 +4526,6 @@
       }
     },
     {
-      "id": "6afb6ed0fb365c004bfbcca1",
-      "type": "milestone",
-      "startTime": 1794949200,
-      "endTime": 1795554000,
-      "name": "Rayonnement des Guerriers audacieux",
-      "subName": "Obtenez les Guerriers audacieux à 5 losanges !",
-      "details": "Phase <color=#fff568>Rayonnement des Guerriers audacieux</color>Déchaînez la force de votre <color=#fff568>escouade des Guerriers audacieux</color> et améliorez votre effectif grâce à de puissantes récompenses de losanges !Progressez dans cet événement en <color=#fff568>ouvrant des orbes de losange des Guerriers audacieux</color> et récupérez <color=#fff568>5 losanges pour Daredevil, Jessica Jones, Speedball, Night Thrasher et Éclipse</color> en chemin.Orbe de losange des Guerriers audacieuxContient des losanges pour les Guerriers audacieux.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Radiance_DaringWarriors_EventCard_6af6735340d7df30afa5b892451502e5386b.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Radiance_DaringWarriors_EventBanner_6af6736240d7df30afa5b8932f9be9d5eb52.jpg",
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Obtenez les Guerriers audacieux à 5 losanges !",
-          "methods": [
-            {
-              "description": "Ouvrir 1 orbe de losange des Guerriers audacieux",
-              "points": 100
-            }
-          ],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "default",
-            "firstPremiumMilestone": 1
-          }
-        ]
-      }
-    },
-    {
       "id": "6afb6ed0fb365c004bfbcca2",
       "type": "milestone",
       "startTime": 1794949200,
@@ -4686,6 +4575,37 @@
           {
             "id": "default",
             "firstPremiumMilestone": 5
+          }
+        ]
+      }
+    },
+    {
+      "id": "6afb6ed0fb365c004bfbcca1",
+      "type": "milestone",
+      "startTime": 1794949200,
+      "endTime": 1795554000,
+      "name": "Rayonnement des Guerriers audacieux",
+      "subName": "Obtenez les Guerriers audacieux à 5 losanges !",
+      "details": "Phase <color=#fff568>Rayonnement des Guerriers audacieux</color>Déchaînez la force de votre <color=#fff568>escouade des Guerriers audacieux</color> et améliorez votre effectif grâce à de puissantes récompenses de losanges !Progressez dans cet événement en <color=#fff568>ouvrant des orbes de losange des Guerriers audacieux</color> et récupérez <color=#fff568>5 losanges pour Daredevil, Jessica Jones, Speedball, Night Thrasher et Éclipse</color> en chemin.Orbe de losange des Guerriers audacieuxContient des losanges pour les Guerriers audacieux.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Radiance_DaringWarriors_EventCard_6af6735340d7df30afa5b892451502e5386b.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Radiance_DaringWarriors_EventBanner_6af6736240d7df30afa5b8932f9be9d5eb52.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Obtenez les Guerriers audacieux à 5 losanges !",
+          "methods": [
+            {
+              "description": "Ouvrir 1 orbe de losange des Guerriers audacieux",
+              "points": 100
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default",
+            "firstPremiumMilestone": 1
           }
         ]
       }
@@ -4763,73 +4683,31 @@
       }
     },
     {
-      "id": "6afa1d50fb365c004bfbbf05",
+      "id": "6b0748ccfbfcb2dfafa648c3",
       "type": "milestone",
-      "startTime": 1794862800,
-      "endTime": 1795467600,
-      "name": "Zone de guerre du raid",
-      "subName": "Gagnez des marques d’effroi et plus encore !",
-      "details": "Phase <color=#fff568>Zone de guerre de raid</color>Progressez dans cet événement en obtenant des jetons de guerre, en faisant des dons à votre alliance, en combattant en raid et en guerre, et en gagnant des fragments d’orbe de ravitaillement allié XIII et des cadeaux quotidiens du web. Gagnez des récompenses fantastiques, notamment des <color=#fff568>marques d’effroi, des fragments d’orbe d’armurerie 21 et des fragments d’orbe d’armurerie 20</color>.Orbe de ravitaillement allié XIIIContient des ions P4 niveau 1, de l’or et des modules d’entraînement N4.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Event_Warzone_Card_02_6ae3ea9f86493a380c8df0b602bf20e02623.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Event_Warzone_Banner_02_6ae3eab686493a380c8df0b7f4dafc938555.jpg",
+      "startTime": 1795640400,
+      "endTime": 1795726800,
+      "name": "Sauvez le monde !",
+      "subName": "Dépensez de l’énergie de campagne",
+      "details": "Dépensez de l’énergie de campagne pour obtenir des récompenses de phase.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Event_7DLS_Card_02_68630e9fa33fa5d5d348e5833f385a00da32.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Event_7DLS_Banner_02_68630ec0a33fa5d5d348e584c275c86c25ed.jpg",
       "milestone": {
-        "type": "alliance",
-        "typeName": "Alliance",
+        "type": "solo",
+        "typeName": "Solo",
         "scoring": {
-          "description": "Gagnez des marques d’effroi et plus encore !",
+          "description": "Dépenser de l'ÉNERGIE DE CAMPAGNE.",
           "methods": [
             {
-              "description": "Obtenir 1 fragment d'orbe de ravitaillement allié XIII",
-              "points": 1
-            },
-            {
-              "description": "Terminer les phases supérieures en achetant des points dans une sélection d'offres",
-              "points": 1
+              "description": "Dépensez 1 point d’énergie de campagne",
+              "points": 5
             }
           ],
-          "cappedScorings": [
-            {
-              "cap": 384000,
-              "methods": [
-                {
-                  "description": "Combattre en guerre",
-                  "points": 800
-                }
-              ]
-            },
-            {
-              "cap": 144000,
-              "methods": [
-                {
-                  "description": "Combattre en raid",
-                  "points": 125
-                }
-              ]
-            },
-            {
-              "cap": 63000,
-              "methods": [
-                {
-                  "description": "Obtenez de l’EXP d’alliance en faisant des dons à votre alliance",
-                  "points": 1
-                }
-              ]
-            },
-            {
-              "cap": 340000,
-              "methods": [
-                {
-                  "description": "Obtenir 1 jeton de guerre",
-                  "points": 10
-                }
-              ]
-            }
-          ]
+          "cappedScorings": []
         },
         "brackets": [
           {
-            "id": "default",
-            "firstPremiumMilestone": 16
+            "id": "default"
           }
         ]
       }
@@ -4858,176 +4736,6 @@
           "cappedScorings": []
         },
         "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6b04a5cd2c6b04c8d8a63d2f",
-      "type": "milestone",
-      "startTime": 1795467600,
-      "endTime": 1795554000,
-      "name": "Sauvez le monde !",
-      "subName": "Dépensez de l’énergie de campagne",
-      "details": "Dépensez de l’énergie de campagne pour obtenir des récompenses de phase.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Event_7DLS_Card_02_68630e9fa33fa5d5d348e5833f385a00da32.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Event_7DLS_Banner_02_68630ec0a33fa5d5d348e584c275c86c25ed.jpg",
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Dépenser de l'ÉNERGIE DE CAMPAGNE.",
-          "methods": [
-            {
-              "description": "Dépensez 1 point d’énergie de campagne",
-              "points": 5
-            }
-          ],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6af8cbd0fb365c004bfbbb43",
-      "type": "pickYourPoison",
-      "startTime": 1794862800,
-      "endTime": 1795467600,
-      "name": "PESTILENCE",
-      "subName": "Éclats de Morgan Le Fay",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/4Horsemen_MorganleFay_Card_637d3e1a764462595ad479a679ffb5612dea.jpg",
-      "pickYourPoison": {
-        "typeName": "Fléau",
-        "brackets": [
-          {
-            "id": "victor"
-          },
-          {
-            "id": "6star"
-          },
-          {
-            "id": "5star"
-          },
-          {
-            "id": "4star"
-          },
-          {
-            "id": "3star"
-          },
-          {
-            "id": "2star"
-          },
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6af8cbd2fb365c004bfbbb4c",
-      "type": "pickYourPoison",
-      "startTime": 1794862800,
-      "endTime": 1795467600,
-      "name": "FAMINE",
-      "subName": "Éclats de Malicia",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Scourge_Famine_Card_628fa4a22ab316ad52fb5d2bdb3cb315b68d.jpg",
-      "pickYourPoison": {
-        "typeName": "Fléau",
-        "brackets": [
-          {
-            "id": "victor"
-          },
-          {
-            "id": "6star"
-          },
-          {
-            "id": "5star"
-          },
-          {
-            "id": "4star"
-          },
-          {
-            "id": "3star"
-          },
-          {
-            "id": "2star"
-          },
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6af8cbd1fb365c004bfbbb4b",
-      "type": "pickYourPoison",
-      "startTime": 1794862800,
-      "endTime": 1795467600,
-      "name": "GUERRE",
-      "subName": "Éclats de Hulk rouge",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Scourge_War_Card_6307b4cde67786a6e418ce96c5093b1aae5c.jpg",
-      "pickYourPoison": {
-        "typeName": "Fléau",
-        "brackets": [
-          {
-            "id": "victor"
-          },
-          {
-            "id": "6star"
-          },
-          {
-            "id": "5star"
-          },
-          {
-            "id": "4star"
-          },
-          {
-            "id": "3star"
-          },
-          {
-            "id": "2star"
-          },
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6af8cbd1fb365c004bfbbb46",
-      "type": "pickYourPoison",
-      "startTime": 1794862800,
-      "endTime": 1795467600,
-      "name": "MORT",
-      "subName": "Éclats d'Archangel",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Scourge_Death_Card_63698d66f3a688aa8aeada9e879777de82a5.jpg",
-      "pickYourPoison": {
-        "typeName": "Fléau",
-        "brackets": [
-          {
-            "id": "victor"
-          },
-          {
-            "id": "6star"
-          },
-          {
-            "id": "5star"
-          },
-          {
-            "id": "4star"
-          },
-          {
-            "id": "3star"
-          },
-          {
-            "id": "2star"
-          },
           {
             "id": "default"
           }
@@ -5110,22 +4818,22 @@
       "endTime": 1796587200
     },
     {
-      "id": "6b0222702c6b04c8d8a633ea",
+      "id": "6b0373f02c6b04c8d8a637cf",
       "type": "donation",
-      "startTime": 1795305600,
-      "endTime": 1795392000
+      "startTime": 1795392000,
+      "endTime": 1795478400
+    },
+    {
+      "id": "6b0616f02c6b04c8d8a6461c",
+      "type": "donation",
+      "startTime": 1795564800,
+      "endTime": 1795651200
     },
     {
       "id": "6b04c5702c6b04c8d8a63f24",
       "type": "donation",
       "startTime": 1795478400,
       "endTime": 1795564800
-    },
-    {
-      "id": "6b0373f02c6b04c8d8a637cf",
-      "type": "donation",
-      "startTime": 1795392000,
-      "endTime": 1795478400
     },
     {
       "id": "6580b1fe9746d7f21414ca51",
@@ -5280,7 +4988,7 @@
   ],
   "locale": "fr",
   "localizationStatus": "verified",
-  "localizedFields": 662,
-  "localizedAt": "2026-11-24T21:05:17.520Z",
-  "lastChangedAt": "2026-11-24T21:05:17.520Z"
+  "localizedFields": 631,
+  "localizedAt": "2026-11-25T21:05:13.139Z",
+  "lastChangedAt": "2026-11-25T21:05:13.139Z"
 }

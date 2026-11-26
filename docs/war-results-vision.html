@@ -7,7 +7,8 @@
   <meta name="robots" content="noindex,nofollow">
   <title>MSF War Results Vision</title>
   <link rel="stylesheet" href="./war-counter-lab.css?v=r7-entry-5">
-  <link rel="stylesheet" href="./war-results-vision.css?v=6.4-glyph-alignment">
+  <link rel="stylesheet" href="./war-results-vision.css?v=6.5-score-localization">
+  <link rel="stylesheet" href="./war-results-numeric-library.css?v=1.0.0-glyph-library">
 </head>
 <body>
   <main class="app-shell">
@@ -49,10 +50,47 @@
         <select id="labTrophyMarginSelect" class="trophy-margin-select"><option value="0">0 %</option><option value="18" selected>18 %</option><option value="30">30 %</option></select>
         <p class="muted">Le comparateur A/B conserve ses cinq variantes, ses mesures, sa sauvegarde et ses exports dans le panneau de diagnostic plus bas.</p>
       </div>
+      <section id="scoreLocatorLab" class="score-locator-lab" aria-labelledby="scoreLocatorTitle">
+        <h3 id="scoreLocatorTitle">Comparateur des scores · sans OCR</h3>
+        <p class="muted">Compare la zone proportionnelle actuelle avec une recherche expérimentale par pixels jaunes. La qualité de localisation est évaluée visuellement; aucune valeur ni longueur de score n’est déduite par OCR.</p>
+        <details><summary>Paramètres fixes de la recherche expérimentale</summary><ul><li>Recherche initiale : zone proportionnelle étendue de 7,5 % de la largeur et 5,5 % de la hauteur de la capture; limitée au demi-écran du côté sélectionné.</li><li>Masque jaune anticrénelé : luminance ≥ 76, chroma min(rouge, vert) − bleu ≥ max(16, 26 % de min(rouge, vert)); pixel rejeté si rouge &lt; 78 % du vert, vert &lt; 48 % du rouge ou écart max(R,V) − B &lt; 16.</li><li>Composantes : aire ≥ 3 pixels; hauteur comprise entre 8 % et 95 % de la recherche verticale; largeur d’un groupe entre 0,24 hauteur de glyphe au minimum et 1,85 hauteur par composante au maximum.</li><li>Groupe : écart entre composantes ≤ 1,65 hauteur; dispersion verticale des lignes de base ≤ 0,48 hauteur; confiance géométrique minimale 0,52; groupes à moins de 0,045 de rang signalés ambigus.</li><li>Découpe : marge de 12 % de la hauteur du glyphe, minimum 2 pixels. En cas de bord touché ou d’absence de groupe, nouvelle recherche sur la capture originale, étendue de 12 % en X et 10 % en Y; aucune augmentation systématique après une détection propre.</li></ul></details>
+        <button id="compareScoreLocatorsButton" class="secondary-button" type="button" disabled>Comparer les scores sélectionnés</button>
+        <button id="copyScoreLocatorJsonButton" class="secondary-button" type="button" disabled>Copier les diagnostics JSON</button>
+        <button id="exportScoreLocatorJsonButton" class="secondary-button" type="button" disabled>Télécharger les diagnostics JSON</button>
+        <button id="clearScoreLocatorResultsButton" class="secondary-button" type="button" disabled>Effacer les diagnostics</button>
+        <p id="scoreLocatorStatus" class="analysis-status" role="status" aria-live="polite"></p>
+        <div id="scoreLocatorResults" class="score-locator-results"></div>
+      </section>
       <button id="runRecognitionLabButton" class="primary-button" type="button" disabled>Lancer le moteur sélectionné</button>
       <progress id="labProgress" max="100" value="0" hidden></progress>
       <p id="labStatus" class="analysis-status" role="status" aria-live="polite"></p>
       <div id="labResults" class="lab-results"></div>
+      <details id="numericGlyphLibrary" class="numeric-library-section">
+        <summary>Bibliothèque numérique MSF</summary>
+        <p class="muted">Extrais, identifie et valide manuellement les chiffres des scores et des trophées. Les captures et références restent sur cet appareil; aucune écriture GitHub ni moteur Template Matching n’est activé.</p>
+        <div class="numeric-library-controls">
+          <label for="numericLibraryCapture">Capture importée</label><select id="numericLibraryCapture"></select>
+          <label for="numericLibraryField">Champ numérique</label><select id="numericLibraryField"><option value="localScore">Score LoSP</option><option value="opponentScore">Score adverse</option><option value="localTrophies">Trophées LoSP</option><option value="opponentTrophies">Trophées adverses</option></select>
+          <label for="numericLibraryScoreLocator">Localisateur des scores</label><select id="numericLibraryScoreLocator"><option value="validated">Localisation actuelle (référence)</option><option value="experimental">Expérimental · pixels jaunes (à valider)</option></select>
+          <button id="numericLibraryPrepare" class="secondary-button" type="button">Localiser, lire et extraire les glyphes</button>
+        </div>
+        <p id="numericLibraryProgress" class="muted" aria-live="polite">Aucune capture importée.</p>
+        <canvas id="numericLibraryCrop" class="numeric-library-crop" width="1" height="1" aria-label="Découpe originale de la valeur"></canvas>
+        <p id="numericLibraryOcr" class="muted">La lecture Tesseract est une proposition uniquement.</p>
+        <label for="numericLibraryValue">Valeur réelle confirmée manuellement</label>
+        <input id="numericLibraryValue" class="numeric-library-value" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="Saisir les chiffres réels" disabled>
+        <p id="numericLibraryLengthCheck" class="analysis-status" role="status" aria-live="polite">Prépare un champ pour afficher ses glyphes.</p>
+        <div id="numericLibraryGlyphs" class="numeric-library-glyphs"></div>
+        <label class="numeric-library-reviewed"><input id="numericLibraryReviewed" type="checkbox"> J’ai comparé la valeur réelle à la capture et vérifié visuellement chaque glyphe inclus.</label>
+        <button id="numericLibraryValidate" class="primary-button" type="button">Valider les glyphes inclus</button>
+        <div class="numeric-library-management"><h3>Références validées sur cet appareil</h3>
+          <p id="numericLibrarySummary" class="muted">Chargement de la bibliothèque locale…</p><p id="numericLibraryCoverage" class="muted"></p><strong id="numericLibraryTotal"></strong>
+          <div id="numericLibraryDigits" class="numeric-library-digits"></div>
+          <div class="numeric-library-actions"><button id="numericLibraryExport" class="secondary-button" type="button">Télécharger la bibliothèque JSON</button><button id="numericLibraryCopy" class="secondary-button" type="button">Copier le JSON complet</button><label class="secondary-button numeric-library-import" for="numericLibraryImport">Importer / fusionner JSON</label><input id="numericLibraryImport" type="file" accept="application/json,.json" multiple><button id="numericLibraryDeleteOne" class="secondary-button" type="button">Supprimer une référence par ID</button><button id="numericLibraryReset" class="secondary-button" type="button">Réinitialiser la bibliothèque locale</button></div>
+          <p class="muted">Le champ captureId est commun aux scores et trophées d’une image pour permettre plus tard une validation leave-one-capture-out. L’identité typographique scores/trophées reste à vérifier.</p>
+        </div>
+        <p id="numericLibraryStatus" class="analysis-status" role="status" aria-live="polite"></p>
+      </details>
       <div class="lab-export-actions"><button id="copyLabJsonButton" class="secondary-button" type="button" disabled>Copier les diagnostics</button><button id="exportLabJsonButton" class="secondary-button" type="button" disabled>Télécharger les diagnostics (.json)</button></div>
       <p class="muted">Pour relancer un champ après interruption, réimporte la capture : les résultats par moteur, champ, variante et marge sont restaurés depuis le stockage temporaire.</p>
       <a class="lab-diagnostic-link" href="#diagnosticPanel">Ouvrir le comparateur A/B des trophées</a>
@@ -106,14 +144,16 @@
   <script src="./war-result-recognition-core.js?v=6-three-engines" defer></script>
   <script src="./war-results-digit-reader.js?v=0.3.0-icon-aware" defer></script>
   <script src="./war-results-numeric-locator-experiment.js?v=0.1.0-experimental" defer></script>
+  <script src="./war-results-score-locator-experiment.js?v=0.1.0-score-localization" defer></script>
   <script src="./war-results-trophy-locator-experiment.js?v=0.6.0-combined" defer></script>
   <script src="./war-results-ocr-experiment.js?v=0.5.0-glyph-alignment" defer></script>
   <script src="./war-results-locator-comparison-store.js?v=1.3.0" defer></script>
   <script src="./war-results-identity-engine.js?v=1.0.0" defer></script>
   <script src="./war-results-result-engine.js?v=1.0.0" defer></script>
-  <script src="./war-results-vision-engine.js?v=6.2-numeric-geometry-lab" defer></script>
+  <script src="./war-results-vision-engine.js?v=6.3-score-localization-lab" defer></script>
   <script src="./war-results-vision-data.js?v=2-rich-name" defer></script>
-  <script src="./war-results-vision.js?v=5.0-glyph-alignment" defer></script>
+  <script src="./war-results-numeric-library.js?v=1.0.1-score-locator-option" defer></script>
+  <script src="./war-results-vision.js?v=5.2-score-localization" defer></script>
 </body>
 </html>
 

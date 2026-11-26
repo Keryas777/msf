@@ -163,6 +163,31 @@
 .lab-crop-grid img{display:block;width:100%;height:115px;object-fit:contain}
 .lab-crop-grid figcaption{padding-top:4px;color:#b9c8e2;font-size:.75rem}
 .lab-crop-grid figure:active img{height:min(48vh,360px)}
+.score-locator-lab{margin:14px 0;padding:12px;border:1px solid #3a5271;border-radius:12px;background:#0b1525}
+.score-locator-lab h3{margin:0 0 6px;color:#e0edff}
+.score-locator-lab>button{min-height:42px;margin:4px 4px 4px 0}
+.score-locator-results{display:grid;gap:10px;margin-top:12px}
+.score-locator-card{min-width:0;padding:10px;border:1px solid #34466a;border-radius:10px;background:#08111e;overflow-wrap:anywhere}
+.score-locator-card h4{margin:0 0 6px;color:#dceaff}
+.score-locator-card>p{margin:5px 0;color:#b8c8df;font-size:.82rem}
+.score-locator-card pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#cfdbf1;font-size:.76rem}
+.score-locator-source{position:relative;width:100%;overflow:hidden;background:#050914}
+.score-locator-source img,.score-locator-source svg{position:absolute;inset:0;width:100%;height:100%}
+.score-locator-source svg{pointer-events:none}
+.score-locator-source rect{fill:none;vector-effect:non-scaling-stroke;stroke-width:2}
+.score-locator-baseline{stroke:#ffdf59}
+.score-locator-search{stroke:#49d8e8;stroke-dasharray:6 4}
+.score-locator-final{stroke:#70ed89;stroke-width:3!important}
+.score-locator-glyph{stroke:#ff666f;stroke-width:2!important}
+.score-locator-candidate{stroke:#cb84ff;stroke-dasharray:4 4}
+.score-locator-crops{display:grid;grid-template-columns:1fr;gap:8px;margin:8px 0}
+.score-locator-crops figure{min-width:0;margin:0;padding:7px;border:1px solid #293957;border-radius:8px;background:#050914}
+.score-locator-crops img{display:block;width:100%;height:125px;object-fit:contain;background:#030711;image-rendering:auto}
+.score-locator-crops figcaption{padding-top:5px;color:#c3d2e9;font-size:.76rem;overflow-wrap:anywhere}
+.score-locator-missing{display:grid;place-items:center;height:125px;color:#ffabb0;font-size:.85rem}
+.score-locator-quality{display:grid;gap:5px;margin:8px 0;color:#d1def2;font-size:.84rem}
+.score-locator-quality select{min-height:42px;border:1px solid #536987;border-radius:8px;padding:7px;background:#111c2d;color:#fff;font:inherit}
+@media(min-width:620px){.score-locator-crops{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .lab-warning{padding:8px;border-left:3px solid #e5aa43;background:#332712;color:#ffe1a0!important}
 .lab-success{padding:8px;border-left:3px solid #49be87;background:#10291f;color:#bdebd2!important}
 .lab-diagnostic-link{display:inline-flex;align-items:center;margin-top:3px}

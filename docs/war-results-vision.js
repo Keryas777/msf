@@ -13,6 +13,10 @@
   const LABORATORY_KEY = "msf-war-results-laboratory-v1";
   const TROPHY_VARIANTS = ["adaptive", "vertical-recovery", "vertical-recovery-edge-safe", "vertical-recovery-icon-aware", "vertical-recovery-combined"];
   const numericLocatorSelect = $("#labNumericLocatorSelect");
+  const scoreLocatorButton = $("#compareScoreLocatorsButton"), scoreLocatorResults = $("#scoreLocatorResults");
+  const SCORE_LOCATOR_KEY = "msf-war-results-score-locator-lab-v1";
+  const scoreLocatorSummary = [];
+  const liveScoreLocator = new Map();
   const LAB_FIELDS = { identity: ["localAlliance", "opponentAlliance"], numeric: ["localScore", "opponentScore", "localTrophies", "opponentTrophies"], result: ["result"] };
   const LAB_ENGINE_LABELS = { identity: "Identité", numeric: "Numérique", result: "Résultat" };
   const copyLocatorComparisonButton = $("#copyLocatorComparisonButton");
@@ -37,6 +41,7 @@
   restoreLocatorComparison();
   restoreLaboratory();
   restoreNumericOcrResults();
+  restoreScoreLocatorResults();
   renderLaboratoryFields();
   input.addEventListener("change", () => addFiles([...input.files || []]));
   analyzeButton.addEventListener("click", () => {
@@ -56,6 +61,12 @@
   runLabButton.addEventListener("click", () => runRecognitionLaboratory().catch(showGlobalError));
   $("#copyLabJsonButton").addEventListener("click", () => copyLaboratoryJson().catch(showGlobalError));
   $("#exportLabJsonButton").addEventListener("click", exportLaboratoryJson);
+  scoreLocatorButton.addEventListener("click", () => compareScoreLocators().catch(showGlobalError));
+  $("#copyScoreLocatorJsonButton").addEventListener("click", () => copyScoreLocatorJson().catch(showGlobalError));
+  $("#exportScoreLocatorJsonButton").addEventListener("click", exportScoreLocatorJson);
+  $("#clearScoreLocatorResultsButton").addEventListener("click", clearScoreLocatorResults);
+  scoreLocatorResults.addEventListener("change", onScoreQualityChange);
+  window.addEventListener("war-results-capture-batch", (event) => restoreScoreLocatorPreviews(event.detail || []));
   $("#compareNumericOcrButton").addEventListener("click", () => compareNumericOcr().catch(showGlobalError));
   initializeOcrCombinations();
   $("#ocrCombinationOptions").addEventListener("change", updateOcrCombinationCount);
@@ -98,6 +109,7 @@
   list.addEventListener("pointercancel", onZonePointerUp);
   render();
   renderLaboratoryResults();
+  renderScoreLocatorResults();
 
   function makeFieldState() { return Object.fromEntries(FIELDS.map((key) => [key, { value: "", uncertain: true, source: "not-read", confidence: null, alternatives: [] }])); }
   function addFiles(files) {
@@ -112,6 +124,11 @@
     if (!accepted.length && files.length) status.textContent = "Format ignoré. Sélectionne une image PNG ou JPEG.";
     else status.textContent = `${accepted.length - duplicates} capture(s) ajoutée(s). Les fichiers restent dans le navigateur.${duplicates ? ` ${duplicates} doublon(s) ignoré(s).` : ""}${ignored ? ` ${ignored} format(s) ignoré(s).` : ""}`;
     render(); saveDrafts();
+    publishCaptureBatch();
+  }
+  function publishCaptureBatch() {
+    if (typeof window.dispatchEvent !== "function" || typeof CustomEvent !== "function") return;
+    window.dispatchEvent(new CustomEvent("war-results-capture-batch", { detail: records.filter((record) => record.file).map((record) => ({ file: record.file, name: record.fileName })) }));
   }
 
   function render() {
@@ -134,6 +151,7 @@
     const quick = engine === "numeric" ? `<div class="lab-quick-select"><button type="button" data-lab-select="all">4 champs</button><button type="button" data-lab-select="scores">2 scores</button><button type="button" data-lab-select="trophies">2 trophées</button></div>` : "";
     labFields.innerHTML = `${quick}<div class="lab-checkbox-grid">${fields.map((field) => `<label><input type="checkbox" data-lab-field="${field}" ${engine === "numeric" || engine === "identity" || engine === "result" ? "checked" : ""}><span>${escapeHtml(LABELS[field])}</span></label>`).join("")}</div>`;
     $("#labNumericOptions").hidden = engine !== "numeric";
+    $("#scoreLocatorLab").hidden = engine !== "numeric";
     runLabButton.textContent = `Lancer le moteur ${LAB_ENGINE_LABELS[engine]}`;
     updateLaboratoryControls();
   }
@@ -163,10 +181,134 @@
     runLabButton.disabled = analyzing || !fields.length || !records.some((record) => record.file);
     $("#copyLabJsonButton").disabled = !laboratorySummary.length;
     $("#exportLabJsonButton").disabled = !laboratorySummary.length;
+    scoreLocatorButton.disabled = analyzing || labEngineSelect.value !== "numeric" || !fields.some((field) => field === "localScore" || field === "opponentScore") || !records.some((record) => record.file);
+    $("#copyScoreLocatorJsonButton").disabled = !scoreLocatorSummary.length;
+    $("#exportScoreLocatorJsonButton").disabled = !scoreLocatorSummary.length;
+    $("#clearScoreLocatorResultsButton").disabled = !scoreLocatorSummary.length;
     $("#compareNumericOcrButton").disabled = analyzing || !records.some((record) => record.file);
     $("#clearNumericOcrButton").disabled = !numericOcrSummary.length;
     $("#copyNumericOcrButton").disabled = !numericOcrSummary.length;
     $("#exportNumericOcrButton").disabled = !numericOcrSummary.length;
+  }
+
+  async function compareScoreLocators() {
+    if (analyzing) return;
+    const fields = selectedLabFields().filter((field) => field === "localScore" || field === "opponentScore");
+    const pending = records.filter((record) => record.file);
+    if (!fields.length || !pending.length) { $("#scoreLocatorStatus").textContent = "Sélectionne Score LoSP, Score adverse ou les deux et charge une capture."; return; }
+    analyzing = true; scoreLocatorButton.disabled = true; labEngineSelect.disabled = true;
+    $("#scoreLocatorStatus").textContent = "Comparaison géométrique en cours. Aucun OCR n’est exécuté.";
+    for (let i = 0; i < pending.length; i++) {
+      const record = pending[i];
+      try {
+        const result = await WarResultsVisionEngine.compareScoreLocators(record.file, fields, (message) => {
+          if (message.status) $("#scoreLocatorStatus").textContent = `${record.fileName} — ${message.status}`;
+        });
+        for (const field of fields) {
+          const diagnostic = result.fields[field], sourceKey = record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file);
+          const id = `${sourceKey}:${field}`, previous = scoreLocatorSummary.find((entry) => entry.id === id);
+          const entry = { id, captureId: sourceKey, file: record.fileName, field, dimensions: result.dimensions,
+            layout: result.layout, layoutMethod: diagnostic.layoutMethod, anchorsFound: diagnostic.anchorsFound,
+            baseline: { method: "proportional-current", rect: diagnostic.proportionalRect },
+            experimental: { method: diagnostic.method, initialRegion: diagnostic.initialRegion, searchRegion: diagnostic.searchRegion,
+              finalRect: diagnostic.finalRect, cropDimensions: diagnostic.cropDimensions, componentCount: diagnostic.componentCount,
+              glyphCount: diagnostic.glyphCount, glyphs: diagnostic.glyphs, selected: diagnostic.selected,
+              candidates: diagnostic.candidates, parameters: diagnostic.parameters, extensions: diagnostic.extensions,
+              diagnostics: diagnostic.diagnostics, warnings: diagnostic.warnings, localized: diagnostic.localized,
+              reason: diagnostic.reason, elapsedMs: diagnostic.elapsedMs },
+            quality: previous?.quality || "pending", comparedAt: new Date().toISOString() };
+          const position = scoreLocatorSummary.findIndex((item) => item.id === id);
+          if (position >= 0) scoreLocatorSummary.splice(position, 1, entry); else scoreLocatorSummary.push(entry);
+          liveScoreLocator.set(id, { sourceUrl: record.url, proportionalPreview: diagnostic.proportionalPreview,
+            experimentalPreview: diagnostic.experimentalPreview, dimensions: result.dimensions });
+          persistScoreLocatorResults(); renderScoreLocatorResults();
+        }
+      } catch (error) {
+        const sourceKey = record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file);
+        for (const field of fields) {
+          const id = `${sourceKey}:${field}`, previous = scoreLocatorSummary.find((entry) => entry.id === id);
+          const entry = { id, captureId: sourceKey, file: record.fileName, field, dimensions: null,
+            baseline: { method: "proportional-current", rect: null }, experimental: { method: "score-localization-experiment",
+              localized: false, reason: errorMessage(error), warnings: ["execution-error"], elapsedMs: null }, quality: previous?.quality || "pending", comparedAt: new Date().toISOString() };
+          const position = scoreLocatorSummary.findIndex((item) => item.id === id);
+          if (position >= 0) scoreLocatorSummary.splice(position, 1, entry); else scoreLocatorSummary.push(entry);
+          persistScoreLocatorResults(); renderScoreLocatorResults();
+        }
+      }
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+    $("#scoreLocatorStatus").textContent = `${fields.length * pending.length} comparaison(s) géométrique(s) enregistrée(s). Vérifie les images et renseigne la qualité de chaque découpe; aucune lecture OCR n’a été exécutée.`;
+    analyzing = false; labEngineSelect.disabled = false; render(); updateLaboratoryControls();
+  }
+
+  function scoreLocatorPayload() {
+    return { schemaVersion: "1.0.0", scope: "score-localization-only", recognition: "none",
+      privacy: "No source pixels, image crops, or OCR values are included.", entries: scoreLocatorSummary.map(({ id, ...entry }) => entry) };
+  }
+  function persistScoreLocatorResults() {
+    try { sessionStorage.setItem(SCORE_LOCATOR_KEY, JSON.stringify(scoreLocatorPayload())); }
+    catch (_) { $("#scoreLocatorStatus").textContent = "Stockage temporaire indisponible; copie ou télécharge les diagnostics avant de quitter."; }
+  }
+  function restoreScoreLocatorResults() {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(SCORE_LOCATOR_KEY) || "null");
+      if (saved?.scope === "score-localization-only" && Array.isArray(saved.entries)) {
+        scoreLocatorSummary.push(...saved.entries.map((entry) => ({ ...entry, id: `${entry.captureId}:${entry.field}` })));
+        $("#scoreLocatorStatus").textContent = `${scoreLocatorSummary.length} diagnostic(s) restauré(s). Réimporte les captures pour retrouver les aperçus.`;
+      }
+    } catch (_) { scoreLocatorSummary.splice(0); }
+  }
+  async function restoreScoreLocatorPreviews(files) {
+    for (const item of files) {
+      const file = item?.file, sourceKey = file && WarResultsLocatorComparisonStore.fileKey(file);
+      const entries = scoreLocatorSummary.filter((entry) => entry.captureId === sourceKey);
+      if (!file || !entries.length) continue;
+      let bitmap;
+      try {
+        bitmap = await createImageBitmap(file);
+        const cropPreview = (rect) => {
+          if (!rect) return "";
+          const canvas = document.createElement("canvas"); canvas.width = Math.max(1, Math.round(rect.width)); canvas.height = Math.max(1, Math.round(rect.height));
+          canvas.getContext("2d").drawImage(bitmap, rect.x, rect.y, rect.width, rect.height, 0, 0, canvas.width, canvas.height);
+          const url = canvas.toDataURL("image/jpeg", .9); canvas.width = canvas.height = 1; return url;
+        };
+        const record = records.find((entry) => entry.fileKey === sourceKey);
+        for (const entry of entries) liveScoreLocator.set(entry.id, { sourceUrl: record?.url || URL.createObjectURL(file),
+          proportionalPreview: cropPreview(entry.baseline?.rect), experimentalPreview: cropPreview(entry.experimental?.finalRect),
+          dimensions: entry.dimensions || { width: bitmap.width, height: bitmap.height } });
+      } catch (_) { /* The stored JSON diagnostics remain usable if preview restoration fails. */ }
+      finally { bitmap?.close?.(); }
+    }
+    renderScoreLocatorResults();
+  }
+  function renderScoreLocatorResults() {
+    scoreLocatorResults.innerHTML = scoreLocatorSummary.map((entry) => {
+      const live = liveScoreLocator.get(entry.id), exp = entry.experimental || {}, baseline = entry.baseline || {};
+      const box = (r, cls) => r ? `<rect class="score-locator-${cls}" x="${Number(r.x)}" y="${Number(r.y)}" width="${Number(r.width)}" height="${Number(r.height)}"/>` : "";
+      const image = live?.sourceUrl && entry.dimensions ? `<details><summary>Voir les deux localisations sur la capture</summary><p class="muted">Jaune : zone proportionnelle actuelle · cyan : recherche expérimentale · vert : découpe finale · rouge : limites des composantes retenues · violet : groupe candidat concurrent.</p><div class="score-locator-source" style="aspect-ratio:${entry.dimensions.width}/${entry.dimensions.height}"><img src="${escapeAttr(live.sourceUrl)}" alt="Capture originale ${escapeAttr(entry.file)}"><svg viewBox="0 0 ${entry.dimensions.width} ${entry.dimensions.height}" preserveAspectRatio="none">${box(baseline.rect,"baseline")}${box(exp.searchRegion,"search")}${box(exp.finalRect,"final")}${(exp.glyphs || []).map((g) => box(g,"glyph")).join("")}${(exp.candidates || []).slice(1,5).map((candidate) => box(candidate.rect,"candidate")).join("")}</svg></div></details>` : `<p class="muted">Réimporte cette capture pour restaurer les aperçus visuels.</p>`;
+      const crops = live ? `<div class="score-locator-crops"><figure><img src="${escapeAttr(live.proportionalPreview || "")}" alt="Découpe proportionnelle actuelle"><figcaption>Actuelle · ${escapeHtml(JSON.stringify(baseline.rect || null))}</figcaption></figure><figure>${live.experimentalPreview ? `<img src="${escapeAttr(live.experimentalPreview)}" alt="Découpe expérimentale du score">` : `<div class="score-locator-missing">Aucune découpe fiable</div>`}<figcaption>Expérimentale · ${escapeHtml(JSON.stringify(exp.cropDimensions || null))}</figcaption></figure></div>` : "";
+      const quality = `<label class="score-locator-quality">Qualité visuelle de la découpe expérimentale<select data-score-quality="${escapeAttr(entry.id)}"><option value="pending" ${entry.quality === "pending" ? "selected" : ""}>À vérifier</option><option value="good" ${entry.quality === "good" ? "selected" : ""}>Complète, sans contamination notable</option><option value="bad" ${entry.quality === "bad" ? "selected" : ""}>Chiffre coupé ou contamination</option><option value="uncertain" ${entry.quality === "uncertain" ? "selected" : ""}>Incertaine</option></select></label>`;
+      const details = { baseline: baseline, experimental: exp, quality: entry.quality };
+      return `<article class="score-locator-card"><h4>${escapeHtml(entry.file)} · ${escapeHtml(LABELS[entry.field] || entry.field)}</h4><p>${entry.dimensions ? `${entry.dimensions.width} × ${entry.dimensions.height}px` : "Dimensions indisponibles"} · ${escapeHtml(entry.layoutMethod || "mise en page indisponible")} · localisation ${exp.localized ? "candidate trouvée" : "incertaine"} · ${exp.elapsedMs ?? "—"} ms</p>${image}${crops}${quality}${(exp.warnings || []).length ? `<p class="lab-warning">${escapeHtml(exp.warnings.join(" · "))}</p>` : ""}<details><summary>Paramètres et limites détectées</summary><pre>${escapeHtml(JSON.stringify(details, null, 2))}</pre></details></article>`;
+    }).join("");
+    $("#copyScoreLocatorJsonButton").disabled = !scoreLocatorSummary.length;
+    $("#exportScoreLocatorJsonButton").disabled = !scoreLocatorSummary.length;
+    $("#clearScoreLocatorResultsButton").disabled = !scoreLocatorSummary.length;
+  }
+  function onScoreQualityChange(event) {
+    const select = event.target.closest("select[data-score-quality]"); if (!select) return;
+    const entry = scoreLocatorSummary.find((item) => item.id === select.dataset.scoreQuality); if (!entry) return;
+    entry.quality = select.value; entry.qualityConfirmedAt = new Date().toISOString(); persistScoreLocatorResults();
+  }
+  async function copyScoreLocatorJson() {
+    const json = JSON.stringify(scoreLocatorPayload(), null, 2);
+    try { await navigator.clipboard.writeText(json); $("#scoreLocatorStatus").textContent = "Diagnostics géométriques copiés. Aucune valeur OCR ni image n’est incluse."; }
+    catch (_) { const area = document.createElement("textarea"); area.value = json; area.setAttribute("readonly", ""); area.style.position = "fixed"; area.style.opacity = "0"; document.body.appendChild(area); area.select(); const copied = document.execCommand("copy"); area.remove(); $("#scoreLocatorStatus").textContent = copied ? "Diagnostics copiés." : "Copie refusée; utilise le téléchargement JSON."; }
+  }
+  function exportScoreLocatorJson() { if (scoreLocatorSummary.length) download(scoreLocatorPayload(), `war-results-score-localization-${new Date().toISOString().slice(0, 10)}.json`); }
+  function clearScoreLocatorResults() {
+    scoreLocatorSummary.splice(0); liveScoreLocator.clear(); sessionStorage.removeItem(SCORE_LOCATOR_KEY);
+    scoreLocatorResults.innerHTML = ""; $("#scoreLocatorStatus").textContent = "Diagnostics de localisation des scores effacés."; updateLaboratoryControls();
   }
 
   async function runRecognitionLaboratory() {
@@ -808,7 +950,7 @@
   }
   function download(data, name) { const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
   function safeName(name) { return String(name || "capture").replace(/[^\p{L}\p{N}-]+/gu, "-").replace(/^-|-$/g, "").slice(0, 64) || "capture"; }
-  function clearSession() { if (!confirm("Effacer les brouillons, le laboratoire, les diagnostics A/B et les captures de cette session ?")) return; records.forEach(r => r.url && URL.revokeObjectURL(r.url)); records = []; locatorComparisonSummary = []; laboratorySummary = []; numericOcrSummary.splice(0); liveLabDiagnostics.clear(); locatorComparisonResults.innerHTML = ""; labResults.innerHTML = ""; $("#numericOcrResults").innerHTML = ""; sessionStorage.removeItem(KEY); sessionStorage.removeItem(LOCATOR_COMPARISON_KEY); sessionStorage.removeItem(LEGACY_LOCATOR_COMPARISON_KEY); sessionStorage.removeItem(LABORATORY_KEY); sessionStorage.removeItem(NUMERIC_OCR_KEY); status.textContent = "Session effacée."; updateLocatorComparisonButtons(); updateLaboratoryControls(); render(); }
+  function clearSession() { if (!confirm("Effacer les brouillons, le laboratoire, les diagnostics A/B et les captures de cette session ?")) return; records.forEach(r => r.url && URL.revokeObjectURL(r.url)); records = []; publishCaptureBatch(); locatorComparisonSummary = []; laboratorySummary = []; numericOcrSummary.splice(0); liveLabDiagnostics.clear(); locatorComparisonResults.innerHTML = ""; labResults.innerHTML = ""; $("#numericOcrResults").innerHTML = ""; sessionStorage.removeItem(KEY); sessionStorage.removeItem(LOCATOR_COMPARISON_KEY); sessionStorage.removeItem(LEGACY_LOCATOR_COMPARISON_KEY); sessionStorage.removeItem(LABORATORY_KEY); sessionStorage.removeItem(NUMERIC_OCR_KEY); status.textContent = "Session effacée."; updateLocatorComparisonButtons(); updateLaboratoryControls(); render(); }
 
   function saveDrafts() {
     try { sessionStorage.setItem(KEY, JSON.stringify(records.map(r => ({ fileName: r.fileName, state: r.state, output: r.output || null, values: r.values, fields: r.fields, date: r.date, corrected: r.corrected, zoneOverrides: r.zoneOverrides || {}, confirmed: false, analysis: r.analysis ? { metrics: r.analysis.metrics, warnings: r.analysis.warnings } : null, rawText: r.rawText, warnings: r.warnings })))); }
