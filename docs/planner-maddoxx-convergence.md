@@ -389,3 +389,14 @@ Le roster, le catalogue et le nouveau vocabulaire ne peuvent être validés sur 
 - #218 reste ouverte et en brouillon sur work/maddoxx-convergence-ui, head b4890dc698b8da4dfefc60bd7aa608dfb4b6af6c; comparaison GitHub : 78 commits devant et zéro derrière main.
 - Au contrôle juste avant l’ajout de cette section, #739 était ouverte et en brouillon sur work/maddoxx-convergence-owner-entry au head 95f64fae68bb79d95b92b62bd475acd67cc198a2; le commit d’ajout du journal a ensuite porté sa branche à 0d762db289fcb5b4e00c7f7ad91ed769f163946c. Main MSF était b35d9a3f1c7d8066dd158049879a4f543c298a57; comparaison : 29 commits devant, 15 derrière, mergeable=true. Aucune synchronisation avec main n’a été faite.
 - Aucun merge ni déploiement de #739. Les PR restent en brouillon.
+
+
+### Déploiement contrôlé de validation — 26 novembre 2026
+
+- Autorisation explicite du propriétaire reçue pour déployer le SHA b4890dc698b8da4dfefc60bd7aa608dfb4b6af6c, sans fusion.
+- Workflow GitHub Actions contrôlé : run 45875074600, succès en 28 secondes, lancé depuis work/maddoxx-convergence-ui. Le contrôle du commit exact et de la configuration Worker a réussi, puis l’étape Wrangler a réussi.
+- Configuration vérifiée par le workflow : nom de Worker, indicateurs, namespace Durable Object et migration déjà présente, ensemble des tâches cron, bucket R2 et service LOSP_AUTH. wrangler.jsonc n’est pas modifié par la PR. Aucun secret n’a été lu ou exposé.
+- Vérification Cloudflare après déploiement : deployment 7c082c73-ff57-41c6-89a6-22ed3cfd0545, version 42e4f4c9-8e94-4f57-a6de-cac6758d028a, 100 % du trafic, créé le 26 novembre à 18:20:28 UTC. Le Worker conserve les 33 bindings attendus; les secrets restent des secrets.
+- Point de retour arrière vérifié avant l’opération : deployment précédent 8789c2d8-62ab-46e4-81f8-cb8b285aa601, version 1706e375-159f-4c7b-9940-0776895a61c2. La commande de rollback documentée est npx --yes wrangler@4.131.0 rollback 1706e375-159f-4c7b-9940-0776895a61c2 --name losp-roster-service. Aucun rollback n’a été nécessaire.
+- Le déploiement n’a effectué aucun appel personnel Scopely. Les autorisations de lecture owner-only précédentes restent valables; l’exploitation des données déjà synchronisées se fera à l’ouverture de la page par le propriétaire, sans rafraîchissement forcé.
+- Aucune fusion ni déploiement de #739. Les deux PR restent ouvertes et en brouillon. Le nouvel essai fonctionnel Safari sur iPhone, incluant le roster, la disponibilité du catalogue, la matrice P4 et le poste de commandement, reste à réaliser par le propriétaire.
