@@ -136,8 +136,8 @@ test("numeric lab UI exposes preset, count, independent combinations and exports
  const html=fs.readFileSync(path.join(root,"docs/war-results-vision.html"),"utf8");
  for(const id of ["ocrCombinationOptions","applyRecommendedOcrPreset","ocrCombinationCount","ocrGlyphOption","ocrMorphologyOption","ocrAlignmentOption","copyNumericOcrButton","exportNumericOcrButton"]) assert.match(html,new RegExp(id));
  assert.match(html,/war-results-ocr-experiment\.js\?v=0\.5\.0-glyph-alignment/);
- assert.match(html,/war-results-vision\.js\?v=5\.1-numeric-glyph-library/);
- assert.match(html,/war-results-vision\.css\?v=6\.4-glyph-alignment/);
+ assert.match(html,/war-results-vision\.js\?v=5\.2-score-localization/);
+ assert.match(html,/war-results-vision\.css\?v=6\.5-score-localization/);
 });
 
 test("combined OCR results keep the existing session key, details and JSON export actions", () => {

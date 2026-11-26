@@ -301,7 +301,8 @@
       const entry = files[Number(captureSelect.value)]; if (!entry?.file) { setStatus("Importe d’abord une ou plusieurs captures dans le panneau principal.", true); return; }
       const field = fieldSelect.value; setStatus(`Lecture OCR de la découpe ${entry.name} · ${field}…`);
       try {
-        const result = await root.WarResultsVisionEngine.analyzeNumericFields(entry.file, [field], () => {}, { variantId: "vertical-recovery-combined", marginPercent: 18, geometryMode: "proportional" });
+        const useExperimentalScoreLocator = field.endsWith("Score") && $("#numericLibraryScoreLocator").value === "experimental";
+        const result = await root.WarResultsVisionEngine.analyzeNumericFields(entry.file, [field], () => {}, { variantId: "vertical-recovery-combined", marginPercent: 18, geometryMode: "proportional", scoreLocator: useExperimentalScoreLocator ? "experimental" : "validated" });
         const diagnostic = result.fields[field], rect = diagnostic?.rect;
         if (!rect) throw new Error(diagnostic?.warning || "La zone numérique n’a pas été localisée.");
         const image = await decodeFile(entry.file), canvas = root.document.createElement("canvas");

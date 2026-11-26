@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 12884)
+Total output lines: 693
+
 /* Browser-only adapter around the existing WarResultRecognition core. */
 (() => {
   "use strict";
@@ -6,9 +9,10 @@
   const DIGIT_READER = window.WarResultsDigitReader;
   const OCR_EXPERIMENT = window.WarResultsOcrExperiment;
   const NUMERIC_LOCATOR = window.WarResultsNumericLocatorExperiment;
+  const SCORE_LOCATOR = window.WarResultsScoreLocatorExperiment;
   const IDENTITY_ENGINE = window.WarResultsIdentityEngine;
   const RESULT_ENGINE = window.WarResultsResultEngine;
-  const VERSION = "6.2-numeric-geometry-lab";
+  const VERSION = "6.3-score-localization-lab";
   let workerPromise = null;
   let worker = null;
   let activeProgress = () => {};
@@ -357,42 +361,7 @@
           const readBandImageData = (bandRect) => {
             const bandCanvas = crop(source, bandRect, 1, false);
             try { return bandCanvas.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, bandCanvas.width, bandCanvas.height); }
-            finally { bandCanvas.width = bandCanvas.height = 1; }
-          };
-          const primaryBand = TROPHY_LOCATOR.proportionalBand(source.width, source.height, yBand, field.side, locatorOptions);
-          const located = verticalRecovery
-            ? TROPHY_LOCATOR.locateWithVerticalRecovery(readBandImageData, source.width, source.height, yBand, field.side, DIGIT_READER, locatorOptions)
-            : primaryBand
-              ? TROPHY_LOCATOR.locateBand(readBandImageData(primaryBand), primaryBand, source.width, source.height, DIGIT_READER, locatorOptions)
-              : { rect: null, reason: "invalid-search-band", recovery: null };
-          if (located.reason) adaptive = { rect: null, value: "", raw: "", confidence: null, ms: null, reason: located.reason, preview: "", segmentation: located.segmented || null, recovery: located.recovery || null };
-          else {
-            adaptive = await readTrophyVariant(source, located.rect, field.key, "proportionnel+composantes", run, callTimings, located.segmented, located.bandRect, marginPercent);
-            adaptive.recovery = located.recovery || null;
-            adaptive.appliedMarginPercent = located.appliedMarginPercent ?? marginPercent;
-          }
-        }
-        results.push({ field: field.key, label: field.label, current, adaptive: { ...adaptive, initialRect: originalRect, finalRect: adaptive.rect || null,
-          requestedMarginPercent: marginPercent, marginPercent, appliedMarginPercent: adaptive.appliedMarginPercent ?? marginPercent,
-          componentsDetected: adaptive.segmentation?.componentCount ?? adaptive.segmentation?.components?.length ?? adaptive.componentsDetected ?? null,
-          edgeWarning: adaptive.segmentation?.edgeWarning ?? adaptive.segmentation?.warnings?.includes("glyph-touches-crop-edge") ?? adaptive.edgeWarning ?? false,
-          iconRejection: adaptive.segmentation?.iconRejection || adaptive.iconRejection || { requested: iconAware, applied: false, excludedComponentCount: 0, reason: iconAware ? "segmentation-unavailable" : "disabled" },
-          verticalRecovery: adaptive.recoveries?.find((step) => step.method === "proportional-vertical-search") || (adaptive.recovery?.method === "proportional-vertical-search" ? adaptive.recovery : null),
-          edgeSafePadding: adaptive.edgeSafePadding || adaptive.recoveries?.find((step) => step.method === "edge-safe-padding") || null },
-          rectDelta: current.rect && adaptive.rect ? {
-            x: adaptive.rect.x - current.rect.x, y: adaptive.rect.y - current.rect.y,
-            width: adaptive.rect.width - current.rect.width, height: adaptive.rect.height - current.rect.height
-          } : null });
-      }
-      const overviewScale = Math.min(1, 1200 / source.width, 1200 / source.height);
-      const overview = crop(source, { x: 0, y: 0, width: source.width, height: source.height }, overviewScale, false);
-      const sourcePreview = overview?.toDataURL("image/jpeg", .82) || "";
-      if (overview) overview.width = overview.height = 1;
-      return { fields: results, preview: sourcePreview, dimensions: { width: source.width, height: source.height }, metrics: { engine: "Tesseract.js v5 local browser", workerLoadMs,
-        totalMs: Math.round(performance.now() - totalStart), calls: callMetrics,
-        dimensions: { width: source.width, height: source.height }, analyzedCanvas: { width: analysisCanvas.width, height: analysisCanvas.height },
-        layout: localized.zones.layout, anchorsFound: localized.anchorsFound,
-        OCRParams: { fullPsm: 6, sparsePsm: 11, fieldPsm: 7, whitelist: "0123456789", sourceCropScale: 3, grayscaleContrast: 1.7, adaptiveMarginPercent: marginPercent, verticalRecovery, edgeSafePadding, iconAware } } };
+            finally { bandCanvas.width…884 tokens truncated…Psm: 7, whitelist: "0123456789", sourceCropScale: 3, grayscaleContrast: 1.7, adaptiveMarginPercent: marginPercent, verticalRecovery, edgeSafePadding, iconAware } } };
     } finally {
       source.close?.();
       if (analysisCanvas) analysisCanvas.width = analysisCanvas.height = 1;
@@ -501,6 +470,16 @@
       const localized = CORE.locateZones([], source.width, source.height);
       const geometryMode = options.geometryMode === "pixel-content" ? "pixel-content" : "proportional";
       let geometry = null;
+      let scoreGeometry = null;
+      if (options.scoreLocator === "experimental" && selected.some((field) => field === "localScore" || field === "opponentScore")) {
+        if (!SCORE_LOCATOR) throw new Error("Le localisateur expérimental des scores n’est pas chargé.");
+        const scoreFields = selected.filter((field) => field === "localScore" || field === "opponentScore");
+        const canvas = document.createElement("canvas"); canvas.width = source.width; canvas.height = source.height;
+        const context = canvas.getContext("2d", { willReadFrequently: true }); context.drawImage(source, 0, 0);
+        const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
+        scoreGeometry = SCORE_LOCATOR.compare(pixels, scoreFields, Object.fromEntries(scoreFields.map((field) => [field, normalizeRect(localized.zones[field], source.width, source.height)])));
+        canvas.width = canvas.height = 1;
+      }
       if (geometryMode === "pixel-content") {
         if (!NUMERIC_LOCATOR) throw new Error("Le localisateur expérimental des pixels n’est pas chargé.");
         const prepared = makeCanvas(source, 2500000), context = prepared.canvas.getContext("2d", { willReadFrequently: true });
@@ -532,18 +511,21 @@
         const fieldStarted = performance.now();
         onProgress({ status: `Moteur numérique — ${field} (${index + 1}/${selected.length})`, progress: .08 + index / selected.length * .85 });
         const initialRect = normalizeRect(localized.zones[field], source.width, source.height);
-        const correctedRect = geometryMode === "pixel-content" ? geometry?.fields?.[field] || null : initialRect;
+        const scoreExperiment = field === "localScore" || field === "opponentScore" ? scoreGeometry?.fields?.[field] : null;
+        const correctedRect = scoreExperiment ? (scoreExperiment.localized ? scoreExperiment.finalRect : null)
+          : geometryMode === "pixel-content" ? geometry?.fields?.[field] || null : initialRect;
         let rect = correctedRect;
-        let locator = { method: geometryMode === "pixel-content" ? geometry?.method || "full-image-color-components" : localized.method,
+        let locator = scoreExperiment ? { ...scoreExperiment, method: scoreExperiment.method, variantId: "score-pixel-content-experimental" }
+          : { method: geometryMode === "pixel-content" ? geometry?.method || "full-image-color-components" : localized.method,
           variantId: geometryMode === "pixel-content" ? "pixel-content" : "proportional-layout-fallback", marginPercent: null,
           initialRect, correctedRect, anchors: geometry?.anchors?.[field] || [], candidates: geometry?.candidates?.[field] || [],
           selectedCandidate: (geometry?.candidates?.[field] || []).find((candidate) => candidate.selected) || null,
           coordinateTransform: geometry?.analysisDimensions ? { from: "image-data-pixels", to: "source-image-pixels",
             scaleX: source.width / geometry.analysisDimensions.width, scaleY: source.height / geometry.analysisDimensions.height } : null,
           reason: geometryMode === "pixel-content" ? geometry?.reasons?.[field] || null : null };
-        if (geometryMode === "pixel-content" && !correctedRect) {
+        if ((geometryMode === "pixel-content" || scoreExperiment) && !correctedRect) {
           diagnostics[field] = { field, initialRect, correctedRect: null, rect: null, locator, raw: "", value: "", confidence: null,
-            ms: Math.round(performance.now() - fieldStarted), warning: `zone-not-located:${geometry?.reasons?.[field] || geometry?.reason || "no-reliable-pixel-run"}`,
+            ms: Math.round(performance.now() - fieldStarted), warning: `zone-not-located:${scoreExperiment?.reason || geometry?.reasons?.[field] || geometry?.reason || "no-reliable-pixel-run"}`,
             uncertainty: "localisation", ocrSkipped: true };
           continue;
         }
@@ -638,11 +620,42 @@
     } finally { source.close?.(); }
   }
 
+  async function compareScoreLocators(file, fields, onProgress = () => {}) {
+    const selected = [...new Set(Array.isArray(fields) ? fields : [])].filter((field) => field === "localScore" || field === "opponentScore");
+    if (!selected.length) throw new Error("Sélectionne au moins un score.");
+    if (!CORE || !SCORE_LOCATOR) throw new Error("Le localisateur expérimental des scores n’est pas chargé.");
+    const started = performance.now(), source = await decode(file), fieldsResult = {};
+    try {
+      const localized = CORE.locateZones([], source.width, source.height);
+      const canvas = document.createElement("canvas"); canvas.width = source.width; canvas.height = source.height;
+      const context = canvas.getContext("2d", { willReadFrequently: true }); context.drawImage(source, 0, 0);
+      const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      for (const [index, field] of selected.entries()) {
+        onProgress({ status: `Localisation expérimentale — ${field} (${index + 1}/${selected.length})`, progress: (index + .4) / selected.length });
+        const initialRect = normalizeRect(localized.zones[field], source.width, source.height);
+        const result = SCORE_LOCATOR.locate(imageData, field, initialRect);
+        const makePreview = (rect) => {
+          if (!rect) return "";
+          const cropCanvas = document.createElement("canvas"); cropCanvas.width = Math.max(1, Math.round(rect.width)); cropCanvas.height = Math.max(1, Math.round(rect.height));
+          cropCanvas.getContext("2d").drawImage(source, rect.x, rect.y, rect.width, rect.height, 0, 0, cropCanvas.width, cropCanvas.height);
+          const preview = cropCanvas.toDataURL("image/jpeg", .9); cropCanvas.width = cropCanvas.height = 1; return preview;
+        };
+        fieldsResult[field] = { ...result, proportionalRect: initialRect, proportionalPreview: makePreview(initialRect),
+          experimentalPreview: makePreview(result.finalRect), layout: localized.layout, layoutMethod: localized.method,
+          anchorsFound: localized.anchorsFound };
+      }
+      canvas.width = canvas.height = 1;
+      onProgress({ progress: 1 });
+      return { dimensions: { width: source.width, height: source.height }, layout: localized.layout,
+        totalMs: Math.round(performance.now() - started), fields: fieldsResult };
+    } finally { source.close?.(); }
+  }
+
   async function release() {
     activeProgress = () => {};
     if (worker) { await worker.terminate(); worker = null; }
     workerPromise = null;
   }
-  window.WarResultsVisionEngine = { analyze, analyzeField, locateLaboratoryField, analyzeNumericFields, compareTrophyLocators, release, version: VERSION };
+  window.WarResultsVisionEngine = { analyze, analyzeField, locateLaboratoryField, analyzeNumericFields, compareScoreLocators, compareTrophyLocators, release, version: VERSION };
 })();
 
