@@ -296,3 +296,9 @@ Par prudence, le déploiement reste bloqué jusqu’à preuve d’une licence ap
 - Head final #218 à ce relevé : `a856e6a53f6df4189295dc5d502f7b2de4f76cdd`, PR ouverte/en brouillon et `mergeable=true`. PR #739 a le commit de suivi `ed2139e9303143eb2b5a2637abd770969d7c52fc`, ouverte/en brouillon et `mergeable=true`.
 
 Mise à jour du point de reprise : le présent complément de résultats CI a été enregistré sur la branche existante #739 au commit `85a8e45b6618564f9a7146323a160f76f36270b1`. Ce commit ne touche qu’à ce journal. Les deux PR restent ouvertes, en brouillon et sans conflit; #218 reste au head `a856e6a53f6df4189295dc5d502f7b2de4f76cdd`.
+
+### Clôture du contrôle navigateur CI — 26 novembre 2026
+
+Le workflow mobile `45796094404` est terminé avec succès sur le head #218 `a856e6a53f6df4189295dc5d502f7b2de4f76cdd` : Chromium `141.0.7390.37` et WebKit `26.0` ont réussi le parcours aux largeurs 320, 360, 390 et 430 px, sans débordement horizontal. Les six captures Chromium de l’interface utilisent uniquement des fixtures synthétiques; artefact `15104089703`, digest `sha256:c52a7665edee3babccbe468e2f4b18b27872041d97ea8335d56de29e3069fe9d`, expiration le 10 décembre 2026. WebKit CI n’est pas un test réel sur iPhone Safari.
+
+Cela clôt les contrôles automatisés disponibles pour ce head : Planner tests 128/128, Chromium/WebKit réussis; Worker OAuth conserve seulement les 15 échecs de référence indépendants. Le point restant avant déploiement et récupération autorisée de données personnelles reste la preuve du droit d’usage/adaptation du code Maddoxx. Aucun déploiement ni appel Scopely n’a eu lieu.
