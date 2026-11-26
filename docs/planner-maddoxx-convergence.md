@@ -302,3 +302,11 @@ Mise à jour du point de reprise : le présent complément de résultats CI a é
 Le workflow mobile `45796094404` est terminé avec succès sur le head #218 `a856e6a53f6df4189295dc5d502f7b2de4f76cdd` : Chromium `141.0.7390.37` et WebKit `26.0` ont réussi le parcours aux largeurs 320, 360, 390 et 430 px, sans débordement horizontal. Les six captures Chromium de l’interface utilisent uniquement des fixtures synthétiques; artefact `15104089703`, digest `sha256:c52a7665edee3babccbe468e2f4b18b27872041d97ea8335d56de29e3069fe9d`, expiration le 10 décembre 2026. WebKit CI n’est pas un test réel sur iPhone Safari.
 
 Cela clôt les contrôles automatisés disponibles pour ce head : Planner tests 128/128, Chromium/WebKit réussis; Worker OAuth conserve seulement les 15 échecs de référence indépendants. Le point restant avant déploiement et récupération autorisée de données personnelles reste la preuve du droit d’usage/adaptation du code Maddoxx. Aucun déploiement ni appel Scopely n’a eu lieu.
+
+### Autorisation d’utilisation et de validation Maddoxx — 26 novembre 2026
+
+Le propriétaire a partagé des captures de ses échanges Discord privés avec Maddoxx, datées des 21 et 25 novembre. Maddoxx lui a transmis volontairement les versions du planificateur et l’a explicitement autorisé à reprendre tout ou partie du travail, ou à s’en inspirer, pour adapter sa WebApp LoSP. Cette autorisation couvre l’utilisation, l’adaptation et l’intégration dans LoSP ainsi que la validation propriétaire sur le Worker existant. Les crédits Maddoxx sont conservés dans le projet.
+
+Les captures privées ne sont pas publiées dans le dépôt. Ces échanges ne précisent pas la redistribution publique des sources originales : aucune archive ni source originale de Maddoxx n’est ajoutée ou republiée par cette reprise. L’autorisation de validation propriétaire est distincte de cette question. Ce constat remplace le blocage juridique provisoire indiqué plus haut; il ne vaut pas avis juridique ni licence publique générale.
+
+Le déploiement contrôlé de #218 et les lectures personnelles ponctuelles restent dans les limites précédemment autorisées par le propriétaire. Aucun appel n’est lancé depuis ce journal.
