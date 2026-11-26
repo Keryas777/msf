@@ -212,10 +212,19 @@ Les modifications Maddoxx du 25 novembre et leur groupement de séries restent c
 
 ### Cache personnel et autorisation éventuelle
 
-Le dépôt permet de vérifier le parcours existant : `GET /player/v1/inventory?itemType=ISOITEM&lang=fr`, via le même `PERSONAL_EVENT_CACHE`, avec pagination existante (budget maximal 20 pages) et `since=meta.asOf` lorsque disponible. Les réponses et scopes personnels actuels ne sont pas exposés par GitHub; le contrôle Cloudflare ne fournit pas de lecteur de stockage Durable Object. Aucun cache personnel n’a donc été lu directement, et aucun appel Scopely personnel n’a eu lieu.
+Le dépôt permet de vérifier le parcours existant : `GET /player/v1/inventory?itemType=ISOITEM&lang=fr`, via le même `PERSONAL_EVENT_CACHE`, avec pagination existante (budget maximal 20 pages) et `since=meta.asOf` lorsque disponible. Les réponses et scopes personnels actuels ne sont pas exposés par GitHub ni par les données consultées pendant cette reprise. Aucun cache personnel n’a donc été lu directement, et aucun appel Scopely personnel n’a eu lieu.
 
 Pour comparer aux captures du propriétaire, la seule requête éventuelle est une actualisation manuelle owner-only de ce endpoint existant, limitée à `itemType=ISOITEM`, `lang=fr`, avec au plus 20 lectures de page; le nombre réel dépendra des métadonnées de pagination ou d’un `unchanged`. Elle n’ajoute aucune collecte ni persistance. Cette autorisation reste en attente; ne pas appeler avant validation explicite.
 
 ### État de livraison
 
 Les corrections de provenance française de #739 sont présentes, le lien owner-only est conservé, le journal reste ici, les descriptions PR ont été actualisées. Les deux PR sont ouvertes et en brouillon. Aucun nouveau dépôt/PR, aucun merge, aucun déploiement, aucune page publique Événements modifiée, aucun secret ou inventaire personnel publié. La validation finale du propriétaire reste attendue.
+
+
+## Résultats finaux — runs déclenchés par la mise à jour du journal
+
+- PR #218, head vérifié `719ac67e10549a4aedf584365dc5c0d3c53fdb36`: Event planner tests (run 45781327870) réussis, 125/125; Event planner mobile browsers (run 45781327893) réussi sur Chromium 141.0 et WebKit 26.0, aux largeurs 320/360/390/430 px. Les captures synthétiques sont dans l’artefact Actions 15099015239, SHA-256 `514d3a7fdd11876a89a1d211d19eddc2d95257febf4fc434847834b2e74d619d`, expiration 10 décembre 2026. WebKit CI n’équivaut pas à un essai réel sur iPhone Safari.
+- Worker OAuth (run 45781328180) reste à 897/912 avec les mêmes 15 tests non-Maddoxx en échec que la référence main déjà documentée; aucune régression dans les tests du planificateur.
+- PR #739, head au déclenchement `481d28d3f7ae508415ad6f6e5fa7760e1bac527c`: Planner owner link checks (run 45781731456) et Events R2 validation (run 45781731169) réussis. Guest LoSP (run 45781731348) : 106/107; assertion qui attend `joueur.js?v=7` alors que le fichier servi référence une version de cache différente. Unified season history (run 45781731197) : 76/80; attend `alliance-history-data.js?v=6`, observe 11 bandes au lieu de 9, et deux tests lèvent `Invalid or duplicate season rank`.
+- Les cinq défaillances de #739 sont comparées aux mêmes contenus de fichiers sur `main` et ne concernent aucun chemin modifié dans le diff #739. Leur caractère préexistant est établi par comparaison des blobs identiques et du périmètre du diff; aucun run indépendant supplémentaire sur `main` n’est revendiqué.
+- État immédiatement après ce relevé : les deux PR restent ouvertes et en brouillon. Ce paragraphe fixe le résultat observé avant le commit de journal qu’il documente; les éventuels contrôles relancés par ce commit sont à lire séparément sur le head mis à jour.
