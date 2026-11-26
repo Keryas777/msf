@@ -141,9 +141,9 @@ test('static page exposes a single repliable library section without changing pr
   const html = await readFile(new URL('../../../docs/war-results-vision.html', import.meta.url), 'utf8');
   const vision = await readFile(new URL('../../../docs/war-results-vision.js', import.meta.url), 'utf8');
   assert.match(html, /<details id="numericGlyphLibrary"/); assert.match(html, /Bibliothèque numérique MSF/);
-  assert.match(html, /war-results-numeric-library\.js\?v=1\.0\.0-glyph-library/);
+  assert.match(html, /war-results-numeric-library\.js\?v=1\.0\.1-score-locator-option/);
   assert.match(html, /war-results-numeric-library\.css\?v=1\.0\.0-glyph-library/);
-  assert.match(html, /war-results-vision\.js\?v=5\.1-numeric-glyph-library/);
+  assert.match(html, /war-results-vision\.js\?v=5\.2-score-localization/);
   assert.match(vision, /war-results-capture-batch/);
   assert.equal((html.match(/id="numericGlyphLibrary"/g) || []).length, 1);
 });

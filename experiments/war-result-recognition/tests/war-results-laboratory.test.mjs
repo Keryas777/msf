@@ -118,6 +118,41 @@ test("experimental pixel geometry is isolated, recorded, and safely refuses miss
   assert.ok(!calls.includes("worker"), "failed pixel localization does not initialize OCR");
 });
 
+test("score comparison stays geometry-only, and the optional library locator uses the score experiment explicitly", async () => {
+  const calls = [];
+  const imageData = { width: 1000, height: 700, data: new Uint8ClampedArray(1000 * 700 * 4) };
+  const core = { locateZones: () => ({ zones: { localScore: { x: 90, y: 80, width: 120, height: 30 }, opponentScore: { x: 700, y: 80, width: 120, height: 30 } }, method: "proportional-layout-fallback", layout: "wide", anchorsFound: {} }) };
+  const scoreResult = (field) => ({ method: "score-test", localized: true,
+    finalRect: { x: field === "localScore" ? 100 : 710, y: 82, width: 60, height: 24 }, glyphCount: 5, warnings: [] });
+  const scoreLocator = { locate(_pixels, field) { calls.push(`score-locate:${field}`); return scoreResult(field); },
+    compare(_pixels, fields) { calls.push(`score-locate:${fields.join(",")}`); return { fields: Object.fromEntries(fields.map((field) => [field, scoreResult(field)])) }; } };
+  const worker = { async setParameters() {}, async recognize() { calls.push("ocr"); return { data: { text: "123456", confidence: 90 } }; }, async terminate() {} };
+  const context = {
+    console, performance: { now: () => 100 },
+    createImageBitmap: async () => ({ width: 1000, height: 700, close() {} }),
+    document: { head: { appendChild() {} }, createElement(tag) {
+      if (tag === "canvas") return { width: 1, height: 1, getContext: () => ({ drawImage() {}, getImageData: () => imageData, putImageData() {} }), toDataURL: () => "data:image/jpeg;base64,preview" };
+      return {};
+    } },
+    URL: { createObjectURL: () => "blob:test", revokeObjectURL() {} },
+    window: { WarResultRecognition: core, WarResultsScoreLocatorExperiment: scoreLocator,
+      WarResultsIdentityEngine: {}, WarResultsResultEngine: {}, Tesseract: { async createWorker() { return worker; } } }
+  };
+  context.globalThis = context; vm.runInNewContext(engineSource, context);
+  const engine = context.window.WarResultsVisionEngine;
+  const comparison = await engine.compareScoreLocators({ size: 1 }, ["localScore", "opponentScore"]);
+  assert.deepEqual(Object.keys(comparison.fields), ["localScore", "opponentScore"]);
+  assert.equal(calls.includes("ocr"), false, "visual locator comparison makes no Tesseract call");
+
+  const libraryRead = await engine.analyzeNumericFields({ size: 1 }, ["localScore"], () => {}, { geometryMode: "proportional", scoreLocator: "experimental" });
+  assert.equal(libraryRead.fields.localScore.correctedRect.x, 100);
+  assert.equal(libraryRead.fields.localScore.locator.variantId, "score-pixel-content-experimental");
+  assert.equal(libraryRead.fields.localScore.value, "123456");
+  assert.ok(calls.includes("score-locate:localScore"));
+  assert.ok(calls.includes("ocr"), "OCR remains only the library's user-editable suggestion after localization");
+  assert.equal(html.match(/<option value="validated">Localisation actuelle \(référence\)<\/option>/g)?.length, 1);
+});
+
 test("the selected trophy candidate is the rectangle passed into refinement and OCR", async () => {
   let refinementBand = null;
   let refinedX = 190;
