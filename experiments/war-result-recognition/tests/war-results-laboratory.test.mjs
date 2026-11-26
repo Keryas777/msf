@@ -229,7 +229,7 @@ test("score comparison stays geometry-only, and the optional library locator use
   assert.equal(libraryRead.fields.localScore.value, "123456");
   assert.ok(calls.includes("score-locate:localScore"));
   assert.ok(calls.includes("ocr"), "OCR remains only the library's user-editable suggestion after localization");
-  assert.equal(html.match(/<option value="validated">Localisation actuelle \(référence\)<\/option>/g)?.length, 1);
+  assert.ok(!html.includes('id="numericLibraryScoreLocator"'), "the builder no longer has a separate locator selector");
 });
 
 test("the selected trophy candidate is the rectangle passed into refinement and OCR", async () => {

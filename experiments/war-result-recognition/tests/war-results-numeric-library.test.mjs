@@ -94,6 +94,49 @@ test('mask ownership isolates italic glyphs even when their bounding boxes overl
   for (const glyph of extracted.glyphs) assert.equal(Array.from(glyph.native.mask).filter(Boolean).length, 27, 'each mask owns only its connected pixels');
 });
 
+test('shared-localizer groups drive extraction independently of OCR text length', () => {
+  const width = 24, height = 12, data = new Uint8ClampedArray(width * height * 4);
+  for (let y = 2; y < 10; y++) for (const [left, right] of [[2, 8], [9, 15], [16, 20], [21, 23]])
+    for (let x = left; x < right; x++) data.set([220, 225, 245, 255], (y * width + x) * 4);
+  const image = { width, height, data }, groups = [
+    { x: 2, y: 2, width: 8, height: 8 }, { x: 7, y: 2, width: 8, height: 8 },
+    { x: 14, y: 2, width: 6, height: 8 }, { x: 19, y: 2, width: 4, height: 8 }
+  ];
+  let segmentationCalls = 0;
+  const readerWithoutSegmenter = { foreground: (pixels, category) => reader.foreground(pixels, category), segment() { segmentationCalls++; throw new Error('must not segment from OCR count'); } };
+  const extraction = api.extractGlyphsFromBounds(image, 'trophy', groups, readerWithoutSegmenter);
+  assert.equal(extraction.glyphs.length, 4, 'four localizer groups remain four despite a five-character OCR overread');
+  assert.equal(segmentationCalls, 0);
+  assert.ok(extraction.warnings.includes('overlapping-bounds:0:1'));
+  assert.ok(extraction.glyphs.every(glyph => glyph.native?.mask.some(Boolean)));
+  assert.ok(extraction.glyphs.some(glyph => glyph.integrity.sharedPixelCount > 0));
+});
+
+test('partial validation preserves full confirmed value and original positions after excluding one group', () => {
+  const glyphs = Array.from({ length: 6 }, (_, index) => ({ index, native: { width: 1, height: 1, rgba: new Uint8Array(4), mask: new Uint8Array([255]) } }));
+  const selection = api.validateGlyphSelection(glyphs, [...'192659'], [2], '192659');
+  assert.equal(selection.valid, true);
+  assert.equal(selection.confirmedValue, '192659');
+  assert.deepEqual(selection.selected.map(item => item.index), [0, 1, 3, 4, 5]);
+  assert.deepEqual(selection.selected.map(item => item.digit), ['1', '9', '6', '5', '9']);
+});
+
+test('one identified physical glyph can be validated without a complete field value', () => {
+  const glyph = { index: 0, native: { width: 1, height: 1, rgba: new Uint8Array(4), mask: new Uint8Array([255]) } };
+  const selection = api.validateGlyphSelection([glyph], ['7'], [], '');
+  assert.equal(selection.valid, true);
+  assert.equal(selection.confirmedValue, '');
+  assert.equal(selection.selected[0].index, 0);
+});
+
+test('one identified glyph can be saved while other physical groups remain pending', () => {
+  const glyphs = Array.from({ length: 4 }, () => ({ native: { width: 1, height: 1, rgba: new Uint8Array(4), mask: new Uint8Array([255]) } }));
+  const selection = api.validateGlyphSelection(glyphs, ['', '9', '', ''], [], '');
+  assert.equal(selection.valid, true);
+  assert.deepEqual(selection.selected.map(item => item.index), [1]);
+  assert.deepEqual(selection.pendingIndices, [0, 2, 3]);
+});
+
 test('references retain capture provenance, native mask, normalized and redressed forms; synthetic data is rejected', async () => {
   const glyph = api.extractGlyphs(makeDigits('2'), 'trophy', 1, reader).glyphs[0];
   const reference = await api.createReference(glyph, '2', { captureId: 'capture-sha', captureHash: 'capture-sha', fileName: 'war.png', field: 'opponentTrophies', fieldType: 'trophy', side: 'opponent', captureWidth: 2266, captureHeight: 1488, position: 0 }, null);
@@ -118,6 +161,17 @@ test('JSON export/import validate schema and merge exact duplicates without coll
   assert.throws(() => api.validateLibrary({ ...api.emptyLibrary(), references: [{ ...first, metadata: { ...first.metadata, synthetic: true } }] }), /incomplète/);
 });
 
+test('schema v1 accepts individual references without a full field value and remains import compatible', async () => {
+  const glyph = api.extractGlyphs(makeDigits('2'), 'trophy', 1, reader).glyphs[0];
+  const reference = await api.createReference(glyph, '2', { captureId: 'capture-single', captureHash: 'sha-single', confirmedValue: '', fileName: 'single.png', field: 'localTrophies', fieldType: 'trophy', side: 'losp', captureWidth: 80, captureHeight: 60, position: 3 }, null);
+  const oldShape = { ...reference, source: { ...reference.source } };
+  for (const key of ['locatorVersion', 'locatorMethod', 'localizationStatus', 'localizationWarnings', 'segmentation', 'glyphBounds']) delete oldShape.source[key];
+  const roundTrip = api.parseLibrary(api.exportLibrary([oldShape]));
+  assert.equal(roundTrip.schemaVersion, 1);
+  assert.equal(roundTrip.references[0].source.confirmedValue, '');
+  assert.equal(roundTrip.references[0].source.position, 3);
+});
+
 test('IndexedDB store abstraction persists list, delete, and clear across instances', async () => {
   const rows = new Map();
   const db = { objectStoreNames: { contains: () => true }, close() {}, transaction() {
@@ -139,11 +193,20 @@ test('IndexedDB store abstraction persists list, delete, and clear across instan
 test('static page exposes a single repliable library section without changing production engines', async () => {
   const { readFile } = await import('node:fs/promises');
   const html = await readFile(new URL('../../../docs/war-results-vision.html', import.meta.url), 'utf8');
-  const vision = await readFile(new URL('../../../docs/war-results-vision.js', import.meta.url), 'utf8');
+  const library = await readFile(new URL('../../../docs/war-results-numeric-library.js', import.meta.url), 'utf8');
   assert.match(html, /<details id="numericGlyphLibrary"/); assert.match(html, /Bibliothèque numérique MSF/);
-  assert.match(html, /war-results-numeric-library\.js\?v=1\.0\.1-score-locator-option/);
-  assert.match(html, /war-results-numeric-library\.css\?v=1\.0\.0-glyph-library/);
-  assert.match(html, /war-results-vision\.js\?v=5\.5-numeric-lab-stable/);
-  assert.match(vision, /war-results-capture-batch/);
+  assert.match(html, /war-results-numeric-library\.js\?v=2\.0\.0-shared-localizers/);
+  assert.match(html, /war-results-numeric-library\.css\?v=2\.0\.0-shared-localizers/);
+  assert.match(html, /numericLibraryOcrButton/);
+  for (const field of ["localScore", "opponentScore", "localTrophies", "opponentTrophies"]) assert.match(html, new RegExp(`value="${field}"`));
+  assert.match(library, /WarResultsVisionEngine\.locateNumericFields\(entry\.file, \[field\]\)/);
+  assert.match(library, /extractGlyphsFromBounds\(imageData/);
+  assert.match(library, /WarResultsVisionEngine\.analyzeField\(current\.entry\.file, current\.field, current\.rect\)/);
+  assert.doesNotMatch(library, /numericLibraryScoreLocator/);
+  assert.doesNotMatch(library, /extractGlyphs\(current\.imageData/);
+  assert.match(library, /position: index, segmentIndex: index/);
+  assert.match(library, /captureSelect\.addEventListener\("change", \(\) => \{ saveCurrentDraft\(\); updateCaptureOptions\(\); prepare\(\); \}\)/);
+  assert.match(library, /<figcaption>Natif<\/figcaption>/);
+  assert.match(library, /pendingIndices/);
   assert.equal((html.match(/id="numericGlyphLibrary"/g) || []).length, 1);
 });

@@ -8,7 +8,7 @@
   <title>MSF War Results Vision</title>
   <link rel="stylesheet" href="./war-counter-lab.css?v=r7-entry-5">
   <link rel="stylesheet" href="./war-results-vision.css?v=6.8-numeric-lab-stable">
-  <link rel="stylesheet" href="./war-results-numeric-library.css?v=1.0.0-glyph-library">
+  <link rel="stylesheet" href="./war-results-numeric-library.css?v=2.0.0-shared-localizers">
 </head>
 <body>
   <main class="app-shell">
@@ -136,12 +136,13 @@
         <div class="numeric-library-controls">
           <label for="numericLibraryCapture">Capture importée</label><select id="numericLibraryCapture"></select>
           <label for="numericLibraryField">Champ numérique</label><select id="numericLibraryField"><option value="localScore">Score LoSP</option><option value="opponentScore">Score adverse</option><option value="localTrophies">Trophées LoSP</option><option value="opponentTrophies">Trophées adverses</option></select>
-          <label for="numericLibraryScoreLocator">Localisateur des scores</label><select id="numericLibraryScoreLocator"><option value="validated">Localisation actuelle (référence)</option><option value="experimental">Expérimental · pixels jaunes (à valider)</option></select>
-          <button id="numericLibraryPrepare" class="secondary-button" type="button">Localiser, lire et extraire les glyphes</button>
+          <button id="numericLibraryPrepare" class="secondary-button" type="button">Localiser avec le laboratoire et extraire les glyphes</button>
         </div>
         <p id="numericLibraryProgress" class="muted" aria-live="polite">Aucune capture importée.</p>
+        <canvas id="numericLibrarySourceContext" class="numeric-library-context" width="1" height="1" aria-label="Contexte de la capture avec le champ localisé encadré"></canvas>
         <canvas id="numericLibraryCrop" class="numeric-library-crop" width="1" height="1" aria-label="Découpe originale de la valeur"></canvas>
-        <p id="numericLibraryOcr" class="muted">La lecture Tesseract est une proposition uniquement.</p>
+        <button id="numericLibraryOcrButton" class="secondary-button" type="button" disabled>Proposer une lecture OCR (facultatif)</button>
+        <p id="numericLibraryOcr" class="muted">Aucun OCR ne pilote la localisation, le nombre ou les positions des glyphes.</p>
         <label for="numericLibraryValue">Valeur réelle confirmée manuellement</label>
         <input id="numericLibraryValue" class="numeric-library-value" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="Saisir les chiffres réels" disabled>
         <p id="numericLibraryLengthCheck" class="analysis-status" role="status" aria-live="polite">Prépare un champ pour afficher ses glyphes.</p>
@@ -201,7 +202,7 @@
   <script src="./war-results-result-engine.js?v=1.0.0" defer></script>
   <script src="./war-results-vision-engine.js?v=6.6-numeric-lab-stable" defer></script>
   <script src="./war-results-vision-data.js?v=2-rich-name" defer></script>
-  <script src="./war-results-numeric-library.js?v=1.0.1-score-locator-option" defer></script>
+  <script src="./war-results-numeric-library.js?v=2.0.0-shared-localizers" defer></script>
   <script src="./war-results-vision.js?v=5.5-numeric-lab-stable" defer></script>
 </body>
 </html>
