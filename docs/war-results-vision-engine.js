@@ -7,6 +7,7 @@
   const OCR_EXPERIMENT = window.WarResultsOcrExperiment;
   const NUMERIC_LOCATOR = window.WarResultsNumericLocatorExperiment;
   const SCORE_LOCATOR = window.WarResultsScoreLocatorExperiment;
+  const SCORE_LOCATOR_V020 = window.WarResultsScoreLocatorV020Experiment;
   const IDENTITY_ENGINE = window.WarResultsIdentityEngine;
   const RESULT_ENGINE = window.WarResultsResultEngine;
   const VERSION = "6.3-score-localization-lab";
@@ -683,6 +684,46 @@
     } finally { source.close?.(); }
   }
 
+  async function compareScoreLocatorsV020(file, fields, variants, onProgress = () => {}) {
+    const selected = [...new Set(Array.isArray(fields) ? fields : [])].filter((field) =>
+      field === "localScore" || field === "opponentScore");
+    const enabled = [...new Set(Array.isArray(variants) ? variants : [])].filter((variant) =>
+      ["geometry", "anchored", "joint"].includes(variant));
+    if (!selected.length) throw new Error("Sélectionne au moins un score.");
+    if (!enabled.length) throw new Error("Sélectionne au moins une variante V0.2.0.");
+    if (!CORE || !SCORE_LOCATOR_V020) throw new Error("Le localisateur expérimental V0.2.0 n’est pas chargé.");
+    const started = performance.now(), source = await decode(file);
+    try {
+      const localized = CORE.locateZones([], source.width, source.height);
+      const proportionalRects = Object.fromEntries(["localScore", "opponentScore"].map((field) =>
+        [field, normalizeRect(localized.zones[field], source.width, source.height)]));
+      const canvas = document.createElement("canvas"); canvas.width = source.width; canvas.height = source.height;
+      const context = canvas.getContext("2d", { willReadFrequently: true }); context.drawImage(source, 0, 0);
+      const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      onProgress({ status: "V0.2.0 — regroupement, ancrage et comparaison conjointe", progress: .2 });
+      const comparison = SCORE_LOCATOR_V020.compare(imageData, selected, proportionalRects, enabled);
+      const preview = (rect) => {
+        if (!rect) return "";
+        const output = document.createElement("canvas");
+        output.width = Math.max(1, Math.round(rect.width)); output.height = Math.max(1, Math.round(rect.height));
+        output.getContext("2d").drawImage(source, rect.x, rect.y, rect.width, rect.height, 0, 0, output.width, output.height);
+        const url = output.toDataURL("image/jpeg", .9); output.width = output.height = 1; return url;
+      };
+      for (const variant of Object.keys(comparison.variants)) {
+        for (const [field, result] of Object.entries(comparison.variants[variant].fields)) {
+          const baseline = proportionalRects[field];
+          result.proportionalRect = baseline; result.proportionalPreview = preview(baseline);
+          result.experimentalPreview = result.localized ? preview(result.finalRect) : "";
+          result.candidatePreview = !result.localized && result.diagnosticCandidateRect ? preview(result.diagnosticCandidateRect) : "";
+          result.layout = localized.layout; result.layoutMethod = localized.method;
+        }
+      }
+      canvas.width = canvas.height = 1; onProgress({ progress: 1 });
+      return { ...comparison, dimensions: { width: source.width, height: source.height }, layout: localized.layout,
+        totalMs: Math.round(performance.now() - started) };
+    } finally { source.close?.(); }
+  }
+
   async function measureScoreColorRegion(file, rect) {
     if (!SCORE_LOCATOR?.analyzeColorRegion) throw new Error("Outil de mesure colorimétrique indisponible.");
     const source = await decode(file);
@@ -701,6 +742,7 @@
     if (worker) { await worker.terminate(); worker = null; }
     workerPromise = null;
   }
-  window.WarResultsVisionEngine = { analyze, analyzeField, locateLaboratoryField, analyzeNumericFields, compareScoreLocators, measureScoreColorRegion, compareTrophyLocators, release, version: VERSION };
+  window.WarResultsVisionEngine = { analyze, analyzeField, locateLaboratoryField, analyzeNumericFields, compareScoreLocators,
+    compareScoreLocatorsV020, measureScoreColorRegion, compareTrophyLocators, release, version: VERSION };
 })();
 

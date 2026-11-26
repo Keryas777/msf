@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex,nofollow">
   <title>MSF War Results Vision</title>
   <link rel="stylesheet" href="./war-counter-lab.css?v=r7-entry-5">
-  <link rel="stylesheet" href="./war-results-vision.css?v=6.6-score-color-diagnostics">
+  <link rel="stylesheet" href="./war-results-vision.css?v=6.7-score-v020-geometry">
   <link rel="stylesheet" href="./war-results-numeric-library.css?v=1.0.0-glyph-library">
 </head>
 <body>
@@ -52,14 +52,29 @@
       </div>
       <section id="scoreLocatorLab" class="score-locator-lab" aria-labelledby="scoreLocatorTitle">
         <h3 id="scoreLocatorTitle">Comparateur des scores · sans OCR</h3>
-        <p class="muted">Compare la zone proportionnelle actuelle avec une recherche expérimentale par pixels jaunes. La qualité de localisation est évaluée visuellement; aucune valeur ni longueur de score n’est déduite par OCR.</p>
-        <details><summary>Paramètres fixes de la recherche expérimentale</summary><ul><li>Recherche initiale : zone proportionnelle étendue de 7,5 % de la largeur et 5,5 % de la hauteur de la capture; limitée au demi-écran du côté sélectionné.</li><li>Masque jaune anticrénelé : luminance ≥ 76, chroma min(rouge, vert) − bleu ≥ max(16, 26 % de min(rouge, vert)); pixel rejeté si rouge &lt; 78 % du vert, vert &lt; 48 % du rouge ou écart max(R,V) − B &lt; 16.</li><li>Composantes : aire ≥ 3 pixels; hauteur comprise entre 8 % et 95 % de la recherche verticale; largeur d’un groupe entre 0,24 hauteur de glyphe au minimum et 1,85 hauteur par composante au maximum.</li><li>Groupe : écart entre composantes ≤ 1,65 hauteur; dispersion verticale des lignes de base ≤ 0,48 hauteur; confiance géométrique minimale 0,52; groupes à moins de 0,045 de rang signalés ambigus.</li><li>Découpe : marge de 12 % de la hauteur du glyphe, minimum 2 pixels. En cas de bord touché ou d’absence de groupe, nouvelle recherche sur la capture originale, étendue de 12 % en X et 10 % en Y; aucune augmentation systématique après une détection propre.</li></ul></details>
+        <p class="muted">Compare la localisation proportionnelle avec les stratégies expérimentales par pixels jaunes. Évalue les découpes à l’œil; aucune valeur n’est déduite par OCR. La V0.1.0 reste inchangée. V0.2.0 réutilise son masque colorimétrique sans en modifier les seuils.</p>
+        <fieldset class="score-locator-variants"><legend>Stratégies à comparer</legend>
+          <label><input type="checkbox" data-score-locator-variant="v01" checked> V0.1.0 — référence inchangée</label>
+          <label><input type="checkbox" data-score-locator-variant="geometry" checked> V0.2.0 — regroupement géométrique corrigé</label>
+          <label><input type="checkbox" data-score-locator-variant="anchored" checked> V0.2.0 — regroupement + ancrage proportionnel</label>
+          <label><input type="checkbox" data-score-locator-variant="joint" checked> V0.2.0 — ancrage + localisation conjointe</label>
+        </fieldset>
+        <details><summary>Paramètres et règles V0.2.0</summary><ul>
+          <li>Masque, luminosité, chroma, couleur, composantes connexes et aire minimale (3 px) inchangés par rapport à V0.1.0.</li>
+          <li>Familles indépendantes : rapport de hauteur minimal 0,42; écarts verticaux du centre, du bord supérieur et du bord inférieur tolérés jusqu’à 0,34 / 0,42 hauteur.</li>
+          <li>Espacement horizontal maximal 1,9 hauteur. Les chevauchements des boîtes englobantes sont conservés; les largeurs restent variables et aucun nombre de chiffres n’est imposé.</li>
+          <li>La variante géométrique commence dans la même zone proportionnelle élargie que V0.1.0 (±7,5 % de la largeur et ±5,5 % de la hauteur de l’image), puis peut passer à la recherche large (±12 % / ±10 %). Les variantes ancrée et conjointe commencent par la zone proportionnelle élargie de 16 % de sa largeur et 24 % de sa hauteur, puis utilisent ces deux reprises si le groupe reste incomplet, incertain ou près d’un bord.</li>
+          <li>La note heuristique combine soutien collectif, cohérence des hauteurs, alignement vertical, espacement, densité et (selon la variante) proximité de la zone proportionnelle. Un candidat isolé est pénalisé et ne vaut jamais une probabilité de réussite.</li>
+          <li>Validation automatique : groupe d’au moins deux composantes, cohérence géométrique ≥ 0,62, note ≥ 0,66, largeur plausible et séparation ≥ 0,065 avec le candidat suivant. Une ambiguïté reste non localisée.</li>
+          <li>Marge finale : 14 % de la hauteur médiane des glyphes, minimum 2 px. La variante conjointe évalue les deux côtés même si un seul est affiché; elle exige des groupes cohérents et une paire compatible en hauteur, en alignement et en proximité des zones attendues.</li>
+        </ul></details>
         <button id="compareScoreLocatorsButton" class="secondary-button" type="button" disabled>Comparer les scores sélectionnés</button>
         <button id="copyScoreLocatorJsonButton" class="secondary-button" type="button" disabled>Copier les diagnostics JSON</button>
         <button id="exportScoreLocatorJsonButton" class="secondary-button" type="button" disabled>Télécharger les diagnostics JSON</button>
         <button id="clearScoreLocatorResultsButton" class="secondary-button" type="button" disabled>Effacer les diagnostics</button>
         <p id="scoreLocatorStatus" class="analysis-status" role="status" aria-live="polite"></p>
         <div id="scoreLocatorResults" class="score-locator-results"></div>
+        <div id="scoreV020Results" class="score-locator-results"></div>
         <details id="scoreColorMeasure" class="score-color-measure">
           <summary>Mesurer les couleurs des pixels source</summary>
           <p class="muted">Outil de caractérisation uniquement : il lit les pixels originaux de la capture importée et ne modifie ni la V0.1.0 ni une localisation. Choisis une capture, puis trace au doigt ou à la souris une petite zone incluant des chiffres et leurs contours.</p>
@@ -157,15 +172,16 @@
   <script src="./war-results-digit-reader.js?v=0.3.0-icon-aware" defer></script>
   <script src="./war-results-numeric-locator-experiment.js?v=0.1.0-experimental" defer></script>
   <script src="./war-results-score-locator-experiment.js?v=0.1.1-v020-measurement-api" defer></script>
+  <script src="./war-results-score-locator-v020-experiment.js?v=0.2.0-geometry-grouping" defer></script>
   <script src="./war-results-trophy-locator-experiment.js?v=0.6.0-combined" defer></script>
   <script src="./war-results-ocr-experiment.js?v=0.5.0-glyph-alignment" defer></script>
   <script src="./war-results-locator-comparison-store.js?v=1.3.0" defer></script>
   <script src="./war-results-identity-engine.js?v=1.0.0" defer></script>
   <script src="./war-results-result-engine.js?v=1.0.0" defer></script>
-  <script src="./war-results-vision-engine.js?v=6.4-score-color-diagnostics" defer></script>
+  <script src="./war-results-vision-engine.js?v=6.5-score-v020-geometry" defer></script>
   <script src="./war-results-vision-data.js?v=2-rich-name" defer></script>
   <script src="./war-results-numeric-library.js?v=1.0.1-score-locator-option" defer></script>
-  <script src="./war-results-vision.js?v=5.3-score-color-diagnostics" defer></script>
+  <script src="./war-results-vision.js?v=5.4-score-v020-geometry" defer></script>
 </body>
 </html>
 
