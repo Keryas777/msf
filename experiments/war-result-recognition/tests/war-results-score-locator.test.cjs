@@ -141,7 +141,8 @@ test('final crop contains all significant detected glyph pixels and parameters/t
 test('source color measurement reports RGB/HSV distributions, V0.1 mask rejects and a renderable mask without changing localization', () => {
   const img = image(32, 24, [180, 40, 35]);
   score(img, 8, 8, [5, 6, 5], 2, 8, [238, 218, 164]);
-  const before = JSON.stringify(locator.locate(img, 'localScore', zone(4, 5, 24, 14)));
+  const stableResult = (value) => { const { elapsedMs, ...stable } = value; return JSON.stringify(stable); };
+  const before = stableResult(locator.locate(img, 'localScore', zone(4, 5, 24, 14)));
   const measured = locator.analyzeColorRegion(img, { x: 4, y: 4, width: 24, height: 16 });
   assert.equal(measured.region.x, 4);
   assert.equal(measured.pixelCount, 384);
@@ -155,7 +156,7 @@ test('source color measurement reports RGB/HSV distributions, V0.1 mask rejects 
   const stages = locator.diagnoseSearch(img, { x: 4, y: 4, width: 24, height: 16 });
   assert.equal(stages.stages.map((item) => item.stage).join(","), "search-region,color-mask,connected-components,component-filter,grouping,candidate-ranking");
   assert.equal(stages.stages[1].pixelCount, 384);
-  assert.equal(JSON.stringify(locator.locate(img, 'localScore', zone(4, 5, 24, 14))), before, 'diagnostic API must not alter V0.1 behavior');
+  assert.equal(stableResult(locator.locate(img, 'localScore', zone(4, 5, 24, 14))), before, 'diagnostic API must not alter V0.1 behavior');
 });
 
 test('existing trophy pixel locator and digit reader remain unchanged', () => {
