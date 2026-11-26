@@ -35,7 +35,8 @@
       "sortOrder": 1,
       "icon": null,
       "sourceKind": "existing-planner-resource-mapping",
-      "translationStatus": "existing-LoSP-label"
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "legacy-observed"
     },
     {
       "id": "HC",
@@ -50,7 +51,8 @@
       "sortOrder": 2,
       "icon": null,
       "sourceKind": "existing-planner-resource-mapping",
-      "translationStatus": "existing-LoSP-label"
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "legacy-observed"
     },
     {
       "id": "CONSUMABLE_XPLVL20",
@@ -69,7 +71,8 @@
       "rank": 1,
       "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_CONSUMABLE_XPLVL20_bcaf9784.png",
       "sourceKind": "official-public-game-definition",
-      "translationStatus": "LoSP-translation"
+      "translationStatus": "LoSP-translation",
+      "identificationStatus": "official-confirmed"
     },
     {
       "id": "CONSUMABLE_XPLVL40",
@@ -88,7 +91,8 @@
       "rank": 2,
       "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_CONSUMABLE_XPLVL40_c4fc9554.png",
       "sourceKind": "official-public-game-definition",
-      "translationStatus": "LoSP-translation"
+      "translationStatus": "LoSP-translation",
+      "identificationStatus": "official-confirmed"
     },
     {
       "id": "CONSUMABLE_XPLVL60",
@@ -107,7 +111,8 @@
       "rank": 3,
       "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_CONSUMABLE_XPLVL60_94cb6207.png",
       "sourceKind": "official-public-game-definition",
-      "translationStatus": "LoSP-translation"
+      "translationStatus": "LoSP-translation",
+      "identificationStatus": "official-confirmed"
     },
     {
       "id": "CONSUMABLE_XPLVL80",
@@ -127,7 +132,8 @@
       "resourceKey": "TRAINING_MODULE_L4",
       "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_CONSUMABLE_XPLVL80_4ae2e7af.png",
       "sourceKind": "official-public-game-definition",
-      "translationStatus": "LoSP-translation"
+      "translationStatus": "LoSP-translation",
+      "identificationStatus": "official-confirmed"
     },
     {
       "id": "ISO8-TIER-0-CURRENCY",
@@ -145,7 +151,8 @@
       },
       "icon": null,
       "sourceKind": "official-public-game-definition",
-      "translationStatus": "existing-LoSP-label"
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
     },
     {
       "id": "ISO8-TIER-1-A-CURRENCY",
@@ -164,7 +171,8 @@
       },
       "icon": null,
       "sourceKind": "official-public-game-definition",
-      "translationStatus": "existing-LoSP-label"
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
     },
     {
       "id": "ISO8-TIER-1-B-CURRENCY",
@@ -183,7 +191,8 @@
       },
       "icon": null,
       "sourceKind": "official-public-game-definition",
-      "translationStatus": "existing-LoSP-label"
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
     },
     {
       "id": "ISO8-TIER-1-C-CURRENCY",
@@ -202,7 +211,8 @@
       },
       "icon": null,
       "sourceKind": "official-public-game-definition",
-      "translationStatus": "existing-LoSP-label"
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
     },
     {
       "id": "ISO8-TIER-2-A-CURRENCY",
@@ -221,7 +231,8 @@
       },
       "icon": null,
       "sourceKind": "official-public-game-definition",
-      "translationStatus": "existing-LoSP-label"
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
     },
     {
       "id": "ISO8-TIER-2-B-CURRENCY",
@@ -240,7 +251,8 @@
       },
       "icon": null,
       "sourceKind": "official-public-game-definition",
-      "translationStatus": "existing-LoSP-label"
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
     },
     {
       "id": "ISO8-TIER-2-C-CURRENCY",
@@ -259,7 +271,8 @@
       },
       "icon": null,
       "sourceKind": "official-public-game-definition",
-      "translationStatus": "existing-LoSP-label"
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
     },
     {
       "id": "ISO8-TIER-3-A-CURRENCY",
@@ -278,7 +291,24 @@
       },
       "icon": null,
       "sourceKind": "official-public-game-definition",
-      "translationStatus": "existing-LoSP-label"
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
+    },
+    {
+      "id": "CAMPAIGN_PLAYER_ENERGY",
+      "names": {
+        "en": null,
+        "fr": "Énergie de campagne"
+      },
+      "category": "energy",
+      "categoryLabelFr": "Énergies",
+      "group": "campaign-energy",
+      "priority": false,
+      "sortOrder": 15,
+      "icon": null,
+      "sourceKind": "existing-planner-resource-mapping",
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "legacy-observed"
     }
   ],
   "iso8CrystalMatrix": {

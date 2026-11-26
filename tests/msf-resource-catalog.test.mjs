@@ -13,6 +13,7 @@ test("central resource catalog has unique IDs and French-facing labels",()=>{
     assert.ok(item.id,"each item needs a stable game ID");
     assert.ok(item.names?.fr,"player-facing item names must be French");
     assert.ok(item.categoryLabelFr,"player-facing categories must be French");
+    assert.ok(["official-confirmed","legacy-observed"].includes(item.identificationStatus),"identification evidence level must be explicit");
   }
 });
 
@@ -51,10 +52,19 @@ test("ISO-8 ion IDs are distinct from crystal inventory mappings",()=>{
   assert.equal(catalog.items.some(item=>item.iso8Crystal),false,"no unverified crystal properties may enter the catalog");
 });
 
-test("legacy gold and core mappings are not presented as new official definitions",()=>{
-  for(const id of ["SC","HC"]){
+test("catalog coverage and identification status remain explicit",()=>{
+  assert.equal(catalog.items.length,15);
+  assert.equal(catalog.items.filter(item=>item.identificationStatus==="official-confirmed").length,12);
+  assert.equal(catalog.items.filter(item=>item.identificationStatus==="legacy-observed").length,3);
+  assert.equal(byId.get("CAMPAIGN_PLAYER_ENERGY").category,"energy");
+  assert.equal(catalog.iso8CrystalMatrix.status,"unavailable");
+});
+
+test("legacy mappings are not presented as new official definitions",()=>{
+  for(const id of ["SC","HC","CAMPAIGN_PLAYER_ENERGY"]){
     const item=byId.get(id);assert.ok(item);
     assert.equal(item.sourceKind,"existing-planner-resource-mapping");
+    assert.equal(item.identificationStatus,"legacy-observed");
     assert.notEqual(item.sourceKind,"official-public-game-definition");
   }
   assert.equal(catalog.localization.fr.officialScopelyFrenchClaimed,false);
