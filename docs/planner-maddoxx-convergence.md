@@ -403,3 +403,23 @@ Le roster, le catalogue et le nouveau vocabulaire ne peuvent être validés sur 
 
 
 Point GitHub au contrôle suivant le déploiement : #218 est toujours au SHA b4890dc698b8da4dfefc60bd7aa608dfb4b6af6c, ouverte, brouillon et sans retard sur main (main 5af430a10cd636badb0f18d9055e44693a96ef90; 78 commits devant, zéro derrière). #739 était au SHA 860415b6b58cab0b8f82750d4f98e533ff2442a3, ouverte et brouillon; main msf 664d77c1f14a3d4b2c31844bdac85cb910c927d4, comparaison 33 commits devant et 20 derrière, mergeable=true. #739 n’a pas été synchronisée : elle n’est pas nécessaire au déploiement du Worker, et ses changements n’ont pas été déployés.
+
+### Stabilisation après retours iPhone — 27 novembre 2026
+
+La correction du planificateur est préparée sur la PR existante #218; aucune nouvelle PR n’a été créée.
+
+- Cause du roster absent : l’ancien lecteur consultait le cache optionnel `connected-personal-rosters`, tandis que le collecteur planifié ignore volontairement cette voie pour les alliances approuvées et écrit le roster personnel dans le manifeste R2 du lot, sous `member-self.json`. Le code de #218 suit désormais le lien capitaine → index d’alliance → approbation → indice de compte exact → manifeste courant → roster personnel. Il n’ouvre que le roster du capitaine, ne lit aucun autre membre, ne collecte pas et ne persiste pas.
+- ISO-8 : les paliers P1/P2/P3/P4 correspondent aux suffixes internes 1–5/6–10/11–15/16–20, avec conversion vers les niveaux joueur 1–5. Le parseur rejette une discordance couleur/suffixe. La référence technique est mise à jour dans `docs/event-planner-maddoxx-integration.md` sur #218. Les tests couvrent les 100 combinaisons observées au premier niveau et les 500 combinaisons permises par la nomenclature. Les cristaux fusionnés et leurs quantités restent indéterminés; aucune quantité ni coût n’est déduit.
+- Les diagnostics sont séparés à `/admin/events-planner/diagnostics`, derrière les protections propriétaire/Cloudflare Access existantes; leur inventaire est en lecture seule du cache. Le parcours joueur n’affiche plus les IDs et diagnostics. Les ressources absentes sont regroupées, et le tableau mobile conserve les classes visibles au défilement.
+- Tests ciblés : 83/83. Chromium 141.0.7390.37 réussi aux largeurs 320, 360, 390 et 430 px, sans débordement. WebKit local est bloqué par l’absence de bibliothèques système GTK/WebKit; le contrôle WebKit CI reste à obtenir. Ces tests n’équivalent pas à Safari iPhone.
+- Les deux échecs des tests automatiques du collecteur (rattrapage PM tardif et publication LoSP pendant une collecte invitée) ont été reproduits sur main au SHA `5af430a10cd636badb0f18d9055e44693a96ef90`; aucun de ces fichiers n’a été modifié. Aucun appel personnel Scopely, aucun déploiement, aucune fusion et aucune donnée personnelle ne sont inclus dans cette reprise.
+- La branche #739 reste distincte de l’exécution Worker. Elle n’a pas été synchronisée avec main dans cette reprise.
+
+Prochain contrôle après push : confirmer les jobs GitHub Actions, notamment WebKit, puis préparer les instructions de validation iPhone. Le prochain déploiement #218 attend une autorisation explicite. Le rollback préparé est le Worker déployé, version `42e4f4c9-8e94-4f57-a6de-cac6758d028a` (deployment `7c082c73-ff57-41c6-89a6-22ed3cfd0545`).
+
+
+## Reprise après retours iPhone — 27 novembre 2026
+
+Le propriétaire confirme que Maddoxx a volontairement transmis les archives des 21 et 25 novembre et a autorisé leur utilisation, adaptation et intégration dans LoSP. Son travail reste crédité dans la documentation technique; son pseudo n’est pas un intitulé destiné aux joueurs. Les captures privées et les archives sources ne sont pas publiées dans ce dépôt. La redistribution publique autonome des sources n’a pas été explicitement établie.
+
+La cause du roster absent et le correctif R2 owner-only, le parseur ISO-8, la séparation du parcours joueur et des diagnostics administrateur, ainsi que les résultats de tests sont suivis dans le journal permanent de #218. Les modifications de cette reprise restent limitées au planificateur et à sa documentation. Aucun appel Scopely, déploiement ou merge n’a été effectué. Le déploiement de #218 attend une autorisation explicite; la version de rollback de référence est `42e4f4c9-8e94-4f57-a6de-cac6758d028a` (déploiement `7c082c73-ff57-41c6-89a6-22ed3cfd0545`).
