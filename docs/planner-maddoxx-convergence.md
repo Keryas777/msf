@@ -427,3 +427,12 @@ La cause du roster absent et le correctif R2 owner-only, le parseur ISO-8, la s�
 ### Synchronisation prudente de la PR #739 — 27 novembre 2026
 
 La branche a été comparée à `main` au SHA `9a4c77bb2e74d028784e1a743d02d23bf80b7cb9`. Avant synchronisation, elle était 35 commits en avance et 95 en retard. `git merge-tree` a produit un arbre sans conflit (`d161a84a5002ebfaf30f4ea33277402b5392c3d4`); la synchronisation a été enregistrée comme commit de branche `e0f318cad36a58a4e72a75718deb9d937021efbd`, avec l’ancien head `d82fcfe7150e22ad2125aea4a17b12302dfc8345` et le `main` courant comme parents. Après synchronisation, GitHub indique la PR ouverte, brouillon et mergeable; la comparaison est 36 commits en avance et 0 en retard. Aucun merge de PR ni déploiement n’a eu lieu.
+
+
+### Résultats CI de la PR #739 — 27 novembre 2026
+
+- Head examiné : `63c3b994b1bba587f3dceee5383cde2337e8c0ca`, PR ouverte et en brouillon; `main` est au SHA `9a4c77bb2e74d028784e1a743d02d23bf80b7cb9`, la branche est 38 commits en avance et 0 en retard, mergeable.
+- « Events R2 validation » (run `46027751165`) et « Planner owner link checks » (run `46027751145`) réussis.
+- « Guest LoSP access checks » (run `46027751134`) : 106/107. L’unique échec est `tests/scoped-roster-pages.test.mjs:74`, qui attend l’ancienne URL `joueur.js?v=7`; ce fichier n’appartient pas au diff de #739.
+- « Validate unified season history PR » (run `46027751251`) : 76/80. Les quatre échecs portent sur un ancien cache-busting attendu (`alliance-history-data.js?v=6`), 9 bandes de trophées attendues contre 11 obtenues, et deux fixtures d’archives rejetées comme rangs invalides ou dupliqués. Les tests/fichiers en cause ne sont pas modifiés par #739.
+- Ces cinq échecs sont hors périmètre Maddoxx et le code concerné est inchangé dans le diff. L’état indépendant sur `main` n’a pas été relancé dans cette passe; aucun correctif étranger n’a été apporté. Aucun merge ni déploiement de #739.
