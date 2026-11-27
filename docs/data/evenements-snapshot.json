@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "status": "ok",
   "source": "verified-daily-game-events",
-  "updatedAt": "2026-11-25T21:05:13.139Z",
-  "revision": "0ced96a6715c4b2fad76",
-  "total": 135,
-  "count": 135,
+  "updatedAt": "2026-11-27T15:33:43.885Z",
+  "revision": "d7d17d83939e0b0e1e04",
+  "total": 131,
+  "count": 131,
   "pages": 2,
   "events": [
     {
@@ -281,23 +281,6 @@
       }
     },
     {
-      "id": "6aecee5142686c5f6341240a",
-      "type": "episodic",
-      "startTime": 1793998800,
-      "endTime": 1796418000,
-      "name": "LA TERRE SAUVAGE",
-      "subName": "Gagnez des éclats Combattant de la tour !",
-      "details": "Aidez Cyclope (Puissant) et l’équipe de Terre Sauvage à vaincre Mister Sinistre !Revenez chaque jour pour gagner des éclats de Combattant de la tour !",
-      "episodic": {
-        "type": "eventCampaign",
-        "typeName": "Personnage",
-        "id": "",
-        "ids": [
-          "ECM_SAVAGELANDS_A"
-        ]
-      }
-    },
-    {
       "id": "6aee31c0aba9eda13c26925b",
       "type": "milestone",
       "startTime": 1793998800,
@@ -314,24 +297,6 @@
           "methods": [],
           "cappedScorings": []
         },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6af776d147f5070146e7b876",
-      "type": "pickYourPoison",
-      "startTime": 1794603600,
-      "endTime": 1797022800,
-      "name": "TOUR DES PUISSANTS : CYCLOPE",
-      "subName": "Grimpez pour gagner Cyclope (Puissant) !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/CyclopsMightyTower_TopCard_6aee3f461ff73ed2af6d591ecfcec945d2eb.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Leaderboard_ExatledX-Men_Banner_6aee3f5b1ff73ed2af6d591f076b08813012.jpg",
-      "pickYourPoison": {
-        "typeName": "Fléau",
         "brackets": [
           {
             "id": "default"
@@ -372,25 +337,6 @@
           }
         ]
       }
-    },
-    {
-      "id": "6afcc050fb365c004bfbd495",
-      "type": "info",
-      "startTime": 1795035600,
-      "endTime": 1802811600,
-      "name": "INCURSION",
-      "subName": "Débloquez Fatalis à 3 losanges !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/DoomsdayIncursion_ECM_TopCard_6b04d7feb6ff03a25ed5e3881781b71d7d8e.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/DoomsdayIncursion_ECM_InboxBanner_6b04d82fb6ff03a25ed5e389d95bb5091726.jpg"
-    },
-    {
-      "id": "6b00b14c2c6b04c8d8a62d24",
-      "type": "raid",
-      "startTime": 1795726800,
-      "endTime": 1795812900,
-      "name": "Raids d'appréhension",
-      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
-      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
     },
     {
       "id": "6b0202cc2c6b04c8d8a63369",
@@ -472,16 +418,6 @@
       "popupArt": "https://assets.marvelstrikeforce.com/key_art/StrikePass_S124_Banner_BEG-INT_6af41c462efd99a6d3dcb83761dbcc413462.jpg"
     },
     {
-      "id": "6b04a5cd2c6b04c8d8a63d3a",
-      "type": "info",
-      "startTime": 1795467600,
-      "endTime": 1796677200,
-      "name": "Festin de quartier",
-      "subName": "Gagnez des tonnes de récompenses !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Event_AuntMay_TopCard_6b00e4d5c3833079720202678c06dd85a798.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Event_AuntMay_InboxBanner_6b00e8b4c3833079720202760246eaa09a84.jpg"
-    },
-    {
       "id": "6b04a2482c6b04c8d8a63d27",
       "type": "strikePass",
       "startTime": 1795467600,
@@ -549,44 +485,17 @@
       "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
     },
     {
-      "id": "6aff5fcd2c6b04c8d8a626f8",
-      "type": "raid",
-      "startTime": 1795640400,
-      "endTime": 1795726500,
-      "name": "Raids d'appréhension",
-      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
-      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
-    },
-    {
-      "id": "6b05f74c2c6b04c8d8a64533",
-      "type": "milestone",
-      "startTime": 1795554000,
-      "endTime": 1795640400,
-      "name": "Récomp. quot. du web",
-      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
-      "locationHints": [
-        "portal_featured",
-        "portal_standard"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Dépensez des noyaux d’énergie",
-          "methods": [
-            {
-              "description": "Dépenser 1 noyau d'énergie",
-              "points": 1
-            }
-          ],
-          "cappedScorings": []
-        },
+      "id": "6af776d147f5070146e7b876",
+      "type": "pickYourPoison",
+      "startTime": 1794603600,
+      "endTime": 1797022800,
+      "name": "TOUR DES PUISSANTS : CYCLOPE",
+      "subName": "Grimpez pour gagner Cyclope (Puissant) !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/CyclopsMightyTower_TopCard_6aee3f461ff73ed2af6d591ecfcec945d2eb.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Leaderboard_ExatledX-Men_Banner_6aee3f5b1ff73ed2af6d591f076b08813012.jpg",
+      "pickYourPoison": {
+        "typeName": "Fléau",
         "brackets": [
-          {
-            "id": "levels_1_55"
-          },
           {
             "id": "default"
           }
@@ -594,10 +503,28 @@
       }
     },
     {
-      "id": "6b05f74c2c6b04c8d8a64536",
+      "id": "6b089a4cfbfcb2dfafa653d5",
+      "type": "raid",
+      "startTime": 1796245200,
+      "endTime": 1796331300,
+      "name": "Raids d'appréhension",
+      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
+      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
+    },
+    {
+      "id": "6b00b14c2c6b04c8d8a62d24",
+      "type": "raid",
+      "startTime": 1795726800,
+      "endTime": 1795812900,
+      "name": "Raids d'appréhension",
+      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
+      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
+    },
+    {
+      "id": "6b089a4cfbfcb2dfafa653d6",
       "type": "milestone",
-      "startTime": 1795554000,
-      "endTime": 1795640400,
+      "startTime": 1795726800,
+      "endTime": 1795813200,
       "name": "Phases quotidiennes exclusives du web",
       "details": "Gagnez des récompenses en interagissant avec MSF sur le web, en exclusivité sur MarvelStrikeForce.com ! Jouez à la version web de MSF, récupérez vos cadeaux quotidiens et effectuez des achats dans la boutique web ou la boutique du Strike pour progresser.",
       "cardArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_Generic_Card_6863aeca0459d9fd89c3f2b8a4e170b2ffd4_6aecb6c7ef88d351ed5dfef244d14ed24c44.jpg",
@@ -655,6 +582,87 @@
           ]
         },
         "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b089a4cfbfcb2dfafa653d3",
+      "type": "milestone",
+      "startTime": 1795726800,
+      "endTime": 1795813200,
+      "name": "Récomp. quot. du web",
+      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
+      "locationHints": [
+        "portal_featured",
+        "portal_standard"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Dépensez des noyaux d’énergie",
+          "methods": [
+            {
+              "description": "Dépenser 1 noyau d'énergie",
+              "points": 1
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "levels_1_55"
+          },
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6aff5fcd2c6b04c8d8a626f8",
+      "type": "raid",
+      "startTime": 1795640400,
+      "endTime": 1795726500,
+      "name": "Raids d'appréhension",
+      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
+      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
+    },
+    {
+      "id": "6b0748ccfbfcb2dfafa648c2",
+      "type": "milestone",
+      "startTime": 1795640400,
+      "endTime": 1795726800,
+      "name": "Récomp. quot. du web",
+      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
+      "locationHints": [
+        "portal_featured",
+        "portal_standard"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Dépensez des noyaux d’énergie",
+          "methods": [
+            {
+              "description": "Dépenser 1 noyau d'énergie",
+              "points": 1
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "levels_1_55"
+          },
           {
             "id": "default"
           }
@@ -723,87 +731,6 @@
           ]
         },
         "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6b0748ccfbfcb2dfafa648c2",
-      "type": "milestone",
-      "startTime": 1795640400,
-      "endTime": 1795726800,
-      "name": "Récomp. quot. du web",
-      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
-      "locationHints": [
-        "portal_featured",
-        "portal_standard"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Dépensez des noyaux d’énergie",
-          "methods": [
-            {
-              "description": "Dépenser 1 noyau d'énergie",
-              "points": 1
-            }
-          ],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "levels_1_55"
-          },
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6afe0e4cfb365c004bfbd933",
-      "type": "raid",
-      "startTime": 1795554000,
-      "endTime": 1795640100,
-      "name": "Raids d'appréhension",
-      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
-      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
-    },
-    {
-      "id": "6b04a5cc2c6b04c8d8a63d2e",
-      "type": "milestone",
-      "startTime": 1795467600,
-      "endTime": 1795554000,
-      "name": "Récomp. quot. du web",
-      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
-      "locationHints": [
-        "portal_featured",
-        "portal_standard"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Dépensez des noyaux d’énergie",
-          "methods": [
-            {
-              "description": "Dépenser 1 noyau d'énergie",
-              "points": 1
-            }
-          ],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "levels_1_55"
-          },
           {
             "id": "default"
           }
@@ -906,23 +833,6 @@
       "locationHints": [
         "lohub_battlepass"
       ]
-    },
-    {
-      "id": "6afcc17cfb365c004bfbd4d9",
-      "type": "episodic",
-      "startTime": 1795640700,
-      "endTime": 1802811900,
-      "name": "LA PEUR DÉCHAÎNÉE",
-      "subName": "Partie 2 (se débloque le 25 nov.)",
-      "details": "Découvrez jusqu’où Fatalis est prêt à aller lorsqu’il est poussé à bout et révélez le secret choquant au cœur de l’ère de la peur !",
-      "episodic": {
-        "type": "eventCampaign",
-        "typeName": "Personnage",
-        "id": "",
-        "ids": [
-          "ECM_DOOMINCURSION_B"
-        ]
-      }
     },
     {
       "id": "6aff55402c6b04c8d8a6240a",
@@ -1430,6 +1340,33 @@
       }
     },
     {
+      "id": "6afcc17cfb365c004bfbd4d9",
+      "type": "episodic",
+      "startTime": 1795640700,
+      "endTime": 1802811900,
+      "name": "LA PEUR DÉCHAÎNÉE",
+      "subName": "Partie 2 (se débloque le 25 nov.)",
+      "details": "Découvrez jusqu’où Fatalis est prêt à aller lorsqu’il est poussé à bout et révélez le secret choquant au cœur de l’ère de la peur !",
+      "episodic": {
+        "type": "eventCampaign",
+        "typeName": "Personnage",
+        "id": "",
+        "ids": [
+          "ECM_DOOMINCURSION_B"
+        ]
+      }
+    },
+    {
+      "id": "6b04a5cd2c6b04c8d8a63d3a",
+      "type": "info",
+      "startTime": 1795467600,
+      "endTime": 1796677200,
+      "name": "Festin de quartier",
+      "subName": "Gagnez des tonnes de récompenses !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Event_AuntMay_TopCard_6b00e4d5c3833079720202678c06dd85a798.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Event_AuntMay_InboxBanner_6b00e8b4c3833079720202760246eaa09a84.jpg"
+    },
+    {
       "id": "6320e902d139a267582c160b",
       "type": "episodic",
       "startTime": 1666126800,
@@ -1570,6 +1507,16 @@
       }
     },
     {
+      "id": "6afcc050fb365c004bfbd495",
+      "type": "info",
+      "startTime": 1795035600,
+      "endTime": 1802811600,
+      "name": "INCURSION",
+      "subName": "Débloquez Fatalis à 3 losanges !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/DoomsdayIncursion_ECM_TopCard_6b04d7feb6ff03a25ed5e3881781b71d7d8e.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/DoomsdayIncursion_ECM_InboxBanner_6b04d82fb6ff03a25ed5e389d95bb5091726.jpg"
+    },
+    {
       "id": "63bf36c18d37c83eaa75a446",
       "type": "episodic",
       "startTime": 1673989200,
@@ -1706,15 +1653,6 @@
       "cardArt": "https://assets.marvelstrikeforce.com/key_art/4Horsemen_Card_62cf2f3ba689b8de3053b2dc891bae48cea4.jpg"
     },
     {
-      "id": "69fbabd0d3a8601fef557215",
-      "type": "info",
-      "startTime": 1778102400,
-      "endTime": 1809464400,
-      "name": "ÈRE DE LA PEUR",
-      "subName": "La peur déchaînée",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/AOF_SagasMonth1_TopCard_69ebfced598be6b4ff39174ea6c6a086b03e.jpg"
-    },
-    {
       "id": "6afcc3d4fb365c004bfbd4ee",
       "type": "episodic",
       "startTime": 1796850000,
@@ -1776,6 +1714,23 @@
           {
             "id": "default"
           }
+        ]
+      }
+    },
+    {
+      "id": "6aecee5142686c5f6341240a",
+      "type": "episodic",
+      "startTime": 1793998800,
+      "endTime": 1796418000,
+      "name": "LA TERRE SAUVAGE",
+      "subName": "Gagnez des éclats Combattant de la tour !",
+      "details": "Aidez Cyclope (Puissant) et l’équipe de Terre Sauvage à vaincre Mister Sinistre !Revenez chaque jour pour gagner des éclats de Combattant de la tour !",
+      "episodic": {
+        "type": "eventCampaign",
+        "typeName": "Personnage",
+        "id": "",
+        "ids": [
+          "ECM_SAVAGELANDS_A"
         ]
       }
     },
@@ -2853,67 +2808,10 @@
       "popupArt": "https://assets.marvelstrikeforce.com/key_art/SuperDealGeneric_Banner_6a3d9014b10737d5512ca57b88f9bc6be117_6ae95d0bbf9d8851a9c5e676c1576ce72264.jpg"
     },
     {
-      "id": "6b0748cdfbfcb2dfafa648c9",
+      "id": "6b089a4cfbfcb2dfafa653db",
       "type": "milestone",
-      "startTime": 1795640400,
-      "endTime": 1795726800,
-      "name": "Battle Pass du chapitre : Objectifs quotidiens",
-      "subName": "Aperçu du Black Friday pour le palier d'équipement 21 !",
-      "details": "Aperçu du Black Friday pour le palier d'équipement 21 !",
-      "locationHints": [
-        "lohub_feeder"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "",
-          "methods": [],
-          "cappedScorings": [
-            {
-              "cap": 20000,
-              "methods": [
-                {
-                  "description": "Récupérer des marques d’effroi",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 2
-            },
-            {
-              "cap": 200,
-              "methods": [
-                {
-                  "description": "Dépenser de l’énergie (campagne, iso ou incursion)",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 3
-            },
-            {
-              "cap": 3,
-              "methods": [
-                {
-                  "description": "Jouer dans l’arène, en guerre, en arène en temps réel ou dans l’Épreuve",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 4
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6b05f74d2c6b04c8d8a6453b",
-      "type": "milestone",
-      "startTime": 1795554000,
-      "endTime": 1795640400,
+      "startTime": 1795726800,
+      "endTime": 1795813200,
       "name": "Festin de quartier amical",
       "subName": "Récupérez de la nourriture pour débloquer les missions du Festin du quartier !",
       "details": "Récupérez de la nourriture pour débloquer les missions du Festin du quartier !",
@@ -3092,10 +2990,10 @@
       }
     },
     {
-      "id": "6b05f74d2c6b04c8d8a64539",
+      "id": "6b089a4cfbfcb2dfafa653d9",
       "type": "milestone",
-      "startTime": 1795554000,
-      "endTime": 1795640400,
+      "startTime": 1795726800,
+      "endTime": 1795813200,
       "name": "Briseur de volontés - Plan de bataille du mois 1",
       "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
       "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
@@ -3149,10 +3047,10 @@
       }
     },
     {
-      "id": "6b05f74d2c6b04c8d8a64538",
+      "id": "6b089a4cfbfcb2dfafa653d8",
       "type": "milestone",
-      "startTime": 1795554000,
-      "endTime": 1795640400,
+      "startTime": 1795726800,
+      "endTime": 1795813200,
       "name": "Briseur de volontés - Plan de bataille du mois 1",
       "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
       "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
@@ -3206,10 +3104,10 @@
       }
     },
     {
-      "id": "6b05f74c2c6b04c8d8a64537",
+      "id": "6b089a4cfbfcb2dfafa653d7",
       "type": "milestone",
-      "startTime": 1795554000,
-      "endTime": 1795640400,
+      "startTime": 1795726800,
+      "endTime": 1795813200,
       "name": "Briseur de volontés - Plan de bataille du mois 1",
       "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
       "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
@@ -3227,7 +3125,7 @@
               "cap": 1,
               "methods": [
                 {
-                  "description": "Combattre avec Ultron",
+                  "description": "Combattre avec Hawkeye (Robot)",
                   "points": 1
                 }
               ],
@@ -3237,7 +3135,7 @@
               "cap": 1,
               "methods": [
                 {
-                  "description": "Combattre avec Yellowjacket",
+                  "description": "Combattre avec Iron Monger",
                   "points": 1
                 }
               ],
@@ -3247,7 +3145,64 @@
               "cap": 1,
               "methods": [
                 {
-                  "description": "Combattre avec des personnages Mercenaires pour l'argent",
+                  "description": "Combattre avec des personnages West Coast Avenger",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 4
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b089a4cfbfcb2dfafa653da",
+      "type": "milestone",
+      "startTime": 1795726800,
+      "endTime": 1795813200,
+      "name": "Battle Pass du chapitre : Objectifs quotidiens",
+      "subName": "Aperçu du Black Friday pour le palier d'équipement 21 !",
+      "details": "Aperçu du Black Friday pour le palier d'équipement 21 !",
+      "locationHints": [
+        "lohub_feeder"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 20000,
+              "methods": [
+                {
+                  "description": "Récupérer des marques d’effroi",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 2
+            },
+            {
+              "cap": 200,
+              "methods": [
+                {
+                  "description": "Dépenser de l’énergie (campagne, iso ou incursion)",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 3
+            },
+            {
+              "cap": 3,
+              "methods": [
+                {
+                  "description": "Jouer dans l’arène, en guerre, en arène en temps réel ou dans l’Épreuve",
                   "points": 1
                 }
               ],
@@ -4111,6 +4066,15 @@
       }
     },
     {
+      "id": "69fbabd0d3a8601fef557215",
+      "type": "info",
+      "startTime": 1778102400,
+      "endTime": 1809464400,
+      "name": "ÈRE DE LA PEUR",
+      "subName": "La peur déchaînée",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/AOF_SagasMonth1_TopCard_69ebfced598be6b4ff39174ea6c6a086b03e.jpg"
+    },
+    {
       "id": "6b04a6f82c6b04c8d8a63d43",
       "type": "milestone",
       "startTime": 1795467600,
@@ -4511,93 +4475,8 @@
           "description": "Renforcez vos héros avec des losanges !",
           "methods": [
             {
-              "description": "Récupérez des points de l’événement de phase Héros de 2025 dans les offres pour obtenir davantage de récompenses au fur et à mesure de votre progression !",
+              "description": "Récupérez des points de l’événement de phase Héros de 2025 dans les offres pour obtenir davantage de récompenses durant votre progression !",
               "points": 1
-            }
-          ],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "default",
-            "firstPremiumMilestone": 1
-          }
-        ]
-      }
-    },
-    {
-      "id": "6afb6ed0fb365c004bfbcca2",
-      "type": "milestone",
-      "startTime": 1794949200,
-      "endTime": 1795554000,
-      "name": "Avènement des Guerriers audacieux",
-      "subName": "Renforcez les Guerriers audacieux !",
-      "details": "Phase <color=#fff568>Avènement des Guerriers audacieux</color>Profitez-en pour renforcer vos <color=#fff568>Guerriers audacieux</color> avec des récompenses d’élite, dont des éclats et des étoiles rouges !Gagnez des points de phase en combattant dans l’Épreuve cosmique et en choc, et en ouvrant des orbes Avènement des Guerriers audacieux.Ne manquez pas cette occasion, Commandant !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Rising_DaringWarriors_EventCard_6af67d3940d7df30afa5b8a4b68546026f14.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Rising_DaringWarriors_EventBanner_6af67d4740d7df30afa5b8a5becafb3adb9b.jpg",
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Renforcez les Guerriers audacieux !",
-          "methods": [
-            {
-              "description": "Ouvrir 1 orbe Avènement des Guerriers audacieux",
-              "points": 115
-            }
-          ],
-          "cappedScorings": [
-            {
-              "cap": 50,
-              "methods": [
-                {
-                  "description": "Combattre dans l'Épreuve cosmique avec les Guerriers audacieux",
-                  "points": 5
-                }
-              ]
-            },
-            {
-              "cap": 50,
-              "methods": [
-                {
-                  "description": "Combattre en choc avec les Guerriers audacieux",
-                  "points": 2
-                }
-              ]
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "41_and_up",
-            "firstPremiumMilestone": 5
-          },
-          {
-            "id": "default",
-            "firstPremiumMilestone": 5
-          }
-        ]
-      }
-    },
-    {
-      "id": "6afb6ed0fb365c004bfbcca1",
-      "type": "milestone",
-      "startTime": 1794949200,
-      "endTime": 1795554000,
-      "name": "Rayonnement des Guerriers audacieux",
-      "subName": "Obtenez les Guerriers audacieux à 5 losanges !",
-      "details": "Phase <color=#fff568>Rayonnement des Guerriers audacieux</color>Déchaînez la force de votre <color=#fff568>escouade des Guerriers audacieux</color> et améliorez votre effectif grâce à de puissantes récompenses de losanges !Progressez dans cet événement en <color=#fff568>ouvrant des orbes de losange des Guerriers audacieux</color> et récupérez <color=#fff568>5 losanges pour Daredevil, Jessica Jones, Speedball, Night Thrasher et Éclipse</color> en chemin.Orbe de losange des Guerriers audacieuxContient des losanges pour les Guerriers audacieux.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Radiance_DaringWarriors_EventCard_6af6735340d7df30afa5b892451502e5386b.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Radiance_DaringWarriors_EventBanner_6af6736240d7df30afa5b8932f9be9d5eb52.jpg",
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Obtenez les Guerriers audacieux à 5 losanges !",
-          "methods": [
-            {
-              "description": "Ouvrir 1 orbe de losange des Guerriers audacieux",
-              "points": 100
             }
           ],
           "cappedScorings": []
@@ -4683,40 +4562,10 @@
       }
     },
     {
-      "id": "6b0748ccfbfcb2dfafa648c3",
+      "id": "6b089a4cfbfcb2dfafa653d4",
       "type": "milestone",
-      "startTime": 1795640400,
-      "endTime": 1795726800,
-      "name": "Sauvez le monde !",
-      "subName": "Dépensez de l’énergie de campagne",
-      "details": "Dépensez de l’énergie de campagne pour obtenir des récompenses de phase.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Event_7DLS_Card_02_68630e9fa33fa5d5d348e5833f385a00da32.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Event_7DLS_Banner_02_68630ec0a33fa5d5d348e584c275c86c25ed.jpg",
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Dépenser de l'ÉNERGIE DE CAMPAGNE.",
-          "methods": [
-            {
-              "description": "Dépensez 1 point d’énergie de campagne",
-              "points": 5
-            }
-          ],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6b05f74c2c6b04c8d8a64534",
-      "type": "milestone",
-      "startTime": 1795554000,
-      "endTime": 1795640400,
+      "startTime": 1795726800,
+      "endTime": 1795813200,
       "name": "Sauvez le monde !",
       "subName": "Dépensez de l’énergie de campagne",
       "details": "Dépensez de l’énergie de campagne pour obtenir des récompenses de phase.",
@@ -4818,22 +4667,22 @@
       "endTime": 1796587200
     },
     {
-      "id": "6b0373f02c6b04c8d8a637cf",
-      "type": "donation",
-      "startTime": 1795392000,
-      "endTime": 1795478400
-    },
-    {
       "id": "6b0616f02c6b04c8d8a6461c",
       "type": "donation",
       "startTime": 1795564800,
       "endTime": 1795651200
     },
     {
-      "id": "6b04c5702c6b04c8d8a63f24",
+      "id": "6b08b9f1fbfcb2dfafa65464",
       "type": "donation",
-      "startTime": 1795478400,
-      "endTime": 1795564800
+      "startTime": 1795737600,
+      "endTime": 1795824000
+    },
+    {
+      "id": "6b076870fbfcb2dfafa64959",
+      "type": "donation",
+      "startTime": 1795651200,
+      "endTime": 1795737600
     },
     {
       "id": "6580b1fe9746d7f21414ca51",
@@ -4988,7 +4837,7 @@
   ],
   "locale": "fr",
   "localizationStatus": "verified",
-  "localizedFields": 631,
-  "localizedAt": "2026-11-25T21:05:13.139Z",
-  "lastChangedAt": "2026-11-25T21:05:13.139Z"
+  "localizedFields": 610,
+  "localizedAt": "2026-11-27T15:33:43.885Z",
+  "lastChangedAt": "2026-11-27T09:04:29.849Z"
 }

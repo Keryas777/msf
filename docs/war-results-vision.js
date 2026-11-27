@@ -11,17 +11,28 @@
   const labEngineSelect = $("#labEngineSelect"), labFields = $("#laboratoryFields"), labResults = $("#labResults");
   const labStatus = $("#labStatus"), labProgress = $("#labProgress"), runLabButton = $("#runRecognitionLabButton");
   const LABORATORY_KEY = "msf-war-results-laboratory-v1";
+  const numericLocalizationButton = $("#localizeNumericFieldsButton");
+  const NUMERIC_LOCALIZATION_KEY = "msf-war-results-numeric-localization-v1";
+  const numericLocalizationSummary = [];
+  const liveNumericLocalization = new Map();
   const TROPHY_VARIANTS = ["adaptive", "vertical-recovery", "vertical-recovery-edge-safe", "vertical-recovery-icon-aware", "vertical-recovery-combined"];
   const numericLocatorSelect = $("#labNumericLocatorSelect");
   const scoreLocatorButton = $("#compareScoreLocatorsButton"), scoreLocatorResults = $("#scoreLocatorResults");
+  const scoreV020Results = $("#scoreV020Results");
   const SCORE_LOCATOR_KEY = "msf-war-results-score-locator-lab-v1";
   const scoreLocatorSummary = [];
+  const scoreV020Summary = [];
+  const scoreColorMeasurements = [];
   const liveScoreLocator = new Map();
+  const SCORE_VARIANT_LABELS = { v01: "V0.1.0 — référence inchangée", geometry: "V0.2.0 — regroupement géométrique corrigé",
+    anchored: "V0.2.0 — regroupement + ancrage proportionnel", joint: "V0.2.0 — ancrage + localisation conjointe" };
+  let scoreColorBitmap = null, scoreColorRect = null, scoreColorDrag = null, scoreColorPaintedRect = null;
   const LAB_FIELDS = { identity: ["localAlliance", "opponentAlliance"], numeric: ["localScore", "opponentScore", "localTrophies", "opponentTrophies"], result: ["result"] };
   const LAB_ENGINE_LABELS = { identity: "Identité", numeric: "Numérique", result: "Résultat" };
   const copyLocatorComparisonButton = $("#copyLocatorComparisonButton");
   const numericOcrSummary = [];
   const NUMERIC_OCR_KEY = "msf-war-results-numeric-ocr-v1";
+  const ACTIVE_NUMERIC_OCR_STRATEGIES = new Set(["psm8", "psm8-glyph-alignment"]);
   const status = $("#analysisStatus"), progress = $("#analysisProgress"), badge = $("#batchBadge");
   const KEY = "msf-war-results-vision-drafts-v1";
   const LOCATOR_COMPARISON_KEY = "msf-war-results-locator-ab-v2";
@@ -42,6 +53,7 @@
   restoreLaboratory();
   restoreNumericOcrResults();
   restoreScoreLocatorResults();
+  restoreNumericLocalization();
   renderLaboratoryFields();
   input.addEventListener("change", () => addFiles([...input.files || []]));
   analyzeButton.addEventListener("click", () => {
@@ -59,21 +71,32 @@
     updateLaboratoryControls();
   });
   runLabButton.addEventListener("click", () => runRecognitionLaboratory().catch(showGlobalError));
+  numericLocalizationButton.addEventListener("click", () => localizeSelectedNumericFields().catch(showGlobalError));
+  $("#numericCaptureFilter").addEventListener("change", renderNumericLocalizationResults);
+  $("#numericLocalizationResults").addEventListener("change", onNumericLocalizationQualityChange);
+  $("#copyNumericLocalizationJsonButton").addEventListener("click", () => copyNumericLocalizationJson().catch(showGlobalError));
+  $("#exportNumericLocalizationJsonButton").addEventListener("click", exportNumericLocalizationJson);
   $("#copyLabJsonButton").addEventListener("click", () => copyLaboratoryJson().catch(showGlobalError));
   $("#exportLabJsonButton").addEventListener("click", exportLaboratoryJson);
-  scoreLocatorButton.addEventListener("click", () => compareScoreLocators().catch(showGlobalError));
+  scoreLocatorButton.addEventListener("click", () => runSelectedScoreLocatorVariants().catch(showGlobalError));
   $("#copyScoreLocatorJsonButton").addEventListener("click", () => copyScoreLocatorJson().catch(showGlobalError));
   $("#exportScoreLocatorJsonButton").addEventListener("click", exportScoreLocatorJson);
   $("#clearScoreLocatorResultsButton").addEventListener("click", clearScoreLocatorResults);
   scoreLocatorResults.addEventListener("change", onScoreQualityChange);
-  window.addEventListener("war-results-capture-batch", (event) => restoreScoreLocatorPreviews(event.detail || []));
+  $("#scoreColorCapture").addEventListener("change", loadScoreColorCapture);
+  $("#measureScoreColorButton").addEventListener("click", measureSelectedScoreColorRegion);
+  $("#scoreColorSource").addEventListener("pointerdown", onScoreColorPointerDown);
+  $("#scoreColorSource").addEventListener("pointermove", onScoreColorPointerMove);
+  $("#scoreColorSource").addEventListener("pointerup", onScoreColorPointerUp);
+  $("#scoreColorSource").addEventListener("pointercancel", onScoreColorPointerUp);
+  window.addEventListener("war-results-capture-batch", (event) => {
+    const files = event.detail || [];
+    restoreScoreLocatorPreviews(files);
+    restoreNumericLocalizationPreviews(files);
+  });
   $("#compareNumericOcrButton").addEventListener("click", () => compareNumericOcr().catch(showGlobalError));
   initializeOcrCombinations();
   $("#ocrCombinationOptions").addEventListener("change", updateOcrCombinationCount);
-  $("#ocrGlyphOption").addEventListener("change", updateOcrCombinationCount);
-  $("#ocrMorphologyOption").addEventListener("change", updateOcrCombinationCount);
-  $("#ocrAlignmentOption").addEventListener("change", updateOcrCombinationCount);
-  $("#applyRecommendedOcrPreset").addEventListener("click", applyRecommendedOcrPreset);
   $("#clearNumericOcrButton").addEventListener("click", clearNumericOcrResults);
   $("#copyNumericOcrButton").addEventListener("click", () => copyNumericOcrJson().catch(showGlobalError));
   $("#exportNumericOcrButton").addEventListener("click", exportNumericOcrJson);
@@ -128,7 +151,7 @@
   }
   function publishCaptureBatch() {
     if (typeof window.dispatchEvent !== "function" || typeof CustomEvent !== "function") return;
-    window.dispatchEvent(new CustomEvent("war-results-capture-batch", { detail: records.filter((record) => record.file).map((record) => ({ file: record.file, name: record.fileName })) }));
+    window.dispatchEvent(new CustomEvent("war-results-capture-batch", { detail: records.filter((record) => record.file).map((record) => ({ file: record.file, name: record.fileName, url: record.url })) }));
   }
 
   function render() {
@@ -143,16 +166,95 @@
     summary.hidden = !records.length;
     $("#batchSummaryText").textContent = records.length ? `${records.filter(r=>r.state==="validated").length} validée(s) localement · ${records.filter(r=>r.state==="review").length} à vérifier · ${records.filter(r=>r.state==="error").length} en erreur` : "";
     updateLaboratoryControls();
+    renderScoreColorCaptureOptions();
+  }
+
+  function renderScoreColorCaptureOptions() {
+    const select = $("#scoreColorCapture"), previous = select.value;
+    const available = records.filter((record) => record.file);
+    select.innerHTML = available.map((record) => `<option value="${escapeAttr(record.id)}">${escapeHtml(record.fileName)} · ${record.file.size} octets</option>`).join("");
+    if (available.some((record) => record.id === previous)) select.value = previous;
+    $("#measureScoreColorButton").disabled = !available.length || !scoreColorRect;
+  }
+
+  async function loadScoreColorCapture() {
+    scoreColorBitmap?.close?.(); scoreColorBitmap = null; scoreColorRect = null; scoreColorPaintedRect = null;
+    const record = records.find((item) => item.id === $("#scoreColorCapture").value && item.file);
+    const canvas = $("#scoreColorSource"), ctx = canvas.getContext("2d");
+    if (!record) { canvas.width = canvas.height = 1; return; }
+    scoreColorBitmap = await createImageBitmap(record.file);
+    canvas.width = scoreColorBitmap.width; canvas.height = scoreColorBitmap.height;
+    ctx.drawImage(scoreColorBitmap, 0, 0);
+    $("#scoreColorSelection").textContent = `Image source ${canvas.width} × ${canvas.height}px. Fais glisser sur les chiffres à mesurer.`;
+    $("#scoreColorMask").width = $("#scoreColorMask").height = 1;
+    $("#scoreColorSummary").textContent = "";
+    updateScoreColorSelection();
+  }
+  function scoreColorPoint(event) {
+    const canvas = $("#scoreColorSource"), box = canvas.getBoundingClientRect();
+    return { x: Math.max(0, Math.min(canvas.width, Math.round((event.clientX - box.left) * canvas.width / box.width))),
+      y: Math.max(0, Math.min(canvas.height, Math.round((event.clientY - box.top) * canvas.height / box.height))) };
+  }
+  function onScoreColorPointerDown(event) {
+    if (!scoreColorBitmap) return;
+    event.preventDefault(); $("#scoreColorSource").setPointerCapture?.(event.pointerId);
+    scoreColorDrag = { start: scoreColorPoint(event), current: scoreColorPoint(event) }; drawScoreColorSelection();
+  }
+  function onScoreColorPointerMove(event) { if (scoreColorDrag) { scoreColorDrag.current = scoreColorPoint(event); drawScoreColorSelection(); } }
+  function onScoreColorPointerUp(event) {
+    if (!scoreColorDrag) return;
+    scoreColorDrag.current = scoreColorPoint(event);
+    const a = scoreColorDrag.start, b = scoreColorDrag.current;
+    scoreColorRect = { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), width: Math.abs(a.x - b.x), height: Math.abs(a.y - b.y) };
+    scoreColorDrag = null; drawScoreColorSelection(); updateScoreColorSelection();
+  }
+  function drawScoreColorSelection() {
+    const canvas = $("#scoreColorSource"), ctx = canvas.getContext("2d");
+    if (!scoreColorBitmap) return;
+    if (!scoreColorPaintedRect) ctx.drawImage(scoreColorBitmap, 0, 0);
+    else {
+      const old = scoreColorPaintedRect, pad = Math.max(3, Math.round(canvas.width / 1000));
+      const x = Math.max(0, old.x-pad), y = Math.max(0, old.y-pad), x2 = Math.min(canvas.width, old.x+old.width+pad), y2 = Math.min(canvas.height, old.y+old.height+pad);
+      ctx.drawImage(scoreColorBitmap, x, y, x2-x, y2-y, x, y, x2-x, y2-y);
+    }
+    const a = scoreColorDrag?.start, b = scoreColorDrag?.current;
+    const rect = scoreColorDrag && a && b ? { x: Math.min(a.x,b.x), y: Math.min(a.y,b.y), width: Math.abs(a.x-b.x), height: Math.abs(a.y-b.y) } : scoreColorRect;
+    scoreColorPaintedRect = rect || null;
+    if (rect) { ctx.strokeStyle = "#4be7ff"; ctx.lineWidth = Math.max(2, canvas.width / 1000); ctx.strokeRect(rect.x, rect.y, rect.width, rect.height); }
+  }
+  function updateScoreColorSelection() {
+    const usable = scoreColorRect && scoreColorRect.width >= 2 && scoreColorRect.height >= 2;
+    $("#measureScoreColorButton").disabled = !usable;
+    $("#scoreColorSelection").textContent = usable
+      ? `Zone source : x=${scoreColorRect.x}, y=${scoreColorRect.y}, ${scoreColorRect.width} × ${scoreColorRect.height}px.`
+      : "Trace une zone source d’au moins 2 × 2 pixels sur les chiffres et leurs contours.";
+  }
+  async function measureSelectedScoreColorRegion() {
+    const record = records.find((item) => item.id === $("#scoreColorCapture").value && item.file);
+    if (!record || !scoreColorRect) return;
+    $("#measureScoreColorButton").disabled = true;
+    $("#scoreColorStatus").textContent = "Mesure directe des pixels source…";
+    try {
+      const result = await WarResultsVisionEngine.measureScoreColorRegion(record.file, scoreColorRect);
+      const { maskPreview, mask, ...summary } = result;
+      const maskCanvas = $("#scoreColorMask"), maskContext = maskCanvas.getContext("2d");
+      maskCanvas.width = result.region.width; maskCanvas.height = result.region.height;
+      const maskImage = maskContext.createImageData(maskCanvas.width, maskCanvas.height); maskImage.data.set(maskPreview.data); maskContext.putImageData(maskImage, 0, 0);
+      const entry = { captureId: record.fileKey, file: record.fileName, field: $("#scoreColorField").value,
+        dimensions: result.dimensions, ...summary, measuredAt: new Date().toISOString() };
+      scoreColorMeasurements.push(entry); persistScoreLocatorResults();
+      $("#scoreColorSummary").textContent = JSON.stringify(entry, null, 2);
+      $("#scoreColorStatus").textContent = `${result.accepted} pixels acceptés / ${result.pixelCount}; cyan = masque V0.1 accepté, rouge = rejeté. Statistiques RGB/HSV et couleurs dominantes enregistrées dans l’export JSON.`;
+    } catch (error) { $("#scoreColorStatus").textContent = errorMessage(error); }
+    updateLaboratoryControls();
   }
 
   function renderLaboratoryFields() {
-    const engine = LAB_FIELDS[labEngineSelect.value] ? labEngineSelect.value : "numeric";
-    const fields = LAB_FIELDS[engine];
-    const quick = engine === "numeric" ? `<div class="lab-quick-select"><button type="button" data-lab-select="all">4 champs</button><button type="button" data-lab-select="scores">2 scores</button><button type="button" data-lab-select="trophies">2 trophées</button></div>` : "";
-    labFields.innerHTML = `${quick}<div class="lab-checkbox-grid">${fields.map((field) => `<label><input type="checkbox" data-lab-field="${field}" ${engine === "numeric" || engine === "identity" || engine === "result" ? "checked" : ""}><span>${escapeHtml(LABELS[field])}</span></label>`).join("")}</div>`;
-    $("#labNumericOptions").hidden = engine !== "numeric";
-    $("#scoreLocatorLab").hidden = engine !== "numeric";
-    runLabButton.textContent = `Lancer le moteur ${LAB_ENGINE_LABELS[engine]}`;
+    const fields = LAB_FIELDS.numeric;
+    labEngineSelect.value = "numeric";
+    const quick = `<div class="lab-quick-select"><button type="button" data-lab-select="all">4 champs</button><button type="button" data-lab-select="scores">2 scores</button><button type="button" data-lab-select="trophies">2 trophées</button></div>`;
+    labFields.innerHTML = `${quick}<div class="lab-checkbox-grid">${fields.map((field) => `<label><input type="checkbox" data-lab-field="${field}" checked><span>${escapeHtml(LABELS[field])}</span></label>`).join("")}</div>`;
+    runLabButton.textContent = "Lancer le moteur Numérique";
     updateLaboratoryControls();
   }
 
@@ -179,16 +281,238 @@
   function updateLaboratoryControls() {
     const fields = selectedLabFields();
     runLabButton.disabled = analyzing || !fields.length || !records.some((record) => record.file);
+    numericLocalizationButton.disabled = analyzing || !fields.length || !records.some((record) => record.file);
     $("#copyLabJsonButton").disabled = !laboratorySummary.length;
     $("#exportLabJsonButton").disabled = !laboratorySummary.length;
     scoreLocatorButton.disabled = analyzing || labEngineSelect.value !== "numeric" || !fields.some((field) => field === "localScore" || field === "opponentScore") || !records.some((record) => record.file);
-    $("#copyScoreLocatorJsonButton").disabled = !scoreLocatorSummary.length;
-    $("#exportScoreLocatorJsonButton").disabled = !scoreLocatorSummary.length;
-    $("#clearScoreLocatorResultsButton").disabled = !scoreLocatorSummary.length;
-    $("#compareNumericOcrButton").disabled = analyzing || !records.some((record) => record.file);
+    $("#copyScoreLocatorJsonButton").disabled = !scoreLocatorSummary.length && !scoreV020Summary.length;
+    $("#exportScoreLocatorJsonButton").disabled = !scoreLocatorSummary.length && !scoreV020Summary.length;
+    $("#clearScoreLocatorResultsButton").disabled = !scoreLocatorSummary.length && !scoreV020Summary.length;
+    const selectedTrophies = fields.some((field) => field === "localTrophies" || field === "opponentTrophies");
+    $("#compareNumericOcrButton").disabled = analyzing || !selectedTrophies || !records.some((record) => record.file);
     $("#clearNumericOcrButton").disabled = !numericOcrSummary.length;
-    $("#copyNumericOcrButton").disabled = !numericOcrSummary.length;
-    $("#exportNumericOcrButton").disabled = !numericOcrSummary.length;
+    $("#copyNumericOcrButton").disabled = !numericOcrEntriesForDisplay().length;
+    $("#exportNumericOcrButton").disabled = !numericOcrEntriesForDisplay().length;
+  }
+
+  function numericLocalizationPayload() {
+    return { schemaVersion: "1.0.0", scope: "numeric-localization-only", recognition: "none",
+      localizers: { scores: "V0.2.0-anchored", trophies: "pixel-content+vertical-recovery-combined", scoreMarginPercent: 14, trophyMarginPercent: 18 },
+      privacy: "No source pixels, image crops, Base64 previews, or OCR values are included.",
+      captures: numericLocalizationSummary.map((entry) => ({ ...entry, fields: Object.fromEntries(Object.entries(entry.fields || {}).map(([field, result]) => {
+        const { preview, ...diagnostic } = result; return [field, diagnostic];
+      })) })) };
+  }
+  function persistNumericLocalization() {
+    try { sessionStorage.setItem(NUMERIC_LOCALIZATION_KEY, JSON.stringify(numericLocalizationPayload())); }
+    catch (_) { $("#numericLocalizationStatus").textContent = "Le stockage temporaire est saturé ou indisponible; télécharge les diagnostics JSON avant de quitter."; }
+  }
+  function restoreNumericLocalization() {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(NUMERIC_LOCALIZATION_KEY) || "null");
+      if (saved?.scope !== "numeric-localization-only" || !Array.isArray(saved.captures)) return;
+      numericLocalizationSummary.push(...saved.captures.filter((entry) => entry?.captureId && entry?.fields && typeof entry.fields === "object"));
+      if (numericLocalizationSummary.length) {
+        $("#numericLocalizationStatus").textContent = "Résultats de localisation restaurés. Réimporte les captures pour revoir les images et les découpes.";
+        renderNumericLocalizationResults();
+      }
+    } catch (_) { sessionStorage.removeItem(NUMERIC_LOCALIZATION_KEY); }
+  }
+  function numericLocalizationCounts() {
+    const fields = numericLocalizationSummary.flatMap((entry) => Object.values(entry.fields || {}));
+    return { processed: fields.length, localized: fields.filter((field) => field.status === "localized").length,
+      uncertain: fields.filter((field) => field.status === "uncertain").length, failed: fields.filter((field) => field.status === "failed").length };
+  }
+  function updateNumericCaptureFilter() {
+    const select = $("#numericCaptureFilter"), previous = select.value;
+    select.innerHTML = `<option value="all">Toutes les captures</option>` + numericLocalizationSummary.map((entry, index) =>
+      `<option value="${escapeAttr(entry.captureId)}" title="${escapeAttr(entry.file)}">Capture ${index + 1}</option>`).join("");
+    if (numericLocalizationSummary.some((entry) => entry.captureId === previous)) select.value = previous;
+  }
+  function renderNumericLocalizationResults() {
+    updateNumericCaptureFilter();
+    const counts = numericLocalizationCounts();
+    $("#numericLocalizationSummary").textContent = counts.processed
+      ? `${counts.processed} champ(s) traité(s) · ${counts.localized} localisé(s) · ${counts.uncertain} incertain(s) · ${counts.failed} échec(s)`
+      : "Aucun champ localisé.";
+    const selectedCapture = $("#numericCaptureFilter").value;
+    const entries = numericLocalizationSummary.filter((entry) => selectedCapture === "all" || entry.captureId === selectedCapture);
+    const box = (rect, cls) => rect ? `<rect class="score-locator-${cls}" x="${Number(rect.x)}" y="${Number(rect.y)}" width="${Number(rect.width)}" height="${Number(rect.height)}"/>` : "";
+    $("#numericLocalizationResults").innerHTML = entries.map((entry, index) => {
+      const live = liveNumericLocalization.get(entry.captureId);
+      const fields = ["localScore", "localTrophies", "opponentScore", "opponentTrophies"].filter((field) => entry.fields?.[field]);
+      const cards = fields.map((field) => {
+        const result = entry.fields[field], diagnostic = result.diagnostics || {};
+        const statusLabel = result.status === "localized" ? "Localisé" : result.status === "uncertain" ? "Incertain" : "Échec";
+        const statusClass = result.status === "localized" ? "is-localized" : result.status === "uncertain" ? "is-uncertain" : "is-failed";
+        const finalRect = result.finalRect || null;
+        const trophyOrigin = diagnostic.segmentationBandRect || diagnostic.searchBand || { x: 0, y: 0 };
+        const searchRects = diagnostic.regions?.map((item) => item.rect).filter(Boolean) || [diagnostic.searchBand, diagnostic.segmentationBandRect].filter(Boolean);
+        const translateTrophyBox = (box) => ({ ...box, x: box.x + trophyOrigin.x, y: box.y + trophyOrigin.y });
+        const componentRects = field.endsWith("Trophies")
+          ? (diagnostic.segmentation?.components || []).map(translateTrophyBox)
+          : (diagnostic.components?.accepted || []);
+        const rejectedComponentRects = field.endsWith("Trophies")
+          ? (diagnostic.segmentation?.excludedLeadingComponents || []).map(translateTrophyBox)
+          : (diagnostic.components?.rejected || []);
+        const glyphRects = field.endsWith("Trophies")
+          ? (diagnostic.segmentation?.bounds || []).map(translateTrophyBox)
+          : result.glyphs || [];
+        const candidateRects = field.endsWith("Score") ? (diagnostic.candidates || []).map((candidate) => candidate.rect).filter(Boolean)
+          : (diagnostic.candidates || []).map((candidate) => candidate.rect).filter(Boolean);
+        const overlay = live?.sourceUrl && entry.dimensions ? `<details class="numeric-localization-details"><summary>Voir la zone, les glyphes et les composants</summary><p class="muted">Jaune : zone proportionnelle · cyan : recherche · vert : découpe finale · rouge : glyphes retenus · vert fin : composants conservés · orange : composants rejetés · violet : candidats.</p><div class="score-locator-source" style="aspect-ratio:${entry.dimensions.width}/${entry.dimensions.height}"><img src="${escapeAttr(live.sourceUrl)}" alt="Capture ${index + 1}"><svg viewBox="0 0 ${entry.dimensions.width} ${entry.dimensions.height}" preserveAspectRatio="none">${box(result.proportionalRect, "baseline")}${searchRects.map((rect) => box(rect, "search")).join("")}${box(finalRect, "final")}${componentRects.map((rect) => box(rect, "component")).join("")}${rejectedComponentRects.map((rect) => box(rect, "rejected-component")).join("")}${glyphRects.map((rect) => box(rect, "glyph")).join("")}${candidateRects.map((rect) => box(rect, "candidate")).join("")}</svg></div></details>` : "";
+        const crop = result.preview ? `<img class="numeric-localization-crop" src="${escapeAttr(result.preview)}" alt="Découpe ${escapeAttr(LABELS[field])}">`
+          : `<div class="score-locator-missing">${result.finalRect ? "Réimporte cette capture pour afficher sa découpe" : "Aucune découpe exploitable"}</div>`;
+        const dimensions = result.cropDimensions ? `${result.cropDimensions.width} × ${result.cropDimensions.height} px` : "Dimensions indisponibles";
+        const details = { method: result.method, status: result.status, localized: result.localized, initialRect: result.initialRect,
+          proportionalRect: result.proportionalRect, correctedRect: result.correctedRect, searchBand: result.searchBand,
+          finalRect: result.finalRect, glyphs: result.glyphs, marginPercent: result.marginPercent, warnings: result.warnings,
+          elapsedMs: result.elapsedMs, diagnostics: result.diagnostics };
+        return `<article class="numeric-localization-field"><div class="numeric-localization-field-heading"><h4>${escapeHtml(LABELS[field])}</h4><span class="numeric-localization-state ${statusClass}">${statusLabel}</span></div><div class="numeric-localization-preview">${crop}<p>${dimensions} · ${result.elapsedMs ?? "—"} ms${Number.isFinite(result.marginPercent) ? ` · marge ${result.marginPercent}%` : ""}</p></div>${(result.warnings || []).length ? `<p class="lab-warning">${escapeHtml(result.warnings.join(" · "))}</p>` : ""}<label class="score-locator-quality">Évaluation visuelle<select data-numeric-quality-capture="${escapeAttr(entry.captureId)}" data-numeric-quality-field="${escapeAttr(field)}"><option value="pending" ${result.quality === "pending" ? "selected" : ""}>À vérifier</option><option value="good" ${result.quality === "good" ? "selected" : ""}>Complète, sans contamination notable</option><option value="bad" ${result.quality === "bad" ? "selected" : ""}>Chiffre coupé ou contamination</option><option value="uncertain" ${result.quality === "uncertain" ? "selected" : ""}>Incertaine</option></select></label>${overlay}<details class="numeric-localization-details"><summary>Composantes, groupes et avertissements</summary><pre>${escapeHtml(JSON.stringify(details, null, 2))}</pre></details></article>`;
+      }).join("");
+      return `<article class="numeric-localization-capture"><h3>Capture ${index + 1}</h3><p class="numeric-localization-filename" title="${escapeAttr(entry.file)}">${escapeHtml(entry.file)}</p><p class="capture-meta">${entry.dimensions ? `${entry.dimensions.width} × ${entry.dimensions.height} px` : "Dimensions indisponibles"} · ${fields.length} champ(s) affiché(s)${Number.isFinite(entry.totalMs) ? ` · total ${entry.totalMs} ms` : ""}</p><div class="numeric-localization-field-grid">${cards}</div></article>`;
+    }).join("");
+    const hasResults = counts.processed > 0;
+    $("#copyNumericLocalizationJsonButton").disabled = !hasResults;
+    $("#exportNumericLocalizationJsonButton").disabled = !hasResults;
+  }
+  function onNumericLocalizationQualityChange(event) {
+    const select = event.target.closest("select[data-numeric-quality-capture]"); if (!select) return;
+    const entry = numericLocalizationSummary.find((item) => item.captureId === select.dataset.numericQualityCapture);
+    const result = entry?.fields?.[select.dataset.numericQualityField]; if (!result) return;
+    result.quality = select.value; result.qualityConfirmedAt = new Date().toISOString();
+    persistNumericLocalization();
+  }
+  async function localizeSelectedNumericFields() {
+    if (analyzing) return;
+    const fields = selectedLabFields(), pending = records.filter((record) => record.file);
+    if (!fields.length || !pending.length) { $("#numericLocalizationStatus").textContent = "Charge une capture et sélectionne au moins un champ."; return; }
+    analyzing = true; $("#numericLocalizationProgress").hidden = false; $("#numericLocalizationProgress").value = 0;
+    labFields.querySelectorAll("input,button").forEach((control) => { control.disabled = true; });
+    updateLaboratoryControls();
+    let processed = 0;
+    try {
+      for (const [captureIndex, record] of pending.entries()) {
+        const captureId = record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file);
+        const previousIndex = numericLocalizationSummary.findIndex((entry) => entry.captureId === captureId);
+        const previous = previousIndex >= 0 ? numericLocalizationSummary[previousIndex] : null;
+        let result = null, failure = null;
+        try {
+          result = await WarResultsVisionEngine.locateNumericFields(record.file, fields, (message) => {
+            if (message.status) $("#numericLocalizationStatus").textContent = `${record.fileName} — ${message.status}`;
+          });
+        } catch (error) { failure = errorMessage(error); }
+        const nextFields = { ...(previous?.fields || {}) };
+        for (const field of fields) {
+          const localized = result?.fields?.[field];
+          nextFields[field] = localized ? { ...localized, quality: previous?.fields?.[field]?.quality || "pending" }
+            : { field, method: field.endsWith("Score") ? "score-v0.2-anchored" : "pixel-content+vertical-recovery-combined",
+              status: "failed", localized: false, initialRect: null, proportionalRect: null, finalRect: null,
+              cropDimensions: null, glyphs: [], warnings: [failure || "localization-result-missing"], elapsedMs: null,
+              marginPercent: field.endsWith("Score") ? 14 : 18, quality: previous?.fields?.[field]?.quality || "pending",
+              diagnostics: { error: failure || "localization-result-missing" } };
+        }
+        const entry = { captureId, file: record.fileName, dimensions: result?.dimensions || null, layout: result?.layout || null,
+          totalMs: Number.isFinite(result?.totalMs) ? result.totalMs : null, fields: nextFields, processedAt: new Date().toISOString() };
+        if (previousIndex >= 0) numericLocalizationSummary.splice(previousIndex, 1, entry); else numericLocalizationSummary.push(entry);
+        liveNumericLocalization.set(captureId, { sourceUrl: record.url });
+        persistNumericLocalization(); renderNumericLocalizationResults();
+        processed += fields.length;
+        $("#numericLocalizationProgress").value = Math.round((captureIndex + 1) / pending.length * 100);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+      const counts = numericLocalizationCounts();
+      $("#numericLocalizationStatus").textContent = `${processed} champ(s) demandé(s) sur ${pending.length} capture(s). ${counts.localized} localisation(s) exploitable(s); aucun OCR ni autre moteur n’a été lancé.`;
+    } finally {
+      analyzing = false; $("#numericLocalizationProgress").hidden = true;
+      labFields.querySelectorAll("input,button").forEach((control) => { control.disabled = false; });
+      render(); updateLaboratoryControls();
+    }
+  }
+  function restoreNumericLocalizationPreviews(files) {
+    for (const item of files) {
+      const file = item?.file, captureId = file && WarResultsLocatorComparisonStore.fileKey(file);
+      const entry = numericLocalizationSummary.find((record) => record.captureId === captureId);
+      if (!file || !entry) continue;
+      createImageBitmap(file).then((bitmap) => {
+        const crops = {};
+        for (const [field, result] of Object.entries(entry.fields || {})) {
+          if (!result.finalRect) continue;
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(result.finalRect.width)); canvas.height = Math.max(1, Math.round(result.finalRect.height));
+          canvas.getContext("2d").drawImage(bitmap, result.finalRect.x, result.finalRect.y, result.finalRect.width, result.finalRect.height, 0, 0, canvas.width, canvas.height);
+          crops[field] = canvas.toDataURL("image/jpeg", .9); canvas.width = canvas.height = 1;
+        }
+        bitmap.close?.(); liveNumericLocalization.set(captureId, { sourceUrl: item.url, crops });
+        for (const [field, preview] of Object.entries(crops)) entry.fields[field].preview = preview;
+        renderNumericLocalizationResults();
+      }).catch(() => {});
+    }
+  }
+  async function copyNumericLocalizationJson() {
+    const json = JSON.stringify(numericLocalizationPayload(), null, 2);
+    try { await navigator.clipboard.writeText(json); $("#numericLocalizationStatus").textContent = "Diagnostics de localisation copiés sans images ni OCR."; }
+    catch (_) { const area = document.createElement("textarea"); area.value = json; area.setAttribute("readonly", ""); area.style.position = "fixed"; area.style.opacity = "0"; document.body.appendChild(area); area.select(); const copied = document.execCommand("copy"); area.remove(); $("#numericLocalizationStatus").textContent = copied ? "Diagnostics copiés sans images ni OCR." : "Copie refusée; utilise le téléchargement JSON."; }
+  }
+  function exportNumericLocalizationJson() {
+    if (numericLocalizationSummary.length) download(numericLocalizationPayload(), `war-results-numeric-localization-${new Date().toISOString().slice(0, 10)}.json`);
+  }
+
+  async function runSelectedScoreLocatorVariants() {
+    const variants = [...document.querySelectorAll("[data-score-locator-variant]:checked")]
+      .map((input) => input.dataset.scoreLocatorVariant);
+    if (!variants.length) { $("#scoreLocatorStatus").textContent = "Sélectionne au moins une stratégie de localisation."; return; }
+    if (variants.includes("v01")) await compareScoreLocators();
+    const v020 = variants.filter((variant) => variant !== "v01");
+    if (v020.length) await compareScoreLocatorsV020(v020);
+  }
+
+  async function compareScoreLocatorsV020(variants) {
+    if (analyzing) return;
+    const fields = selectedLabFields().filter((field) => field === "localScore" || field === "opponentScore");
+    const pending = records.filter((record) => record.file);
+    if (!fields.length || !pending.length) { $("#scoreLocatorStatus").textContent = "Sélectionne Score LoSP, Score adverse ou les deux et charge une capture."; return; }
+    analyzing = true; scoreLocatorButton.disabled = true; labEngineSelect.disabled = true;
+    $("#scoreLocatorStatus").textContent = "Comparaison V0.2.0 en cours. Aucun OCR n’est exécuté.";
+    for (const record of pending) {
+      const sourceKey = record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file);
+      try {
+        const comparison = await WarResultsVisionEngine.compareScoreLocatorsV020(record.file, fields, variants, (message) => {
+          if (message.status) $("#scoreLocatorStatus").textContent = record.fileName + " — " + message.status;
+        });
+        for (const variant of variants) for (const field of fields) {
+          const result = comparison.variants?.[variant]?.fields?.[field];
+          if (!result) continue;
+          const id = sourceKey + ":" + field + ":" + variant;
+          const previous = scoreV020Summary.find((entry) => entry.id === id);
+          const { proportionalPreview, experimentalPreview, candidatePreview, ...diagnostic } = result;
+          const entry = { id, captureId: sourceKey, file: record.fileName, field, variant, dimensions: comparison.dimensions,
+            layout: comparison.layout, layoutMethod: result.layoutMethod, baseline: { method: "proportional-current", rect: result.proportionalRect },
+            experimental: diagnostic, quality: previous?.quality || "pending", comparedAt: new Date().toISOString() };
+          const position = scoreV020Summary.findIndex((item) => item.id === id);
+          if (position >= 0) scoreV020Summary.splice(position, 1, entry); else scoreV020Summary.push(entry);
+          liveScoreLocator.set(id, { sourceUrl: record.url, proportionalPreview, experimentalPreview, candidatePreview, dimensions: comparison.dimensions });
+          persistScoreLocatorResults(); renderScoreLocatorResults();
+        }
+      } catch (error) {
+        for (const variant of variants) for (const field of fields) {
+          const id = sourceKey + ":" + field + ":" + variant;
+          const previous = scoreV020Summary.find((entry) => entry.id === id);
+          const entry = { id, captureId: sourceKey, file: record.fileName, field, variant, dimensions: null,
+            baseline: { method: "proportional-current", rect: null },
+            experimental: { method: "score-localization-v020", localized: false, status: "no-localization",
+              reason: errorMessage(error), warnings: ["execution-error"], elapsedMs: null },
+            quality: previous?.quality || "pending", comparedAt: new Date().toISOString() };
+          const position = scoreV020Summary.findIndex((item) => item.id === id);
+          if (position >= 0) scoreV020Summary.splice(position, 1, entry); else scoreV020Summary.push(entry);
+          persistScoreLocatorResults(); renderScoreLocatorResults();
+        }
+      }
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+    $("#scoreLocatorStatus").textContent = variants.length + " stratégie(s) V0.2.0 enregistrée(s) pour " + fields.length +
+      " champ(s) × " + pending.length + " capture(s). Vérifie les candidats et les découpes; aucun OCR n’a été exécuté.";
+    analyzing = false; labEngineSelect.disabled = false; render(); updateLaboratoryControls();
   }
 
   async function compareScoreLocators() {
@@ -214,7 +538,7 @@
               finalRect: diagnostic.finalRect, cropDimensions: diagnostic.cropDimensions, componentCount: diagnostic.componentCount,
               glyphCount: diagnostic.glyphCount, glyphs: diagnostic.glyphs, selected: diagnostic.selected,
               candidates: diagnostic.candidates, parameters: diagnostic.parameters, extensions: diagnostic.extensions,
-              diagnostics: diagnostic.diagnostics, warnings: diagnostic.warnings, localized: diagnostic.localized,
+              diagnostics: diagnostic.diagnostics, warnings: diagnostic.warnings, pipelineDiagnostics: diagnostic.pipelineDiagnostics, localized: diagnostic.localized,
               reason: diagnostic.reason, elapsedMs: diagnostic.elapsedMs },
             quality: previous?.quality || "pending", comparedAt: new Date().toISOString() };
           const position = scoreLocatorSummary.findIndex((item) => item.id === id);
@@ -242,8 +566,10 @@
   }
 
   function scoreLocatorPayload() {
-    return { schemaVersion: "1.0.0", scope: "score-localization-only", recognition: "none",
-      privacy: "No source pixels, image crops, or OCR values are included.", entries: scoreLocatorSummary.map(({ id, ...entry }) => entry) };
+    return { schemaVersion: "2.0.0", scope: "score-localization-only", recognition: "none",
+      privacy: "No source pixels, image crops, or OCR values are included.",
+      entries: scoreLocatorSummary.map(({ id, ...entry }) => ({ ...entry, variant: "v01" })),
+      v020Entries: scoreV020Summary.map(({ id, ...entry }) => entry), colorMeasurements: scoreColorMeasurements };
   }
   function persistScoreLocatorResults() {
     try { sessionStorage.setItem(SCORE_LOCATOR_KEY, JSON.stringify(scoreLocatorPayload())); }
@@ -253,15 +579,18 @@
     try {
       const saved = JSON.parse(sessionStorage.getItem(SCORE_LOCATOR_KEY) || "null");
       if (saved?.scope === "score-localization-only" && Array.isArray(saved.entries)) {
+        if (Array.isArray(saved.v020Entries)) scoreV020Summary.push(...saved.v020Entries.map((entry) =>
+          ({ ...entry, id: entry.captureId + ":" + entry.field + ":" + entry.variant })));
         scoreLocatorSummary.push(...saved.entries.map((entry) => ({ ...entry, id: `${entry.captureId}:${entry.field}` })));
-        $("#scoreLocatorStatus").textContent = `${scoreLocatorSummary.length} diagnostic(s) restauré(s). Réimporte les captures pour retrouver les aperçus.`;
+        if (Array.isArray(saved.colorMeasurements)) scoreColorMeasurements.push(...saved.colorMeasurements);
+        $("#scoreLocatorStatus").textContent = `${scoreLocatorSummary.length + scoreV020Summary.length} diagnostic(s) restauré(s). Réimporte les captures pour retrouver les aperçus.`;
       }
     } catch (_) { scoreLocatorSummary.splice(0); }
   }
   async function restoreScoreLocatorPreviews(files) {
     for (const item of files) {
       const file = item?.file, sourceKey = file && WarResultsLocatorComparisonStore.fileKey(file);
-      const entries = scoreLocatorSummary.filter((entry) => entry.captureId === sourceKey);
+      const entries = [...scoreLocatorSummary, ...scoreV020Summary].filter((entry) => entry.captureId === sourceKey);
       if (!file || !entries.length) continue;
       let bitmap;
       try {
@@ -275,6 +604,7 @@
         const record = records.find((entry) => entry.fileKey === sourceKey);
         for (const entry of entries) liveScoreLocator.set(entry.id, { sourceUrl: record?.url || URL.createObjectURL(file),
           proportionalPreview: cropPreview(entry.baseline?.rect), experimentalPreview: cropPreview(entry.experimental?.finalRect),
+          candidatePreview: cropPreview(entry.experimental?.diagnosticCandidateRect),
           dimensions: entry.dimensions || { width: bitmap.width, height: bitmap.height } });
       } catch (_) { /* The stored JSON diagnostics remain usable if preview restoration fails. */ }
       finally { bitmap?.close?.(); }
@@ -285,19 +615,70 @@
     scoreLocatorResults.innerHTML = scoreLocatorSummary.map((entry) => {
       const live = liveScoreLocator.get(entry.id), exp = entry.experimental || {}, baseline = entry.baseline || {};
       const box = (r, cls) => r ? `<rect class="score-locator-${cls}" x="${Number(r.x)}" y="${Number(r.y)}" width="${Number(r.width)}" height="${Number(r.height)}"/>` : "";
-      const image = live?.sourceUrl && entry.dimensions ? `<details><summary>Voir les deux localisations sur la capture</summary><p class="muted">Jaune : zone proportionnelle actuelle · cyan : recherche expérimentale · vert : découpe finale · rouge : limites des composantes retenues · violet : groupe candidat concurrent.</p><div class="score-locator-source" style="aspect-ratio:${entry.dimensions.width}/${entry.dimensions.height}"><img src="${escapeAttr(live.sourceUrl)}" alt="Capture originale ${escapeAttr(entry.file)}"><svg viewBox="0 0 ${entry.dimensions.width} ${entry.dimensions.height}" preserveAspectRatio="none">${box(baseline.rect,"baseline")}${box(exp.searchRegion,"search")}${box(exp.finalRect,"final")}${(exp.glyphs || []).map((g) => box(g,"glyph")).join("")}${(exp.candidates || []).slice(1,5).map((candidate) => box(candidate.rect,"candidate")).join("")}</svg></div></details>` : `<p class="muted">Réimporte cette capture pour restaurer les aperçus visuels.</p>`;
+      const image = live?.sourceUrl && entry.dimensions ? `<details><summary>Voir les deux localisations et les composants</summary><p class="muted">Jaune : zone proportionnelle actuelle · cyan : recherche · vert : découpe · rouge : glyphes sélectionnés · violet : autres candidats · vert pâle : composants acceptés · orange : petits composants rejetés.</p><div class="score-locator-source" style="aspect-ratio:${entry.dimensions.width}/${entry.dimensions.height}"><img src="${escapeAttr(live.sourceUrl)}" alt="Capture originale ${escapeAttr(entry.file)}"><svg viewBox="0 0 ${entry.dimensions.width} ${entry.dimensions.height}" preserveAspectRatio="none">${box(baseline.rect,"baseline")}${box(exp.searchRegion,"search")}${box(exp.finalRect,"final")}${(exp.glyphs || []).map((g) => box(g,"glyph")).join("")}${(exp.candidates || []).slice(1,5).map((candidate) => box(candidate.rect,"candidate")).join("")}${(exp.pipelineDiagnostics?.components?.accepted || []).map((c) => box(c,"component")).join("")}${(exp.pipelineDiagnostics?.components?.rejected || []).map((c) => box(c,"rejected-component")).join("")}</svg></div></details>` : `<p class="muted">Réimporte cette capture pour restaurer les aperçus visuels.</p>`;
       const crops = live ? `<div class="score-locator-crops"><figure><img src="${escapeAttr(live.proportionalPreview || "")}" alt="Découpe proportionnelle actuelle"><figcaption>Actuelle · ${escapeHtml(JSON.stringify(baseline.rect || null))}</figcaption></figure><figure>${live.experimentalPreview ? `<img src="${escapeAttr(live.experimentalPreview)}" alt="Découpe expérimentale du score">` : `<div class="score-locator-missing">Aucune découpe fiable</div>`}<figcaption>Expérimentale · ${escapeHtml(JSON.stringify(exp.cropDimensions || null))}</figcaption></figure></div>` : "";
       const quality = `<label class="score-locator-quality">Qualité visuelle de la découpe expérimentale<select data-score-quality="${escapeAttr(entry.id)}"><option value="pending" ${entry.quality === "pending" ? "selected" : ""}>À vérifier</option><option value="good" ${entry.quality === "good" ? "selected" : ""}>Complète, sans contamination notable</option><option value="bad" ${entry.quality === "bad" ? "selected" : ""}>Chiffre coupé ou contamination</option><option value="uncertain" ${entry.quality === "uncertain" ? "selected" : ""}>Incertaine</option></select></label>`;
-      const details = { baseline: baseline, experimental: exp, quality: entry.quality };
+      const details = { baseline: baseline, experimental: exp, pipelineDiagnostics: exp.pipelineDiagnostics, quality: entry.quality };
       return `<article class="score-locator-card"><h4>${escapeHtml(entry.file)} · ${escapeHtml(LABELS[entry.field] || entry.field)}</h4><p>${entry.dimensions ? `${entry.dimensions.width} × ${entry.dimensions.height}px` : "Dimensions indisponibles"} · ${escapeHtml(entry.layoutMethod || "mise en page indisponible")} · localisation ${exp.localized ? "candidate trouvée" : "incertaine"} · ${exp.elapsedMs ?? "—"} ms</p>${image}${crops}${quality}${(exp.warnings || []).length ? `<p class="lab-warning">${escapeHtml(exp.warnings.join(" · "))}</p>` : ""}<details><summary>Paramètres et limites détectées</summary><pre>${escapeHtml(JSON.stringify(details, null, 2))}</pre></details></article>`;
     }).join("");
-    $("#copyScoreLocatorJsonButton").disabled = !scoreLocatorSummary.length;
-    $("#exportScoreLocatorJsonButton").disabled = !scoreLocatorSummary.length;
-    $("#clearScoreLocatorResultsButton").disabled = !scoreLocatorSummary.length;
+    renderScoreV020Results();
+    $("#copyScoreLocatorJsonButton").disabled = !scoreLocatorSummary.length && !scoreV020Summary.length;
+    $("#exportScoreLocatorJsonButton").disabled = !scoreLocatorSummary.length && !scoreV020Summary.length;
+    $("#clearScoreLocatorResultsButton").disabled = !scoreLocatorSummary.length && !scoreV020Summary.length;
+  }
+  function renderScoreV020Results() {
+    scoreV020Results.innerHTML = scoreV020Summary.map((entry) => {
+      const exp = entry.experimental || {}, live = liveScoreLocator.get(entry.id), baseline = entry.baseline || {};
+      const dims = entry.dimensions, finalRect = exp.finalRect, diagnosticRect = exp.diagnosticCandidateRect;
+      const box = (rect, cls) => rect ? '<rect class="score-locator-' + cls + '" x="' + Number(rect.x) + '" y="' + Number(rect.y) +
+        '" width="' + Number(rect.width) + '" height="' + Number(rect.height) + '"/>' : "";
+      const regions = (exp.regions || []).map((item) => box(item.rect, "search")).join("");
+      const glyphs = (exp.glyphs || []).map((glyph) => box(glyph, "glyph")).join("");
+      const candidates = (exp.candidates || []).slice(0, 8).map((candidate) => box(candidate.rect, "candidate")).join("");
+      const accepted = (exp.components?.accepted || []).filter((component) =>
+        !exp.stages?.length || component.stage === exp.stages[exp.stages.length - 1].stage).slice(0, 180)
+        .map((component) => box(component, "component")).join("");
+      const rejected = (exp.components?.rejected || []).filter((component) =>
+        !exp.stages?.length || component.stage === exp.stages[exp.stages.length - 1].stage).slice(0, 80)
+        .map((component) => box(component, "rejected-component")).join("");
+      const overlay = live?.sourceUrl && dims ? '<details><summary>Voir la zone de recherche, les familles et les composants</summary>' +
+        '<p class="muted">Jaune : zone proportionnelle · cyan : recherches successives · vert : découpe validée · rouge : glyphes sélectionnés · violet : candidats · vert pâle : composantes acceptées · orange : composantes rejetées.</p>' +
+        '<div class="score-locator-source" style="aspect-ratio:' + dims.width + '/' + dims.height + '"><img src="' +
+        escapeAttr(live.sourceUrl) + '" alt="Capture originale ' + escapeAttr(entry.file) + '"><svg viewBox="0 0 ' +
+        dims.width + ' ' + dims.height + '" preserveAspectRatio="none">' + box(baseline.rect, "baseline") + regions +
+        box(finalRect, "final") + box(!exp.localized ? diagnosticRect : null, "candidate") + glyphs + candidates + accepted + rejected +
+        '</svg></div></details>' : '<p class="muted">Réimporte cette capture pour restaurer les aperçus visuels.</p>';
+      const crops = live ? '<div class="score-locator-crops"><figure><img src="' + escapeAttr(live.proportionalPreview || "") +
+        '" alt="Découpe proportionnelle actuelle"><figcaption>Proportionnelle · ' +
+        escapeHtml(JSON.stringify(baseline.rect || null)) + '</figcaption></figure><figure>' +
+        (live.experimentalPreview ? '<img src="' + escapeAttr(live.experimentalPreview) + '" alt="Découpe V0.2.0 validée">' :
+          live.candidatePreview ? '<img src="' + escapeAttr(live.candidatePreview) + '" alt="Candidat V0.2.0 incertain, diagnostic seulement">' :
+            '<div class="score-locator-missing">Aucune découpe validée</div>') +
+        '<figcaption>V0.2.0 · ' + escapeHtml(JSON.stringify(exp.cropDimensions || null)) + '</figcaption></figure></div>' : "";
+      const quality = '<label class="score-locator-quality">Évaluation visuelle<select data-score-quality="' + escapeAttr(entry.id) +
+        '" data-score-variant="' + escapeAttr(entry.variant) + '"><option value="pending"' + (entry.quality === "pending" ? " selected" : "") +
+        '>À vérifier</option><option value="good"' + (entry.quality === "good" ? " selected" : "") +
+        '>Complète, sans contamination notable</option><option value="bad"' + (entry.quality === "bad" ? " selected" : "") +
+        '>Chiffre coupé ou contamination</option><option value="uncertain"' + (entry.quality === "uncertain" ? " selected" : "") +
+        '>Incertaine</option></select></label>';
+      const details = { status: exp.status, localized: exp.localized, regions: exp.regions, stages: exp.stages,
+        families: exp.families, components: exp.components, candidates: exp.candidates, scoreBreakdown: exp.scoreBreakdown,
+        joint: exp.joint, parameters: exp.parameters, extensions: exp.extensions, warnings: exp.warnings, elapsedMs: exp.elapsedMs };
+      return '<article class="score-locator-card score-locator-variant-card"><h5>' +
+        escapeHtml(SCORE_VARIANT_LABELS[entry.variant] || entry.variant) + '</h5><p>' + escapeHtml(entry.file) + ' · ' +
+        escapeHtml(LABELS[entry.field] || entry.field) + ' · ' + (dims ? dims.width + ' × ' + dims.height + ' px · ' : "") +
+        (exp.localized ? "localisation validée" : exp.status === "uncertain-candidate" ? "candidat incertain, non transmis" : "aucune localisation") +
+        ' · ' + (exp.elapsedMs ?? "—") + ' ms</p>' + overlay + crops + quality +
+        ((exp.warnings || []).length ? '<p class="lab-warning">' + escapeHtml(exp.warnings.join(" · ")) + '</p>' : "") +
+        '<details><summary>Composants, familles, notation et reprises</summary><pre>' +
+        escapeHtml(JSON.stringify(details, null, 2)) + '</pre></details></article>';
+    }).join("");
   }
   function onScoreQualityChange(event) {
     const select = event.target.closest("select[data-score-quality]"); if (!select) return;
-    const entry = scoreLocatorSummary.find((item) => item.id === select.dataset.scoreQuality); if (!entry) return;
+    const variant = select.dataset.scoreVariant || "v01";
+    const entries = variant === "v01" ? scoreLocatorSummary : scoreV020Summary;
+    const entry = entries.find((item) => item.id === select.dataset.scoreQuality); if (!entry) return;
     entry.quality = select.value; entry.qualityConfirmedAt = new Date().toISOString(); persistScoreLocatorResults();
   }
   async function copyScoreLocatorJson() {
@@ -305,10 +686,12 @@
     try { await navigator.clipboard.writeText(json); $("#scoreLocatorStatus").textContent = "Diagnostics géométriques copiés. Aucune valeur OCR ni image n’est incluse."; }
     catch (_) { const area = document.createElement("textarea"); area.value = json; area.setAttribute("readonly", ""); area.style.position = "fixed"; area.style.opacity = "0"; document.body.appendChild(area); area.select(); const copied = document.execCommand("copy"); area.remove(); $("#scoreLocatorStatus").textContent = copied ? "Diagnostics copiés." : "Copie refusée; utilise le téléchargement JSON."; }
   }
-  function exportScoreLocatorJson() { if (scoreLocatorSummary.length) download(scoreLocatorPayload(), `war-results-score-localization-${new Date().toISOString().slice(0, 10)}.json`); }
+  function exportScoreLocatorJson() { if (scoreLocatorSummary.length || scoreV020Summary.length || scoreColorMeasurements.length) download(scoreLocatorPayload(), `war-results-score-localization-${new Date().toISOString().slice(0, 10)}.json`); }
   function clearScoreLocatorResults() {
-    scoreLocatorSummary.splice(0); liveScoreLocator.clear(); sessionStorage.removeItem(SCORE_LOCATOR_KEY);
-    scoreLocatorResults.innerHTML = ""; $("#scoreLocatorStatus").textContent = "Diagnostics de localisation des scores effacés."; updateLaboratoryControls();
+    scoreLocatorSummary.splice(0); scoreV020Summary.splice(0); liveScoreLocator.clear(); sessionStorage.removeItem(SCORE_LOCATOR_KEY);
+    scoreColorMeasurements.splice(0);
+    scoreLocatorResults.innerHTML = ""; scoreV020Results.innerHTML = "";
+    $("#scoreLocatorStatus").textContent = "Diagnostics de localisation des scores effacés."; updateLaboratoryControls();
   }
 
   async function runRecognitionLaboratory() {
@@ -437,7 +820,12 @@
     try {
       const saved = JSON.parse(sessionStorage.getItem(NUMERIC_OCR_KEY) || "[]");
       if (Array.isArray(saved)) numericOcrSummary.push(...saved.filter((item) => item && item.captureId && item.field && item.variants).map((item) => ({ ...item, compact: item })));
-      if (numericOcrSummary.length) renderNumericOcrResults("Mesures OCR textuelles restaurées. Réimporte les captures pour relancer les lectures ou afficher les découpes.");
+      if (numericOcrSummary.length) {
+        const visibleCount = numericOcrEntriesForDisplay().length;
+        renderNumericOcrResults(visibleCount
+          ? `${visibleCount} comparaison(s) restaurée(s). Seules les deux stratégies PSM 8 conservées sont affichées.`
+          : "Aucun résultat restauré pour les deux stratégies conservées. Les anciennes stratégies restent masquées.");
+      }
     } catch (_) { sessionStorage.removeItem(NUMERIC_OCR_KEY); }
   }
 
@@ -454,56 +842,47 @@
   }
 
   function initializeOcrCombinations() {
-    const psms=[7,8,13], preps=[["reference","Référence sans correction"],["grayscale","Niveaux de gris"],["otsu","Seuillage global Otsu"],["adaptive","Seuillage local adaptatif"],["tight-crop","Marge horizontale réduite"],["thin-strokes","Amincissement morphologique"]];
-    $("#ocrCombinationOptions").innerHTML=preps.flatMap(([prep,label])=>psms.map(psm=>{
-      const combo={id:`combo:${prep}:psm${psm}`,label:`PSM ${psm} · ${label}`,group:prep==="reference"?"baseline":"preprocess",psm,prep,parameters:{}};
-      return `<label><input type="checkbox" value="${escapeAttr(JSON.stringify(combo))}" ${prep==="reference"?"checked":""}> ${escapeHtml(combo.label)}</label>`;
-    })).join("");
+    const reference={id:"psm8",label:"PSM 8 — référence sans correction",group:"baseline",psm:8,prep:"reference",parameters:{scale:3,smoothing:"high",grayscale:true,contrast:1.7}};
+    $("#ocrCombinationOptions").innerHTML=`<label><input type="checkbox" data-numeric-ocr-strategy value="${escapeAttr(JSON.stringify(reference))}" checked> ${escapeHtml(reference.label)}</label><label><input type="checkbox" data-numeric-ocr-strategy value="psm8-glyph-alignment" checked> PSM 8 + alignement OCR/glyphes</label>`;
     updateOcrCombinationCount();
   }
   function updateOcrCombinationCount() {
-    const count=document.querySelectorAll("#ocrCombinationOptions input:checked").length+($("#ocrGlyphOption").checked?1:0)+($("#ocrMorphologyOption").checked?1:0)+($("#ocrAlignmentOption").checked?1:0);
+    const count=document.querySelectorAll("#ocrCombinationOptions input[data-numeric-ocr-strategy]:checked").length;
     $("#ocrCombinationCount").textContent=`${count} combinaison${count===1?"":"s"} sélectionnée${count===1?"":"s"}`;
   }
   function applyRecommendedOcrPreset() {
-    document.querySelectorAll("#ocrCombinationOptions input").forEach(input=>{
-      const c=JSON.parse(input.value);
-      input.checked=(c.psm===7&&c.prep==="reference")||(c.psm!==7&&["reference","tight-crop","thin-strokes"].includes(c.prep));
-    });
-    $("#ocrGlyphOption").checked=false;
-    $("#ocrMorphologyOption").checked=false;
-    $("#ocrAlignmentOption").checked=false;
+    document.querySelectorAll("#ocrCombinationOptions input[data-numeric-ocr-strategy]").forEach((input) => { input.checked = true; });
     updateOcrCombinationCount();
   }
 
   async function compareNumericOcr() {
     if (analyzing) return;
     const batch = records.filter((record) => record.file);
-    const selected = [...document.querySelectorAll("#ocrCombinationOptions input:checked")].map((input) => JSON.parse(input.value));
-    if ($("#ocrMorphologyOption").checked) selected.push("psm8-morphology");
-    if ($("#ocrAlignmentOption").checked) selected.push("psm8-glyph-alignment");
-    if ($("#ocrGlyphOption").checked) selected.push("glyphs");
+    const selected = [...document.querySelectorAll("#ocrCombinationOptions input[data-numeric-ocr-strategy]:checked")].map((input) => {
+      try { return JSON.parse(input.value); } catch (_) { return input.value; }
+    });
+    const fields = selectedLabFields().filter((field) => field === "localTrophies" || field === "opponentTrophies");
     if (!batch.length) { $("#numericOcrStatus").textContent = "Charge une ou plusieurs captures dans le laboratoire."; return; }
+    if (!fields.length) { $("#numericOcrStatus").textContent = "La reconnaissance OCR disponible concerne les trophées. Sélectionne un champ de trophées ci-dessus."; return; }
     if (!selected.length) { $("#numericOcrStatus").textContent = "Sélectionne au moins une stratégie OCR."; return; }
     analyzing = true;
     $("#compareNumericOcrButton").disabled = true;
-    $("#numericOcrStatus").textContent = "Localisation fixe des trophées, puis comparaisons OCR séquentielles…";
+    $("#numericOcrStatus").textContent = "Comparaison OCR des trophées sélectionnés…";
     try {
       for (const [index, record] of batch.entries()) {
-        const fields = ["localTrophies", "opponentTrophies"];
         const result = await WarResultsVisionEngine.analyzeNumericFields(record.file, fields, (message) => {
           if (message.status) $("#numericOcrStatus").textContent = `${record.fileName} — ${message.status}`;
         }, { geometryMode: "pixel-content", variantId: "vertical-recovery-combined", marginPercent: 18, compareOcr: true, ocrStrategies: selected });
         for (const field of fields) {
           const diagnostic = result.fields[field];
-          const item = { captureId: `Capture ${index + 1}`, file: record.fileName, field, dimensions: result.dimensions, diagnostic };
+          const item = { captureId: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), file: record.fileName, field, dimensions: result.dimensions, diagnostic };
           const key = `${record.fileKey || record.fileName}:${field}`;
-          const prior = numericOcrSummary.findIndex((entry) => entry.key === key || (entry.captureId === `Capture ${index + 1}` && entry.field === field));
+          const prior = numericOcrSummary.findIndex((entry) => entry.key === key || (entry.file === record.fileName && entry.field === field));
           const stored = { key, ...item, compact: compactNumericOcrEntry(item) };
           if (prior >= 0) numericOcrSummary[prior] = stored; else numericOcrSummary.push(stored);
           try { sessionStorage.setItem(NUMERIC_OCR_KEY, JSON.stringify(numericOcrSummary.map((entry) => entry.compact))); }
           catch (_) { $("#numericOcrStatus").textContent = "Le stockage temporaire est saturé; les résultats restent visibles dans cette page. Exporte le JSON avant de quitter."; }
-          renderNumericOcrResults(`${record.fileName} terminé · capture ${index + 1}/${batch.length}. Les rectangles sont figés à 18 %.`);
+          renderNumericOcrResults(`${record.fileName} terminé · capture ${index + 1}/${batch.length}. Marge trophées : 18 %.`);
           await new Promise((resolve) => setTimeout(resolve, 0));
         }
       }
@@ -515,12 +894,12 @@
 
   function renderNumericOcrResults(statusText) {
     const target = $("#numericOcrResults");
-    const tableRows=numericOcrSummary.flatMap(entry=>(entry.diagnostic?.ocrComparison?.strategies||entry.compact?.variants||[]).map(item=>`<tr><td>${escapeHtml(entry.captureId||"Capture")} · ${escapeHtml(LABELS[entry.field]||entry.field)}</td><td>${escapeHtml(item.label||item.strategy)}</td><td>${escapeHtml(item.value||"—")}</td><td>${Number.isFinite(item.digitCount)?item.digitCount:"—"}</td><td>${Number.isFinite(item.confidence)?Math.round(item.confidence)+" %":"—"}</td><td>${Number.isFinite(item.ms)?item.ms+" ms":"—"}</td></tr>`));
+    const entries = numericOcrEntriesForDisplay();
+    const tableRows=entries.flatMap(({ entry, strategies })=>strategies.map(item=>`<tr><td>${escapeHtml(entry.captureId||"Capture")} · ${escapeHtml(LABELS[entry.field]||entry.field)}</td><td>${escapeHtml(item.label||item.strategy)}</td><td>${escapeHtml(item.value||"—")}</td><td>${Number.isFinite(item.digitCount)?item.digitCount:"—"}</td><td>${Number.isFinite(item.confidence)?Math.round(item.confidence)+" %":"—"}</td><td>${Number.isFinite(item.ms)?item.ms+" ms":"—"}</td></tr>`));
     $("#numericOcrTable").innerHTML=tableRows.length?`<div class="numeric-ocr-table-wrap"><table class="numeric-ocr-table"><thead><tr><th>Champ</th><th>Combinaison</th><th>Valeur</th><th>Chiffres</th><th>Confiance</th><th>Durée</th></tr></thead><tbody>${tableRows.join("")}</tbody></table></div>`:"";
 
-    const rows = numericOcrSummary.map((entry) => {
+    const rows = entries.map(({ entry, strategies }) => {
       const d = entry.diagnostic || {}, data = entry.compact || compactNumericOcrEntry(entry);
-      const strategies = d.ocrComparison?.strategies || data.variants || [];
       const alignmentPanel=(item)=>{
         const a=item.alignment;if(!a)return "";
         const decisionLabels={"keep-ocr":"Conserver OCR","propose-correction":"Proposition ciblée","abstain":"Abstention"};
@@ -532,19 +911,34 @@
         return `<details class="ocr-alignment-details"><summary>Diagnostic alignement OCR/glyphes · ${escapeHtml(decisionLabels[item.decision]||item.decision||"à examiner")}</summary><p>Initial : <strong>${escapeHtml(item.raw||"—")}</strong> · ${item.digitCount} caractère(s) OCR / ${a.selectedGlyphCount??"—"} glyphe(s) physique(s) · source coordonnées : ${escapeHtml(a.source)} · confiance alignement ${Math.round(a.confidence*100)} % · marge segmentation ${Math.round((a.candidateMargin||0)*100)} %${item.ocrReused?" · lecture PSM 8 partagée":""}.</p><p>Associations : ${escapeHtml(association||"aucune")}</p><p>Anomalies : ${escapeHtml(JSON.stringify(a.anomalies||[]))}</p>${inspections?`<ul>${inspections}</ul>`:"<p>Aucun glyphe n’a nécessité de vérification morphologique ciblée.</p>"}<p>Décision : <strong>${escapeHtml(decisionLabels[item.decision]||item.decision||"—")}</strong> · ${escapeHtml(item.decisionRationale||"")}</p>${item.proposedCorrection?`<p class="lab-warning">Proposition ${escapeHtml(item.proposedCorrection.from)} → ${escapeHtml(item.proposedCorrection.to)} · ${escapeHtml(item.proposedCorrection.rationale)}. La lecture initiale n’est pas remplacée.</p>`:""}<p>Temps : OCR ${item.stageTimings?.ocrMs??"—"} ms · segmentation ${item.stageTimings?.segmentationMs??"—"} ms · alignement ${item.stageTimings?.alignmentMs??"—"} ms · morphologie ${item.stageTimings?.morphologyMs??"—"} ms · total ${item.stageTimings?.totalMs??"—"} ms.</p>${overlay}</details>`;
       };
       const family = (item) => `<article class="numeric-ocr-variant"><h4>${escapeHtml(item.label || item.strategy)}</h4>${item.preview ? `<a href="${escapeAttr(item.preview)}" target="_blank" rel="noopener"><img src="${escapeAttr(item.preview)}" alt="Prétraitement ${escapeAttr(item.label || item.strategy)}" loading="lazy"></a>` : ""}<p>Brut : <strong>${escapeHtml(item.raw || "—")}</strong> · valeur à 4 chiffres : ${escapeHtml(item.value || "—")}<br>Chiffres : ${Number.isFinite(item.digitCount) ? item.digitCount : "—"} · confiance : ${Number.isFinite(item.confidence) ? `${Math.round(item.confidence)} %` : "—"} · temps total ${Number.isFinite(item.ms) ? `${item.ms} ms` : "—"}${Number.isFinite(item.ocrMs) ? ` (${item.ocrMs} ms Tesseract)` : ""}<br>PSM ${Number.isFinite(item.psm) ? item.psm : "—"} · ${escapeHtml(item.preprocessing || "—")}${item.warnings?.length ? `<br>Avertissements : ${escapeHtml(item.warnings.join(", "))}` : ""}</p>${item.morphology ? `<p>Segmentation morphologique : ${item.morphology.selectedCount ?? "incertaine"} glyphe(s) retenu(s); lectures OCR ${item.morphology.ocrDigitCount} chiffre(s).</p>${item.morphology.glyphs.map(g=>`<p>Glyphe ${g.index}: boucle(s) ${g.features.holeCount}, bas ${Math.round(g.features.lowerInkRatio*100)} %, barre haute ${Math.round(g.features.topBar*100)} %, barre médiane ${Math.round(g.features.midBar*100)} %; hypothèses ${g.features.hypotheses.map(h=>h.digit+":"+h.score).join(", ")}; ${g.features.classification?"classe morphologique "+g.features.classification:"classe indécise"}.</p>`).join("")}${item.proposedCorrection?`<p class="lab-warning">Correction proposée ${escapeHtml(item.proposedCorrection.from)} → ${escapeHtml(item.proposedCorrection.to)} · ${escapeHtml(item.proposedCorrection.rationale)}</p>`:""}` : ""}${item.glyphs?.length ? `<div class="numeric-glyph-grid">${item.glyphs.map((glyph, i) => `<figure>${glyph.preview ? `<img src="${escapeAttr(glyph.preview)}" alt="Glyphe ${i + 1}" loading="lazy">` : ""}<figcaption>${i + 1}. ${escapeHtml(glyph.raw || "—")} · ${glyph.confidence ?? "—"} %</figcaption></figure>`).join("")}</div>` : ""}${alignmentPanel(item)}</article>`;
-      const consensus = d.ocrComparison?.consensus || data.consensus;
+      const rawStrategyCount = (d.ocrComparison?.strategies || data.variants || []).length;
+      const consensus = strategies.length === rawStrategyCount ? (d.ocrComparison?.consensus || data.consensus) : null;
       return `<article class="numeric-ocr-card"><h3>${escapeHtml(entry.captureId || "Capture")} · ${escapeHtml(LABELS[entry.field] || entry.field)}</h3><p>Image ${Number(entry.dimensions?.width) || "?"} × ${Number(entry.dimensions?.height) || "?"} · rectangle fixe : ${escapeHtml(JSON.stringify(d.rect || data.rect || null))} · combinaison, marge 18 % · rectangle conservé pour toutes les stratégies : ${data.rectFrozen ? "oui" : "diagnostic restauré"}</p><p>Consensus expérimental : <strong>${escapeHtml(consensus?.value || "lecture divergente")}</strong>${consensus?.warnings?.length ? ` · ${escapeHtml(consensus.warnings.join(", "))}` : ""} · temps total ${Number(d.ocrComparison?.totalMs ?? data.totalMs) || 0} ms</p><div class="numeric-ocr-variant-grid">${strategies.map(family).join("")}</div></article>`;
     }).join("");
     target.innerHTML = rows;
-    $("#numericOcrStatus").textContent = statusText || `${numericOcrSummary.length} lecture(s) conservée(s) dans cette session.`;
+    $("#numericOcrStatus").textContent = statusText || `${entries.length} comparaison(s) avec stratégie(s) retenue(s) dans cette session.`;
     $("#clearNumericOcrButton").disabled = !numericOcrSummary.length;
-    $("#copyNumericOcrButton").disabled = !numericOcrSummary.length;
-    $("#exportNumericOcrButton").disabled = !numericOcrSummary.length;
+    $("#copyNumericOcrButton").disabled = !entries.length;
+    $("#exportNumericOcrButton").disabled = !entries.length;
+  }
+
+  function numericOcrEntriesForDisplay() {
+    return numericOcrSummary.map((entry) => {
+      const data = entry.compact || (entry.diagnostic ? compactNumericOcrEntry(entry) : null);
+      const strategies = (entry.diagnostic?.ocrComparison?.strategies || data?.variants || [])
+        .filter((item) => ACTIVE_NUMERIC_OCR_STRATEGIES.has(item.strategy));
+      return { entry, strategies };
+    }).filter((item) => item.strategies.length);
   }
 
   function numericOcrPayload() {
     return { schemaVersion: "1.0.0", scope: "numeric-laboratory-only", engine: "Tesseract.js v5 local", locator: "pixel-content + vertical-recovery-combined", marginPercent: 18,
-      privacy: "No source image pixels, crops, Base64 data, or expected benchmark values are included.", entries: numericOcrSummary.map((entry) => entry.compact || compactNumericOcrEntry(entry)) };
+      strategies: [...ACTIVE_NUMERIC_OCR_STRATEGIES],
+      privacy: "No source image pixels, crops, Base64 data, or expected benchmark values are included.", entries: numericOcrEntriesForDisplay().map(({ entry }) => {
+        const compact = entry.compact || compactNumericOcrEntry(entry);
+        const variants = compact.variants.filter((item) => ACTIVE_NUMERIC_OCR_STRATEGIES.has(item.strategy));
+        return { ...compact, variants, consensus: variants.length === compact.variants.length ? compact.consensus : null };
+      }) };
   }
   async function copyNumericOcrJson() {
     const json = JSON.stringify(numericOcrPayload(), null, 2);
@@ -950,7 +1344,18 @@
   }
   function download(data, name) { const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
   function safeName(name) { return String(name || "capture").replace(/[^\p{L}\p{N}-]+/gu, "-").replace(/^-|-$/g, "").slice(0, 64) || "capture"; }
-  function clearSession() { if (!confirm("Effacer les brouillons, le laboratoire, les diagnostics A/B et les captures de cette session ?")) return; records.forEach(r => r.url && URL.revokeObjectURL(r.url)); records = []; publishCaptureBatch(); locatorComparisonSummary = []; laboratorySummary = []; numericOcrSummary.splice(0); liveLabDiagnostics.clear(); locatorComparisonResults.innerHTML = ""; labResults.innerHTML = ""; $("#numericOcrResults").innerHTML = ""; sessionStorage.removeItem(KEY); sessionStorage.removeItem(LOCATOR_COMPARISON_KEY); sessionStorage.removeItem(LEGACY_LOCATOR_COMPARISON_KEY); sessionStorage.removeItem(LABORATORY_KEY); sessionStorage.removeItem(NUMERIC_OCR_KEY); status.textContent = "Session effacée."; updateLocatorComparisonButtons(); updateLaboratoryControls(); render(); }
+  function clearSession() {
+    if (!confirm("Effacer les brouillons, les résultats du laboratoire, les diagnostics et les captures de cette session ?")) return;
+    records.forEach((record) => record.url && URL.revokeObjectURL(record.url));
+    records = []; locatorComparisonSummary = []; laboratorySummary = []; numericOcrSummary.splice(0);
+    numericLocalizationSummary.splice(0); liveNumericLocalization.clear(); liveLabDiagnostics.clear();
+    publishCaptureBatch(); locatorComparisonResults.innerHTML = ""; labResults.innerHTML = "";
+    $("#numericOcrResults").innerHTML = ""; $("#numericOcrTable").innerHTML = "";
+    $("#numericLocalizationResults").innerHTML = ""; $("#numericLocalizationSummary").textContent = "Aucun champ localisé.";
+    sessionStorage.removeItem(KEY); sessionStorage.removeItem(LOCATOR_COMPARISON_KEY); sessionStorage.removeItem(LEGACY_LOCATOR_COMPARISON_KEY);
+    sessionStorage.removeItem(LABORATORY_KEY); sessionStorage.removeItem(NUMERIC_OCR_KEY); sessionStorage.removeItem(NUMERIC_LOCALIZATION_KEY);
+    status.textContent = "Session effacée."; updateLocatorComparisonButtons(); updateLaboratoryControls(); render(); renderNumericLocalizationResults();
+  }
 
   function saveDrafts() {
     try { sessionStorage.setItem(KEY, JSON.stringify(records.map(r => ({ fileName: r.fileName, state: r.state, output: r.output || null, values: r.values, fields: r.fields, date: r.date, corrected: r.corrected, zoneOverrides: r.zoneOverrides || {}, confirmed: false, analysis: r.analysis ? { metrics: r.analysis.metrics, warnings: r.analysis.warnings } : null, rawText: r.rawText, warnings: r.warnings })))); }

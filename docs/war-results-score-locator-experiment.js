@@ -27,6 +27,105 @@
       r >= g * .78 && g >= r * .48 && Math.max(r, g) - b >= options.minimumChroma;
   }
 
+  // Measurement-only API. This does not feed results back into locate() or change V0.1.0.
+  function analyzeColorRegion(imageData, rect, options = DEFAULTS) {
+    const region = clampRect(rect, imageData?.width || 0, imageData?.height || 0);
+    if (!region || !imageData?.data) return { error: "invalid-sample-region", region: null, mask: new Uint8Array() };
+    const { width, data } = imageData, size = region.width * region.height;
+    const mask = new Uint8Array(size), reasons = { accepted: 0, lowLuma: 0, lowChroma: 0, redGreenBalance: 0, blueSeparation: 0 };
+    const acceptedIndices = [], rejectedIndices = [], rejectedByReason = {};
+    const channels = [[], [], []], hues = [], sats = [], vals = [], colorBins = new Map();
+    const hsv = (r, g, b) => {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+      let h = 0;
+      if (d) h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+      h = (h * 60 + 360) % 360;
+      return [h, max ? d / max : 0, max];
+    };
+    for (let y = 0; y < region.height; y++) for (let x = 0; x < region.width; x++) {
+      const i = y * region.width + x, p = ((region.y + y) * width + region.x + x) * 4;
+      const r = data[p], g = data[p + 1], b = data[p + 2];
+      channels[0].push(r); channels[1].push(g); channels[2].push(b);
+      const [h, s, v] = hsv(r, g, b); hues.push(h); sats.push(s * 100); vals.push(v * 255);
+      const key = [r >> 4, g >> 4, b >> 4].join(":"); colorBins.set(key, (colorBins.get(key) || 0) + 1);
+      const luma = .2126 * r + .7152 * g + .0722 * b, chroma = Math.min(r, g) - b;
+      let reason = "accepted";
+      if (luma < options.minimumLuma) reason = "lowLuma";
+      else if (chroma < Math.max(options.minimumChroma, Math.min(r, g) * .26)) reason = "lowChroma";
+      else if (r < g * .78 || g < r * .48) reason = "redGreenBalance";
+      else if (Math.max(r, g) - b < options.minimumChroma) reason = "blueSeparation";
+      if (reason === "accepted") { mask[i] = 1; acceptedIndices.push(i); }
+      else { rejectedIndices.push(i); (rejectedByReason[reason] ||= []).push(i); }
+      reasons[reason]++;
+    }
+    const stats = (values) => {
+      const sorted = [...values].sort((a, b) => a - b), sum = values.reduce((a, b) => a + b, 0);
+      return { min: sorted[0] || 0, p10: sorted[Math.floor(sorted.length * .1)] || 0,
+        median: sorted[Math.floor(sorted.length * .5)] || 0, p90: sorted[Math.floor(sorted.length * .9)] || 0,
+        max: sorted.at(-1) || 0, mean: values.length ? sum / values.length : 0 };
+    };
+    const histogram = (values, min, max, bins) => {
+      const counts = Array(bins).fill(0), span = max - min || 1;
+      for (const value of values) counts[Math.min(bins - 1, Math.max(0, Math.floor((value - min) / span * bins)))]++;
+      return counts.map((count, index) => ({ from: min + span * index / bins, to: min + span * (index + 1) / bins, count }));
+    };
+    const boundary = [], interior = [];
+    for (let y = 0; y < region.height; y++) for (let x = 0; x < region.width; x++) {
+      const i = y * region.width + x; if (!mask[i]) continue;
+      let edge = x === 0 || y === 0 || x === region.width - 1 || y === region.height - 1;
+      for (let dy = -1; !edge && dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        if ((dx || dy) && !mask[(y + dy) * region.width + x + dx]) { edge = true; break; }
+      }
+      (edge ? boundary : interior).push(i);
+    }
+    const color = (indices) => {
+      const statsByChannel = [0, 1, 2].map((c) => stats(indices.map((i) => channels[c][i])));
+      return { count: indices.length, rgb: statsByChannel,
+        hsv: [stats(indices.map((i) => hues[i])), stats(indices.map((i) => sats[i])), stats(indices.map((i) => vals[i]))] };
+    };
+    const dominantColors = [...colorBins].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([bin, count]) => ({
+      rgbBin: bin.split(":").map((v) => Number(v) * 16 + 8), count, fraction: count / size }));
+    return { region, pixelCount: size, accepted: reasons.accepted, rejected: size - reasons.accepted,
+      acceptedFraction: reasons.accepted / size, rejectionReasons: reasons, dominantColors,
+      pixelClasses: { accepted: color(acceptedIndices), rejected: color(rejectedIndices),
+        rejectedByReason: Object.fromEntries(Object.entries(rejectedByReason).map(([reason, indices]) => [reason, color(indices)])) },
+      distributions: { red: stats(channels[0]), green: stats(channels[1]), blue: stats(channels[2]),
+        hueDegrees: stats(hues), saturationPercent: stats(sats), value: stats(vals),
+        histogram: { red: histogram(channels[0],0,256,16), green: histogram(channels[1],0,256,16), blue: histogram(channels[2],0,256,16),
+          hue: histogram(hues,0,360,12), saturation: histogram(sats,0,100,10), value: histogram(vals,0,256,16) } },
+      maskNeighborhood: { interior: color(interior), antialiasOrBoundary: color(boundary) }, mask };
+  }
+
+  function renderDiagnosticMask(analysis) {
+    const { region, mask } = analysis || {};
+    if (!region || !mask) return null;
+    const data = new Uint8ClampedArray(mask.length * 4);
+    for (let i = 0; i < mask.length; i++) { const p = i * 4; data[p] = mask[i] ? 44 : 240; data[p + 1] = mask[i] ? 220 : 70; data[p + 2] = mask[i] ? 255 : 80; data[p + 3] = 220; }
+    return { width: region.width, height: region.height, data };
+  }
+
+  function diagnoseSearch(imageData, rect, options = DEFAULTS) {
+    const region = clampRect(rect, imageData?.width || 0, imageData?.height || 0);
+    if (!region) return { region: null, stages: [{ stage: "search-region", status: "invalid" }], components: [], candidates: [] };
+    const color = analyzeColorRegion(imageData, region, options);
+    const raw = componentsInRegion(imageData, region, { ...options, minimumArea: 1 });
+    const all = raw.components || [], accepted = all.filter((item) => item.area >= (options.minimumArea ?? DEFAULTS.minimumArea));
+    const rejected = all.filter((item) => item.area < (options.minimumArea ?? DEFAULTS.minimumArea)).map((component) => ({ ...component, rejection: "below-minimum-area" }));
+    const candidates = groupComponents(accepted, region);
+    const candidateKeys = new Set(candidates.flatMap((candidate) => candidate.glyphs.map((glyph) => `${glyph.x}:${glyph.y}:${glyph.width}:${glyph.height}:${glyph.area}`)));
+    const unused = accepted.filter((component) => !candidateKeys.has(`${component.x}:${component.y}:${component.width}:${component.height}:${component.area}`))
+      .map((component) => ({ ...component, rejection: "not-in-plausible-row-group" }));
+    return { region, stages: [
+      { stage: "search-region", rect: region, status: "defined" },
+      { stage: "color-mask", pixelCount: color.pixelCount, acceptedPixels: color.accepted, rejectedPixels: color.rejected, rejectionReasons: color.rejectionReasons },
+      { stage: "connected-components", rawCount: all.length, minimumArea: options.minimumArea ?? DEFAULTS.minimumArea },
+      { stage: "component-filter", acceptedCount: accepted.length, rejectedCount: rejected.length, rejectedReasons: { "below-minimum-area": rejected.length } },
+      { stage: "grouping", candidateCount: candidates.length, ungroupedComponentCount: unused.length },
+      { stage: "candidate-ranking", candidates: candidates.map(({ rect: box, count, glyphHeight, baselineSpread, heightVariation, maxGap, density, confidence, rank }) => ({ rect: box, count, glyphHeight, baselineSpread, heightVariation, maxGap, density, confidence, rank, note: "heuristic rank; not a probability" })) }
+    ], components: { accepted, rejected, ungrouped: unused }, candidates };
+  }
+
   function componentsInRegion(imageData, rect, options = {}) {
     const { width, height, data } = imageData || {};
     if (!Number.isInteger(width) || !Number.isInteger(height) || !data || data.length < width * height * 4)
@@ -179,5 +278,5 @@
     const results = Object.fromEntries(requested.map((field) => [field, locate(imageData, field, proportionalRects?.[field], options)]));
     return { schemaVersion: "1.0.0", method: VERSION, dimensions: { width: imageData?.width || 0, height: imageData?.height || 0 }, fields: results };
   }
-  return { version: VERSION, defaults: DEFAULTS, isYellowPixel, componentsInRegion, groupComponents, locate, compare };
+  return { version: VERSION, defaults: DEFAULTS, isYellowPixel, componentsInRegion, groupComponents, locate, compare, analyzeColorRegion, renderDiagnosticMask, diagnoseSearch };
 });
