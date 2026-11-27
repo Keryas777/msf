@@ -269,7 +269,9 @@ test('static page exposes a single repliable library section without changing pr
   const library = await readFile(new URL('../../../docs/war-results-numeric-library.js', import.meta.url), 'utf8');
   assert.match(html, /<details id="numericGlyphLibrary"/); assert.match(html, /Bibliothèque numérique MSF/);
   assert.match(html, /war-results-numeric-library\.js\?v=2\.0\.1-component-ownership/);
-  assert.match(html, /war-results-numeric-library\.css\?v=2\.0\.0-shared-localizers/);
+  assert.match(html, /war-results-numeric-library\.css\?v=2\.1\.0-template-matching/);
+  assert.match(html, /war-results-template-matching\.js\?v=1\.0\.0/);
+  assert.match(html, /war-results-template-matching-ui\.js\?v=1\.0\.0/);
   assert.match(html, /numericLibraryOcrButton/);
   for (const field of ["localScore", "opponentScore", "localTrophies", "opponentTrophies"]) assert.match(html, new RegExp(`value="${field}"`));
   assert.match(library, /WarResultsVisionEngine\.locateNumericFields\(entry\.file, \[field\]\)/);
