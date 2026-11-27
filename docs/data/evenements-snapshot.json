@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "status": "ok",
   "source": "verified-daily-game-events",
-  "updatedAt": "2026-11-27T22:42:48.519Z",
-  "revision": "f869d93c587519225d78",
-  "total": 144,
-  "count": 144,
+  "updatedAt": "2026-11-27T23:21:55.983Z",
+  "revision": "c9bbdd82992d6b1cf02e",
+  "total": 145,
+  "count": 145,
   "pages": 2,
   "events": [
     {
@@ -660,16 +660,6 @@
       }
     },
     {
-      "id": "6b049b402c6b04c8d8a63cff",
-      "type": "blitz",
-      "startTime": 1795467600,
-      "endTime": 1795813200,
-      "name": "Guerrier mystérieux",
-      "subName": "Gagnez des éclats de Void Knight !",
-      "details": "Affrontez des équipes d'autres joueurs pour gagner des récompenses de phase, avec une chance d'obtenir des éclats de Void Knight !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Blitz_SymbioteSilverSurfer_Card_66dfbd973cdbe58bc5078ab45c04db9dcc2b.jpg"
-    },
-    {
       "id": "6b089a4cfbfcb2dfafa653d6",
       "type": "milestone",
       "startTime": 1795726800,
@@ -736,6 +726,16 @@
           }
         ]
       }
+    },
+    {
+      "id": "6b049b402c6b04c8d8a63cff",
+      "type": "blitz",
+      "startTime": 1795467600,
+      "endTime": 1795813200,
+      "name": "Guerrier mystérieux",
+      "subName": "Gagnez des éclats de Void Knight !",
+      "details": "Affrontez des équipes d'autres joueurs pour gagner des récompenses de phase, avec une chance d'obtenir des éclats de Void Knight !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Blitz_SymbioteSilverSurfer_Card_66dfbd973cdbe58bc5078ab45c04db9dcc2b.jpg"
     },
     {
       "id": "62e474807f21453ddbe853fa",
@@ -5187,6 +5187,12 @@
       "endTime": 1795737600
     },
     {
+      "id": "6b0a0b70fbfcb2dfafa65960",
+      "type": "donation",
+      "startTime": 1795824000,
+      "endTime": 1795910400
+    },
+    {
       "id": "6580b1fe9746d7f21414ca51",
       "type": "episodic",
       "startTime": 1702929600,
@@ -5340,6 +5346,6 @@
   "locale": "fr",
   "localizationStatus": "verified",
   "localizedFields": 706,
-  "localizedAt": "2026-11-27T22:42:48.519Z",
-  "lastChangedAt": "2026-11-27T22:27:46.569Z"
+  "localizedAt": "2026-11-27T23:21:55.983Z",
+  "lastChangedAt": "2026-11-27T23:21:55.983Z"
 }
