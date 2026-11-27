@@ -4,13 +4,16 @@
 .numeric-library-controls label,.numeric-library-section>label{font-weight:650;margin-top:7px}
 .numeric-library-controls select,.numeric-library-value{width:100%;min-height:44px;border:1px solid #51627e;border-radius:9px;background:#0b1220;color:#fff;padding:9px;font:inherit}
 .numeric-library-value{font-size:1.15rem;letter-spacing:.08em}
+.numeric-library-context{display:block;max-width:100%;height:auto;max-height:260px;object-fit:contain;margin:10px 0;background:#090e19;border:1px solid #526781;border-radius:8px}
 .numeric-library-crop{display:block;max-width:min(100%,480px);height:auto;max-height:180px;object-fit:contain;margin:10px 0;background:#090e19;border:1px solid #526781;border-radius:8px;image-rendering:auto}
 .numeric-library-glyphs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:10px;margin:12px 0}
 .numeric-library-glyph,.numeric-library-digit{min-width:0;padding:10px;border:1px solid #324661;border-radius:10px;background:#0c1422;overflow-wrap:anywhere}
+.numeric-library-glyph>strong{display:block;margin-bottom:8px;color:#d9e9ff}
 .numeric-library-glyph label{display:grid;gap:6px;margin:8px 0;font-size:.9rem}
 .numeric-library-glyph select{min-height:42px;background:#111c2d;color:#fff;border:1px solid #536987;border-radius:8px;padding:7px;font:inherit}
 .numeric-library-glyph small,.numeric-library-digit small{color:#b8c7da}
-.numeric-library-previews{display:flex;align-items:center;justify-content:flex-start;gap:8px;min-height:74px;overflow-x:auto}
+.numeric-library-previews{display:flex;align-items:flex-start;justify-content:flex-start;gap:8px;min-height:74px;overflow-x:auto}
+.numeric-library-previews figure{display:grid;justify-items:center;gap:3px;flex:0 0 auto;margin:0;font-size:.65rem;color:#b8c7da;white-space:nowrap}
 .numeric-library-previews canvas{max-width:62px;max-height:74px;object-fit:contain;background:#f1f3f7;border:1px solid #536987;border-radius:5px;image-rendering:pixelated}
 .numeric-library-previews canvas[data-glyph]{background:#1b2230}
 .numeric-library-exclude{display:flex!important;align-items:center;gap:8px}

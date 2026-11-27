@@ -19,14 +19,14 @@ assert.match(html, /data-score-locator-variant="joint"/, 'joint fallback impleme
 assert.match(html, /war-results-score-locator-experiment\.js\?v=0\.1\.1-v020-measurement-api/);
 assert.match(html, /war-results-numeric-locator-experiment\.js/, 'the experimental pixel locator is loaded only by the vision page');
 assert.match(html, /war-results-vision-data\.js/, 'loads local data model');
-assert.match(html, /war-results-numeric-library\.js\?v=1\.0\.1-score-locator-option/);
-assert.match(html, /war-results-numeric-library\.css\?v=1\.0\.0-glyph-library/);
+assert.match(html, /war-results-numeric-library\.js\?v=2\.0\.1-component-ownership/);
+assert.match(html, /war-results-numeric-library\.css\?v=2\.0\.0-shared-localizers/);
 assert.match(html, /war-results-vision\.css\?v=6\.8-numeric-lab-stable/);
 assert.match(fs.readFileSync(path.join(root, 'war-results-vision.css'), 'utf8'), /\[hidden\]\{display:none!important\}/, 'hidden legacy controls stay hidden despite display rules');
 assert.match(html, /war-results-vision-engine\.js\?v=6\.6-numeric-lab-stable/);
 assert.match(html, /war-results-vision\.js\?v=5\.5-numeric-lab-stable/);
 assert.match(html, /<details id="numericGlyphLibrary"/);
-assert.match(html, /id="numericLibraryScoreLocator"/, 'the library defaults to its current locator and exposes the score experiment explicitly');
+assert.doesNotMatch(html, /numericLibraryScoreLocator/, 'the builder uses the retained localizer without a duplicate strategy selector');
 assert.ok(html.indexOf('war-results-identity-engine.js') < html.indexOf('war-results-vision-engine.js'), 'identity engine loads before the adapter');
 assert.ok(html.indexOf('war-results-result-engine.js') < html.indexOf('war-results-vision-engine.js'), 'result engine loads before the adapter');
 assert.ok(html.indexOf('war-results-score-locator-v020-experiment.js') < html.indexOf('war-results-vision-engine.js'), 'V0.2 score locator loads before the adapter');

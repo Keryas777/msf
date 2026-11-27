@@ -113,6 +113,21 @@
     return { labels, boxes };
   }
   function sameBox(a, b) { return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height; }
+  function componentReaderForField(field, imageData) {
+    if (field.endsWith("Score")) {
+      const scoreLocator = globalThis.WarResultsScoreLocatorExperiment;
+      if (typeof scoreLocator?.componentsInRegion !== "function") return null;
+      const result = scoreLocator.componentsInRegion(imageData, { x: 0, y: 0, width: imageData.width, height: imageData.height },
+        { ...(scoreLocator.defaults || {}), minimumArea: 1 });
+      if (!(result?.mask instanceof Uint8Array) || result.mask.length !== imageData.width * imageData.height) return null;
+      return { source: "score-localizer-yellow-mask", foreground: () => result.mask };
+    }
+    const digitReader = globalThis.WarResultsDigitReader;
+    if (typeof digitReader?.foreground !== "function") return null;
+    const mask = digitReader.foreground(imageData, "trophy");
+    return mask instanceof Uint8Array && mask.length === imageData.width * imageData.height
+      ? { source: "trophy-localizer-digit-reader-mask", foreground: () => mask } : null;
+  }
   function extractGlyphs(imageData, category, count, reader) {
     assertImageData(imageData);
     if (!reader || typeof reader.segment !== "function" || typeof reader.foreground !== "function") throw new TypeError("Le lecteur de glyphes MSF n’est pas disponible.");
@@ -153,6 +168,122 @@
     }
     return { glyphs, segmentation, warnings: [...new Set(warnings)], reason: null };
   }
+  // Rebuilds source-pixel components from the same color mask used by the
+  // selected localizer, then associates whole components with its groups by
+  // bounding-box overlap/area. It never divides a connected component by
+  // distance to a glyph center. Unresolvable ownership is reported and withheld.
+  function extractGlyphsFromBounds(imageData, category, bounds, reader) {
+    assertImageData(imageData);
+    if (!reader || typeof reader.foreground !== "function") throw new TypeError("Le masque colorimétrique MSF n’est pas disponible.");
+    if (!Array.isArray(bounds) || !bounds.length || bounds.length > 32) return { glyphs: [], reason: "no-physical-glyph-groups", warnings: [] };
+    const { width, height } = imageData, ink = reader.foreground(imageData, category);
+    const components = componentLabels(ink, width, height);
+    const groups = bounds.map((box, index) => {
+      if (!box || ![box.x, box.y, box.width, box.height].every(Number.isFinite) || box.width <= 0 || box.height <= 0)
+        throw new TypeError(`Rectangle de glyphe invalide à la position ${index + 1}.`);
+      const x = Math.max(0, Math.floor(box.x)), y = Math.max(0, Math.floor(box.y));
+      const right = Math.min(width, Math.ceil(box.x + box.width)), bottom = Math.min(height, Math.ceil(box.y + box.height));
+      return { index, sourceBounds: { ...box }, x, y, width: right - x, height: bottom - y,
+        area: 0, pixels: [], componentIds: [], ambiguous: false, extendedComponentIds: [] };
+    });
+    const warnings = [];
+    for (let i = 1; i < groups.length; i++) {
+      if (groups[i - 1].sourceBounds.x + groups[i - 1].sourceBounds.width > groups[i].sourceBounds.x)
+        warnings.push(`overlapping-bounds:${i - 1}:${i}`);
+    }
+    const pixelsByComponent = new Map(components.boxes.map((component) => [component.id, []]));
+    for (let pixel = 0; pixel < components.labels.length; pixel++) {
+      const id = components.labels[pixel];
+      if (id) pixelsByComponent.get(id).push(pixel);
+    }
+    const unassigned = [];
+    for (const component of components.boxes) {
+      const componentArea = Math.max(1, component.width * component.height);
+      const candidates = groups.map((group) => {
+        const left = Math.max(component.x, group.x), top = Math.max(component.y, group.y);
+        const right = Math.min(component.x + component.width, group.x + group.width);
+        const bottom = Math.min(component.y + component.height, group.y + group.height);
+        const intersection = Math.max(0, right - left) * Math.max(0, bottom - top);
+        const coverage = intersection / componentArea;
+        const union = componentArea + group.width * group.height - intersection;
+        const iou = intersection / Math.max(1, union);
+        const expectedArea = Number(group.sourceBounds.area);
+        const areaAgreement = Number.isFinite(expectedArea) && expectedArea > 0
+          ? 1 - Math.min(1, Math.abs(component.area - expectedArea) / Math.max(component.area, expectedArea)) : 0;
+        return { group, coverage, iou, areaAgreement, score: .8 * iou + .2 * areaAgreement, intersection };
+      }).filter((candidate) => candidate.coverage >= .6).sort((a, b) => b.score - a.score);
+      if (!candidates.length) {
+        const partial = groups.map((group) => {
+          const intersection = Math.max(0, Math.min(component.x + component.width, group.x + group.width) - Math.max(component.x, group.x)) *
+            Math.max(0, Math.min(component.y + component.height, group.y + group.height) - Math.max(component.y, group.y));
+          return { group, coverage: intersection / componentArea };
+        }).filter((candidate) => candidate.coverage > 0);
+        for (const { group } of partial) group.ambiguous = true;
+        if (partial.length) warnings.push(`component-ownership-incomplete:${component.id}`);
+        unassigned.push({ component, pixelCount: pixelsByComponent.get(component.id).length, ambiguous: partial.length > 0 });
+        continue;
+      }
+      if (candidates.length > 1 && candidates[0].score - candidates[1].score < .08) {
+        for (const candidate of candidates.filter((item) => candidates[0].score - item.score < .08)) candidate.group.ambiguous = true;
+        warnings.push(`component-ownership-ambiguous:${component.id}`);
+        unassigned.push({ component, pixelCount: pixelsByComponent.get(component.id).length, ambiguous: true });
+        continue;
+      }
+      const { group } = candidates[0];
+      group.componentIds.push(component.id);
+      group.pixels.push(...pixelsByComponent.get(component.id));
+      group.area += pixelsByComponent.get(component.id).length;
+      const contained = component.x >= group.x && component.y >= group.y &&
+        component.x + component.width <= group.x + group.width && component.y + component.height <= group.y + group.height;
+      if (!contained) {
+        group.extendedComponentIds.push(component.id);
+        warnings.push(`component-extends-localizer-bounds:${component.id}:${group.index}`);
+      }
+    }
+    const glyphs = groups.map((group) => {
+      if (group.ambiguous) return { index: group.index, bounds: group.sourceBounds, native: null, normalized: null, sheared: null,
+        maskCoverage: 0, integrity: { status: "ambiguous", reason: "component-ownership-not-unique", componentIds: group.componentIds,
+          unresolvedPixelCount: unassigned.filter((item) => item.ambiguous).reduce((sum, item) => sum + item.pixelCount, 0) } };
+      if (!group.area) return { index: group.index, bounds: group.sourceBounds, native: null, normalized: null, sheared: null,
+        maskCoverage: 0, integrity: { status: "empty", reason: "no-foreground-components-matched-to-localizer-group", componentIds: [] } };
+      let minX = width, minY = height, maxX = -1, maxY = -1;
+      for (const p of group.pixels) { const x = p % width, y = Math.floor(p / width); minX = Math.min(minX, x); minY = Math.min(minY, y); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y); }
+      const nativeWidth = maxX - minX + 1, nativeHeight = maxY - minY + 1;
+      const rgba = new Uint8Array(nativeWidth * nativeHeight * 4), mask = new Uint8Array(nativeWidth * nativeHeight);
+      for (const p of group.pixels) {
+        const x = p % width, y = Math.floor(p / width), local = (y - minY) * nativeWidth + x - minX;
+        mask[local] = 255;
+        rgba.set(imageData.data.subarray(p * 4, p * 4 + 4), local * 4);
+      }
+      const native = { width: nativeWidth, height: nativeHeight, rgba, mask };
+      const normalized = normalizeGlyph(native), estimate = estimateShear(normalized);
+      return { index: group.index, bounds: group.sourceBounds, pixelBounds: { x: minX, y: minY, width: nativeWidth, height: nativeHeight },
+        area: group.area, native, normalized, sheared: shearGlyph(normalized, estimate), maskCoverage: group.area / (nativeWidth * nativeHeight),
+        integrity: { status: group.extendedComponentIds.length ? "review" : "isolated", extendedComponentIds: group.extendedComponentIds,
+          pixelOwnership: "whole-connected-component-to-localizer-group", componentIds: group.componentIds, componentCount: group.componentIds.length } };
+    });
+    if (glyphs.some((glyph) => glyph.integrity.status === "empty")) warnings.push("one-or-more-localizer-groups-have-no-ink");
+    if (glyphs.some((glyph) => glyph.integrity.status === "ambiguous")) warnings.push("ambiguous-components-withheld-from-glyph-masks");
+    return { glyphs, warnings: [...new Set(warnings)], reason: null, source: "shared-localizer-groups+connected-components",
+      pixelMaskSource: reader.source || "provided-foreground-mask",
+      componentCount: components.boxes.length, assignedComponentCount: groups.reduce((sum, group) => sum + group.componentIds.length, 0),
+      unassignedComponentCount: unassigned.length, unassignedPixelCount: unassigned.reduce((sum, item) => sum + item.pixelCount, 0) };
+  }
+  function validateGlyphSelection(glyphs, labels, excluded, confirmedValue = "") {
+    const value = String(confirmedValue ?? "").replace(/\D/g, ""), excludedSet = new Set(excluded || []);
+    const selected = glyphs.map((glyph, index) => ({ glyph, index, digit: String(labels?.[index] ?? "") }))
+      .filter((item) => !excludedSet.has(item.index) && item.digit !== "");
+    const invalid = selected.filter(({ glyph, digit }) => !glyph?.native || glyph.integrity?.status === "ambiguous" || !/^\d$/.test(digit));
+    const contradictions = value.length === glyphs.length
+      ? selected.filter(({ index, digit }) => digit !== value[index]).map(({ index }) => index) : [];
+    const valid = selected.length > 0 && invalid.length === 0 && contradictions.length === 0;
+    return { valid, confirmedValue: value, selected, invalidIndices: invalid.map((item) => item.index),
+      contradictionIndices: contradictions, excludedIndices: [...excludedSet].sort((a, b) => a - b),
+      pendingIndices: glyphs.map((_, index) => index).filter((index) => !excludedSet.has(index) && !String(labels?.[index] ?? "")),
+      valueLengthMismatch: Boolean(value && value.length !== glyphs.length),
+      warning: !selected.length ? "Identifie au moins un glyphe avant validation." : invalid.length ? "Corrige l’identification des glyphes sélectionnés." :
+        contradictions.length ? "Une identification contredit la valeur réelle saisie." : null };
+  }
   function validateManualValue(value, glyphCount) {
     const digits = String(value ?? "").replace(/\D/g, "");
     return { digits, valid: digits.length > 0 && digits.length === glyphCount, digitCount: digits.length, glyphCount,
@@ -178,7 +309,10 @@
     return { id, digit: String(digit), familyId: FAMILY_ID, source: { captureId: String(provenance.captureId), captureHash: String(provenance.captureHash), confirmedValue: String(provenance.confirmedValue || ""),
       fileName: String(provenance.fileName || "capture"), field: String(provenance.field), fieldType: provenance.fieldType === "score" ? "score" : "trophy",
       side: provenance.side === "opponent" ? "opponent" : "losp", captureDimensions: { width: Number(provenance.captureWidth), height: Number(provenance.captureHeight) },
-      position: Number(provenance.position), segmentIndex: Number(provenance.segmentIndex ?? provenance.position), isolationMethod: "connected-component-mask", sourceCropRect: provenance.sourceCropRect || null },
+      position: Number(provenance.position), segmentIndex: Number(provenance.segmentIndex ?? provenance.position), isolationMethod: "shared-localizer-groups+whole-connected-components", sourceCropRect: provenance.sourceCropRect || null,
+      locatorVersion: String(provenance.locatorVersion || "unknown"), locatorMethod: String(provenance.locatorMethod || "unknown"),
+      localizationStatus: String(provenance.localizationStatus || "localized"), localizationWarnings: Array.isArray(provenance.localizationWarnings) ? provenance.localizationWarnings : [],
+      segmentation: provenance.segmentation || null, glyphBounds: provenance.glyphBounds || null },
       native: { width: native.width, height: native.height, rgba: toBase64(native.rgba), mask: toBase64(native.mask) },
       normalized: { width: normalized.width, height: normalized.height, rgba: toBase64(normalized.rgba), fit: normalized.fit, version: normalized.normalizationVersion },
       sheared: { width: sheared.width, height: sheared.height, rgba: toBase64(sheared.rgba), estimate: sheared.shear },
@@ -192,7 +326,7 @@
     if (!data || data.schema !== SCHEMA || data.schemaVersion !== SCHEMA_VERSION || !Array.isArray(data.references)) throw new TypeError("Format de bibliothèque non reconnu.");
     for (const ref of data.references) {
       if (!ref || !ref.id || !/^\d$/.test(String(ref.digit)) || ref.metadata?.status !== "manually-validated" || ref.metadata?.synthetic ||
-          !ref.source?.captureId || !ref.source?.captureHash || !/^\d+$/.test(ref.source?.confirmedValue || "") || !["score", "trophy"].includes(ref.source.fieldType) ||
+          !ref.source?.captureId || !ref.source?.captureHash || !/^\d*$/.test(ref.source?.confirmedValue ?? "") || !["score", "trophy"].includes(ref.source.fieldType) ||
           !["localScore", "opponentScore", "localTrophies", "opponentTrophies"].includes(ref.source.field) || !["losp", "opponent"].includes(ref.source.side) ||
           !Number.isInteger(ref.source.position) || ref.source.position < 0 || !Number.isInteger(ref.source.segmentIndex) || ref.source.segmentIndex < 0 ||
           !Number.isInteger(ref.source.captureDimensions?.width) || !Number.isInteger(ref.source.captureDimensions?.height) ||
@@ -241,17 +375,37 @@
     section.dataset.ready = "true";
     const $ = (selector) => section.querySelector(selector), status = $("#numericLibraryStatus"), captureSelect = $("#numericLibraryCapture"), fieldSelect = $("#numericLibraryField");
     let store = null, files = [], current = null, references = [];
+    const drafts = new Map(), fieldProgress = new Map(), reviewedCaptures = new Set();
     const setStatus = (message, error = false) => { status.textContent = message; status.classList.toggle("is-error", error); };
     const escape = (value) => String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    function updateCollectionProgress() {
+      const fields = [...fieldProgress.values()], detected = fields.reduce((n, row) => n + row.glyphCount, 0);
+      const validated = fields.reduce((n, row) => n + row.validatedCount, 0), excluded = fields.reduce((n, row) => n + row.excludedCount, 0);
+      $("#numericLibraryProgress").textContent = files.length
+        ? `Capture ${Number(captureSelect.value) + 1}/${files.length} · champ ${fieldSelect.selectedIndex + 1}/4 · ${reviewedCaptures.size} capture(s) examinée(s) · ${fields.length} champ(s) préparé(s) · ${detected} glyphe(s) détecté(s) · ${validated} glyphe(s) validé(s) · ${excluded} exclu(s) · ${references.length} référence(s) enregistrée(s).`
+        : "Aucune capture importée.";
+    }
     function updateCaptureOptions() {
       const prior = captureSelect.value;
-      captureSelect.innerHTML = files.map((entry, i) => `<option value="${i}">${escape(entry.name)}</option>`).join("");
+      captureSelect.innerHTML = files.map((entry, i) => {
+        const name = String(entry.name || `Capture ${i + 1}`), short = name.length > 34 ? `${name.slice(0, 15)}…${name.slice(-15)}` : name;
+        return `<option value="${i}" title="${escape(name)}">${escape(short)}</option>`;
+      }).join("");
       if (files.length) captureSelect.value = String(Math.min(Number(prior) || 0, files.length - 1));
-      $("#numericLibraryProgress").textContent = files.length ? `Capture ${Number(captureSelect.value) + 1} sur ${files.length} · champ ${fieldSelect.selectedIndex + 1} sur 4` : "Aucune capture importée.";
+      updateCollectionProgress();
     }
     async function refreshReferences() {
       if (!store) return;
       references = await store.list();
+      const storedFields = new Map();
+      for (const ref of references) {
+        const key = `${ref.source.captureId}:${ref.source.field}`, row = storedFields.get(key) || { captureId: ref.source.captureId, positions: new Set(), groupCount: 0 };
+        row.positions.add(ref.source.position); row.groupCount = Math.max(row.groupCount, Number(ref.source.segmentation?.physicalGroupCount) || 0);
+        storedFields.set(key, row); reviewedCaptures.add(ref.source.captureId);
+      }
+      for (const [key, row] of storedFields) if (!fieldProgress.has(key)) fieldProgress.set(key, {
+        captureId: row.captureId, glyphCount: row.groupCount || row.positions.size, validatedCount: row.positions.size, excludedCount: 0
+      });
       const summary = summarize(references);
       $("#numericLibrarySummary").textContent = `${summary.total} référence(s) · ${summary.coveredDigits}/10 chiffres couverts · ${summary.distinctCaptures} capture(s) source(s) · ${summary.duplicateCount} doublon(s) détecté(s).`;
       $("#numericLibraryDigits").innerHTML = Object.entries(summary.byDigit).map(([digit, row]) => {
@@ -263,30 +417,38 @@
       for (const canvas of $("#numericLibraryDigits").querySelectorAll("[data-ref-sheared]")) { const ref = references.find((item) => item.id === canvas.dataset.refSheared); if (ref) drawBytes(canvas, ref.sheared.width, ref.sheared.height, fromBase64(ref.sheared.rgba)); }
       $("#numericLibraryCoverage").textContent = summary.missingDigits.length ? `À collecter en priorité : ${summary.missingDigits.join(", ")}.` : "Les dix chiffres disposent d’au moins une référence.";
       $("#numericLibraryTotal").textContent = `${summary.total} glyphes validés`;
+      updateCollectionProgress();
     }
     function renderGlyphs() {
       const host = $("#numericLibraryGlyphs");
       if (!current?.extraction) { host.innerHTML = ""; return; }
       if (!current.extraction.glyphs?.length) {
         host.innerHTML = "";
-        const detected = current.extraction.segmentation?.bounds?.length ?? current.extraction.segmentation?.components?.length ?? 0;
-        $("#numericLibraryLengthCheck").textContent = `Diagnostic : ${current.value.replace(/\D/g, "").length} chiffre(s) saisi(s), aucun groupe complet de glyphes validé (composants détectés : ${detected}). ${current.extraction.reason || "Vérifie la découpe ou essaie un autre champ."} Aucune référence ne peut être validée.`;
+        $("#numericLibraryLengthCheck").textContent = `Aucun groupe physique exploitable n’a été fourni par le localisateur (${current.localization?.status || "indisponible"}). ${current.extraction.reason || "Vérifie la localisation partagée et réessaie."} Aucune référence ne peut être validée.`;
         return;
       }
       const length = current.value.replace(/\D/g, "").length, count = current.extraction.glyphs.length;
-      $("#numericLibraryLengthCheck").textContent = current.extraction.reason || (length !== count ? `Diagnostic : ${length} chiffre(s) saisi(s), ${count} glyphe(s) détecté(s). Ajuste la valeur ou exclue le composant défectueux.` : "Le nombre de chiffres et de glyphes correspond. Vérifie chaque identification avant validation.");
+      const mismatch = length && length !== count ? `La valeur contient ${length} chiffre(s) pour ${count} groupes physiques. La segmentation reste celle du localisateur; identifie chaque groupe ou laisse la valeur vide pour une validation individuelle.` : "La segmentation provient du localisateur partagé et ne dépend pas de l’OCR.";
+      $("#numericLibraryLengthCheck").textContent = current.localizationBlocked
+        ? `Localisation ${current.localization?.status || "indisponible"} : ${[...(current.localization?.warnings || []), current.localization?.reason].filter(Boolean).join(" · ") || "aucun rectangle final validé"}. Aucune référence ne peut être créée à partir de ce champ.`
+        : `${count} groupe(s) physique(s) fourni(s) par le localisateur. ${mismatch}`;
       host.innerHTML = current.extraction.glyphs.map((glyph, index) => {
-        const guessed = length === count ? current.value.replace(/\D/g, "")[index] : current.labels[index] || "";
-        const selected = current.labels[index] ?? guessed;
-        return `<article class="numeric-library-glyph"><div class="numeric-library-previews"><canvas data-glyph="${index}" width="${glyph.native.width}" height="${glyph.native.height}" aria-label="Glyphe original ${index + 1}"></canvas><canvas data-normalized="${index}" width="48" height="64" aria-label="Glyphe normalisé ${index + 1}"></canvas><canvas data-sheared="${index}" width="${glyph.sheared.width}" height="${glyph.sheared.height}" aria-label="Glyphe redressé ${index + 1}"></canvas></div><label>Glyphe ${index + 1} · x=${glyph.bounds.x}, y=${glyph.bounds.y}, ${glyph.bounds.width}×${glyph.bounds.height}<select data-digit-index="${index}"><option value="">À identifier</option>${Array.from({ length: 10 }, (_, d) => `<option value="${d}" ${selected === String(d) ? "selected" : ""}>${d}</option>`).join("")}</select></label><label class="numeric-library-exclude"><input type="checkbox" data-exclude-index="${index}" ${current.excluded.has(index) ? "checked" : ""}> Exclure ce glyphe (segmentation à vérifier)</label><small>${Math.round(glyph.maskCoverage * 100)} % de densité d’encre · inclinaison estimée ${glyph.sheared.shear.slope.toFixed(2)} · confiance ${Math.round(glyph.sheared.shear.confidence * 100)} %</small></article>`;
+        const selected = current.labels[index] ?? "", isExcluded = current.excluded.has(index), isValidated = current.validatedIndices.has(index);
+        const statusText = isExcluded ? "Exclu" : glyph.integrity.status === "ambiguous" ? "À contrôler · appartenance ambiguë" : !glyph.native ? "À contrôler · masque vide" : isValidated ? "Validé" : selected ? "Identifié · à valider" : "Détecté · à identifier";
+        const previews = glyph.native ? `<div class="numeric-library-previews"><figure><figcaption>Natif</figcaption><canvas data-glyph="${index}" width="${glyph.native.width}" height="${glyph.native.height}" aria-label="Glyphe natif isolé ${index + 1}"></canvas></figure><figure><figcaption>Normalisé 48×64</figcaption><canvas data-normalized="${index}" width="48" height="64" aria-label="Glyphe normalisé ${index + 1}"></canvas></figure><figure><figcaption>Redressé</figcaption><canvas data-sheared="${index}" width="${glyph.sheared.width}" height="${glyph.sheared.height}" aria-label="Glyphe redressé ${index + 1}"></canvas></figure></div>` : `<p class="is-error">${glyph.integrity.status === "ambiguous" ? "Appartenance des composantes ambiguë : aucun masque de référence n’est créé." : "Aucun pixel isolé dans ce groupe."}</p>`;
+        const metrics = glyph.native ? `${glyph.area} pixel(s) de masque · ${glyph.native.width}×${glyph.native.height} px natifs · ${glyph.integrity.componentCount} composante(s) · pente ${glyph.sheared.shear.slope.toFixed(2)} · confiance d’estimation ${Math.round(glyph.sheared.shear.confidence * 100)} %${glyph.integrity.extendedComponentIds?.length ? ` · composante(s) débordant du rectangle localisé : ${glyph.integrity.extendedComponentIds.join(", ")}` : ""}` : "Référence désactivée tant que le masque reste vide ou ambigu.";
+        return `<article class="numeric-library-glyph"><strong>Position physique ${index + 1} · ${statusText}</strong>${previews}<label>Identification manuelle du chiffre<select data-digit-index="${index}" ${glyph.native ? "" : "disabled"}><option value="">À identifier</option>${Array.from({ length: 10 }, (_, d) => `<option value="${d}" ${selected === String(d) ? "selected" : ""}>${d}</option>`).join("")}</select></label><label class="numeric-library-exclude"><input type="checkbox" data-exclude-index="${index}" ${isExcluded ? "checked" : ""}> Exclure cette position physique</label><small>Rectangle ${glyph.bounds.x},${glyph.bounds.y} · ${glyph.bounds.width}×${glyph.bounds.height} · ${metrics}</small></article>`;
       }).join("");
       $("#numericLibraryReviewed").checked = false;
       current.extraction.glyphs.forEach((glyph, index) => {
+        if (!glyph.native) return;
         drawBytes(host.querySelector(`[data-glyph="${index}"]`), glyph.native.width, glyph.native.height, glyph.native.rgba);
         drawBytes(host.querySelector(`[data-normalized="${index}"]`), 48, 64, glyph.normalized.rgba);
         drawBytes(host.querySelector(`[data-sheared="${index}"]`), glyph.sheared.width, glyph.sheared.height, glyph.sheared.rgba);
       });
-      if (current.extraction.warnings?.length) $("#numericLibraryLengthCheck").textContent += ` Avertissements : ${current.extraction.warnings.join(", ")}.`;
+      if (current.extraction.warnings?.length) $("#numericLibraryLengthCheck").textContent += ` Contrôle visuel requis : ${current.extraction.warnings.join(", ")}.`;
+      if (length && length !== count) $("#numericLibraryLengthCheck").textContent += ` ${mismatch}`;
+      updateCollectionProgress();
     }
     function drawBytes(canvas, width, height, bytes) {
       if (!canvas) return;
@@ -297,64 +459,136 @@
       if (root.createImageBitmap) return root.createImageBitmap(file);
       return new Promise((resolve, reject) => { const image = new Image(), url = URL.createObjectURL(file); image.onload = () => { URL.revokeObjectURL(url); resolve(image); }; image.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Image impossible à décoder.")); }; image.src = url; });
     }
+    function saveCurrentDraft() {
+      if (!current?.draftKey) return;
+      drafts.set(current.draftKey, { value: $("#numericLibraryValue").value, labels: [...current.labels], excluded: [...current.excluded],
+        manuallyLabeled: [...current.manuallyLabeled], validatedIndices: [...current.validatedIndices] });
+    }
+    function fieldGroups(localization, field, rect) {
+      if (field.endsWith("Score")) return (localization.glyphs || []).map((box) => ({ ...box, x: box.x - rect.x, y: box.y - rect.y }));
+      const segmentation = localization.diagnostics?.segmentation, band = localization.diagnostics?.segmentationBandRect;
+      if (!Array.isArray(segmentation?.bounds) || !band) return [];
+      return segmentation.bounds.map((box) => ({ ...box, x: band.x + box.x - rect.x, y: band.y + box.y - rect.y }));
+    }
+    function drawContext(image, rect) {
+      const canvas = $("#numericLibrarySourceContext"), scale = Math.min(720 / image.width, 260 / image.height, 1);
+      canvas.width = Math.max(1, Math.round(image.width * scale)); canvas.height = Math.max(1, Math.round(image.height * scale));
+      const context = canvas.getContext("2d"); context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      if (rect) { context.strokeStyle = "#ffcf43"; context.lineWidth = Math.max(2, canvas.width / image.width * 3); context.strokeRect(rect.x * scale, rect.y * scale, rect.width * scale, rect.height * scale); }
+    }
     async function prepare() {
+      saveCurrentDraft();
+      current = null;
+      $("#numericLibraryValue").value = ""; $("#numericLibraryValue").disabled = true;
+      $("#numericLibraryGlyphs").innerHTML = ""; $("#numericLibraryReviewed").checked = false;
+      $("#numericLibraryOcrButton").disabled = true;
+      $("#numericLibraryCrop").width = $("#numericLibraryCrop").height = 1;
+      $("#numericLibrarySourceContext").width = $("#numericLibrarySourceContext").height = 1;
       const entry = files[Number(captureSelect.value)]; if (!entry?.file) { setStatus("Importe d’abord une ou plusieurs captures dans le panneau principal.", true); return; }
-      const field = fieldSelect.value; setStatus(`Lecture OCR de la découpe ${entry.name} · ${field}…`);
+      const field = fieldSelect.value; setStatus(`Localisation partagée · ${entry.name} · ${field}…`);
       try {
-        const useExperimentalScoreLocator = field.endsWith("Score") && $("#numericLibraryScoreLocator").value === "experimental";
-        const result = await root.WarResultsVisionEngine.analyzeNumericFields(entry.file, [field], () => {}, { variantId: "vertical-recovery-combined", marginPercent: 18, geometryMode: "proportional", scoreLocator: useExperimentalScoreLocator ? "experimental" : "validated" });
-        const diagnostic = result.fields[field], rect = diagnostic?.rect;
-        if (!rect) throw new Error(diagnostic?.warning || "La zone numérique n’a pas été localisée.");
-        const image = await decodeFile(entry.file), canvas = root.document.createElement("canvas");
-        canvas.width = Math.max(1, Math.round(rect.width)); canvas.height = Math.max(1, Math.round(rect.height));
-        const context = canvas.getContext("2d", { willReadFrequently: true }); context.drawImage(image, rect.x, rect.y, rect.width, rect.height, 0, 0, canvas.width, canvas.height);
+        const located = await root.WarResultsVisionEngine.locateNumericFields(entry.file, [field]);
+        const localization = located.fields?.[field], rect = localization?.finalRect;
+        const image = await decodeFile(entry.file), captureHash = await sha256(new Uint8Array(await entry.file.arrayBuffer()));
+        reviewedCaptures.add(captureHash);
+        const imageData = rect ? (() => {
+          const canvas = root.document.createElement("canvas"); canvas.width = Math.max(1, Math.round(rect.width)); canvas.height = Math.max(1, Math.round(rect.height));
+          const context = canvas.getContext("2d", { willReadFrequently: true }); context.drawImage(image, rect.x, rect.y, rect.width, rect.height, 0, 0, canvas.width, canvas.height);
+          return context.getImageData(0, 0, canvas.width, canvas.height);
+        })() : null;
+        drawContext(image, rect || localization?.proportionalRect || localization?.initialRect || null);
+        const prior = drafts.get(`${captureHash}:${field}`) || {};
+        const persistedPositions = references.filter((ref) => ref.source.captureId === captureHash && ref.source.field === field).map((ref) => ref.source.position);
+        const groups = rect ? fieldGroups(localization, field, rect) : [];
+        const componentReader = rect && localization?.status === "localized" && groups.length ? componentReaderForField(field, imageData) : null;
+        const extraction = componentReader
+          ? extractGlyphsFromBounds(imageData, field.endsWith("Score") ? "score" : "trophy", groups, componentReader)
+          : { glyphs: [], warnings: [], reason: localization?.status !== "localized" ? localization?.reason || localization?.status || "field-not-localized"
+            : !groups.length ? "physical-glyph-groups-unavailable" : "localizer-component-mask-unavailable" };
+        current = { entry, field, rect: rect || null, dimensions: located.dimensions, imageData, localization, extraction,
+          value: prior.value || "", labels: prior.labels || [], excluded: new Set(prior.excluded || []), manuallyLabeled: new Set(prior.manuallyLabeled || []),
+          validatedIndices: new Set([...(prior.validatedIndices || []), ...persistedPositions]), captureHash, draftKey: `${captureHash}:${field}`,
+          localizationBlocked: localization?.status !== "localized", ocr: null };
+        $("#numericLibraryCrop").width = rect ? Math.min(480, imageData.width) : 1; $("#numericLibraryCrop").height = rect ? Math.max(1, Math.round(imageData.height * Math.min(480 / imageData.width, 1))) : 1;
+        if (rect) $("#numericLibraryCrop").getContext("2d").drawImage(image, rect.x, rect.y, rect.width, rect.height, 0, 0, $("#numericLibraryCrop").width, $("#numericLibraryCrop").height);
         image.close?.();
-        const imageData = context.getImageData(0, 0, canvas.width, canvas.height), ocrValue = String(diagnostic.raw || "").replace(/\D/g, "");
-        current = { entry, field, rect, dimensions: result.dimensions, imageData, ocrValue, value: ocrValue, extraction: null, labels: [], excluded: new Set(), captureHash: await sha256(new Uint8Array(await entry.file.arrayBuffer())) };
-        $("#numericLibraryCrop").width = Math.min(480, canvas.width); $("#numericLibraryCrop").height = Math.max(1, Math.round(canvas.height * Math.min(480 / canvas.width, 1)));
-        $("#numericLibraryCrop").getContext("2d").drawImage(canvas, 0, 0, $("#numericLibraryCrop").width, $("#numericLibraryCrop").height);
-        $("#numericLibraryOcr").textContent = `Tesseract ${diagnostic.raw ? `« ${diagnostic.raw.trim()} »` : "n’a pas proposé de lecture"}${diagnostic.confidence == null ? "" : ` · confiance ${Math.round(diagnostic.confidence)} %`}`;
-        $("#numericLibraryValue").value = ocrValue; $("#numericLibraryValue").disabled = false;
-        resegment(); updateCaptureOptions(); setStatus(`Découpe prête · ${entry.name} · ${field}. Confirme ou corrige la valeur proposée par OCR.`);
+        $("#numericLibraryValue").value = current.value; $("#numericLibraryValue").disabled = false;
+        $("#numericLibraryOcr").textContent = "OCR non exécuté. Tu peux demander une suggestion facultative sur cette découpe; elle ne pilote ni le nombre ni les positions des glyphes.";
+        $("#numericLibraryOcrButton").disabled = !rect || localization?.status !== "localized";
+        for (const index of current.manuallyLabeled) current.labels[index] = current.labels[index] || "";
+        if (current.value && current.value.replace(/\D/g, "").length === extraction.glyphs.length && !prior.labels?.length) {
+          current.labels = [...current.value.replace(/\D/g, "")];
+        }
+        if (current.extraction.glyphs.length) fieldProgress.set(current.draftKey, { captureId: captureHash, glyphCount: current.extraction.glyphs.length,
+          validatedCount: current.validatedIndices.size, excludedCount: current.excluded.size });
+        renderGlyphs(); updateCaptureOptions();
+        setStatus(rect && localization?.status === "localized" ? `Découpe partagée prête · ${entry.name} · ${field}. Aucun OCR n’a déterminé les groupes physiques.${localization.warnings?.length ? " Vérifie les avertissements avant toute validation." : ""}`
+          : `Localisation ${localization?.status || "indisponible"} · ce champ ne peut pas alimenter la bibliothèque.`, !rect || localization?.status !== "localized");
       } catch (error) { setStatus(error.message || String(error), true); }
     }
-    function resegment() {
+    async function suggestOcr() {
+      if (!current?.rect || current.localizationBlocked) return;
+      const button = $("#numericLibraryOcrButton"); button.disabled = true; setStatus("Suggestion OCR facultative sur la découpe déjà localisée…");
+      try {
+        const result = await root.WarResultsVisionEngine.analyzeField(current.entry.file, current.field, current.rect);
+        current.ocr = { raw: String(result.raw || ""), confidence: result.confidence ?? null, ms: result.ms ?? null };
+        $("#numericLibraryOcr").textContent = current.ocr.raw
+          ? `Suggestion Tesseract : « ${current.ocr.raw} »${current.ocr.confidence == null ? "" : ` · confiance ${Math.round(current.ocr.confidence)} %`}. Cette suggestion ne modifie ni la valeur réelle ni la segmentation.`
+          : "Tesseract n’a pas proposé de texte. La segmentation physique reste disponible.";
+        setStatus("Suggestion OCR terminée; les groupes, positions et masques n’ont pas été recalculés.");
+      } catch (error) {
+        current.ocr = { raw: "", error: error.message || String(error) };
+        $("#numericLibraryOcr").textContent = `Suggestion OCR indisponible : ${current.ocr.error}. L’extraction physique reste utilisable.`;
+        setStatus("OCR indisponible; la validation manuelle des glyphes reste possible.");
+      } finally { button.disabled = false; saveCurrentDraft(); }
+    }
+    function valueChanged() {
       if (!current) return;
       current.value = $("#numericLibraryValue").value;
-      const digits = current.value.replace(/\D/g, "");
-      if (!digits) { current.extraction = null; $("#numericLibraryGlyphs").innerHTML = ""; $("#numericLibraryLengthCheck").textContent = "Saisis la valeur confirmée pour détecter les glyphes."; return; }
-      const category = current.field.endsWith("Score") ? "score" : "trophy";
-      current.extraction = extractGlyphs(current.imageData, category, digits.length, root.WarResultsDigitReader);
-      if (current.extraction.glyphs.length !== current.extraction.segmentation?.bounds?.length) current.extraction.reason = current.extraction.reason || "La segmentation ne permet pas d’isoler tous les glyphes sans ambiguïté.";
-      renderGlyphs();
+      const digits = current.value.replace(/\D/g, ""), glyphs = current.extraction?.glyphs || [];
+      if (digits.length === glyphs.length) digits.split("").forEach((digit, index) => { if (!current.manuallyLabeled.has(index)) current.labels[index] = digit; });
+      renderGlyphs(); saveCurrentDraft();
     }
     async function validateCurrent() {
-      if (!current?.extraction?.glyphs?.length || current.extraction.reason) { setStatus("La segmentation est ambiguë ou incomplète. Aucune référence n’a été validée.", true); return; }
-      if (!$("#numericLibraryReviewed").checked) { setStatus("Confirme d’abord avoir vérifié visuellement la valeur et chaque glyphe. La proposition Tesseract n’est jamais une référence à elle seule.", true); return; }
-      const glyphs = current.extraction.glyphs, labels = [...$("#numericLibraryGlyphs").querySelectorAll("[data-digit-index]")].map((input) => input.value), excluded = new Set([...$("#numericLibraryGlyphs").querySelectorAll("[data-exclude-index]:checked")].map((input) => Number(input.dataset.excludeIndex)));
-      const active = glyphs.map((glyph, index) => ({ glyph, index })).filter((item) => !excluded.has(item.index));
-      const manual = validateManualValue($("#numericLibraryValue").value, active.length);
-      if (!manual.valid) { setStatus(manual.warning || "La valeur doit correspondre aux glyphes inclus.", true); return; }
-      if (!active.length || active.some(({ index }) => !/^\d$/.test(labels[index] || ""))) { setStatus("Identifie chaque glyphe inclus ou exclue-le explicitement avant validation.", true); return; }
-      const field = current.field, side = field.startsWith("opponent") ? "opponent" : "losp", fieldType = field.endsWith("Score") ? "score" : "trophy";
-      const captureId = current.captureHash, additions = [];
-      for (const [position, { glyph, index }] of active.entries()) additions.push(await createReference(glyph, labels[index], { captureId, captureHash: current.captureHash, confirmedValue: manual.digits, fileName: current.entry.name, field,
-        fieldType, side, captureWidth: current.dimensions.width, captureHeight: current.dimensions.height, position, segmentIndex: index, sourceCropRect: current.rect }));
-      const known = new Set(references.map(referenceKey));
-      let added = 0, duplicates = 0;
+      if (!current?.extraction?.glyphs?.length || current.extraction.reason) { setStatus("Aucun groupe physique exploitable. Aucune référence n’a été validée.", true); return; }
+      if (current.localizationBlocked) { setStatus("La localisation est incertaine ou échouée. Ce champ ne peut pas alimenter la bibliothèque.", true); return; }
+      if (!$("#numericLibraryReviewed").checked) { setStatus("Confirme d’abord avoir vérifié la découpe et chaque glyphe inclus.", true); return; }
+      const glyphs = current.extraction.glyphs, labels = [...$("#numericLibraryGlyphs").querySelectorAll("[data-digit-index]")].map((input) => input.value);
+      const excluded = new Set([...$("#numericLibraryGlyphs").querySelectorAll("[data-exclude-index]:checked")].map((input) => Number(input.dataset.excludeIndex)));
+      const selection = validateGlyphSelection(glyphs, labels, excluded, $("#numericLibraryValue").value);
+      if (!selection.valid) { setStatus(selection.warning || "Les glyphes sélectionnés nécessitent une identification manuelle.", true); return; }
+      const field = current.field, side = field.startsWith("opponent") ? "opponent" : "losp", fieldType = field.endsWith("Score") ? "score" : "trophy", additions = [];
+      for (const { glyph, index, digit } of selection.selected) additions.push(await createReference(glyph, digit, {
+        captureId: current.captureHash, captureHash: current.captureHash, confirmedValue: selection.confirmedValue, fileName: current.entry.name, field, fieldType, side,
+        captureWidth: current.dimensions.width, captureHeight: current.dimensions.height, position: index, segmentIndex: index, sourceCropRect: current.rect,
+        locatorVersion: fieldType === "score" ? "score-locator-v0.2.0" : "numeric-locator+vertical-recovery-combined",
+        locatorMethod: current.localization.method, localizationStatus: current.localization.status, localizationWarnings: current.localization.warnings || [],
+        glyphBounds: { ...glyph.bounds, coordinateSpace: "field-crop-pixels" },
+        segmentation: { source: "shared-localizer-groups", pixelMaskSource: current.extraction.pixelMaskSource || null,
+          physicalGroupCount: glyphs.length, bounds: glyph.bounds,
+          integrity: glyph.integrity, extractionWarnings: current.extraction.warnings || [] }
+      }, root.crypto));
+      const known = new Set(references.map(referenceKey)); let added = 0, duplicates = 0;
       for (const ref of additions) { if (known.has(referenceKey(ref))) { duplicates++; continue; } known.add(referenceKey(ref)); await store.put(ref); added++; }
-      await refreshReferences(); setStatus(`${added} référence(s) ajoutée(s) après confirmation manuelle${duplicates ? ` · ${duplicates} doublon(s) ignoré(s)` : ""}. Les exclusions ne sont pas enregistrées.`);
+      current.validatedIndices = new Set([...current.validatedIndices, ...selection.selected.map((item) => item.index)]); current.excluded = excluded;
+      drafts.set(current.draftKey, { value: $("#numericLibraryValue").value, labels, excluded: [...excluded], manuallyLabeled: [...current.manuallyLabeled], validatedIndices: [...current.validatedIndices] });
+      fieldProgress.set(current.draftKey, { captureId: current.captureHash, glyphCount: glyphs.length, validatedCount: current.validatedIndices.size, excludedCount: excluded.size });
+      await refreshReferences(); renderGlyphs();
+      setStatus(`${selection.selected.length} glyphe(s) identifié(s) et validé(s) sur leurs positions physiques d’origine · ${added} nouvelle(s) référence(s) unique(s) enregistrée(s)${duplicates ? ` · ${duplicates} doublon(s) déjà présent(s)` : ""}${selection.pendingIndices.length ? ` · ${selection.pendingIndices.length} position(s) restent à identifier` : ""}${selection.valueLengthMismatch ? ` · valeur complète conservée (${selection.confirmedValue.length} chiffres), sans contrainte de segmentation` : ""}.`);
     }
     async function exportJson() { return exportLibrary(await store.list()); }
     $("#numericLibraryPrepare").addEventListener("click", prepare);
-    $("#numericLibraryValue").addEventListener("input", resegment);
+    $("#numericLibraryOcrButton").addEventListener("click", suggestOcr);
+    $("#numericLibraryValue").addEventListener("input", valueChanged);
     $("#numericLibraryValidate").addEventListener("click", () => validateCurrent().catch((e) => setStatus(e.message, true)));
-    captureSelect.addEventListener("change", updateCaptureOptions); fieldSelect.addEventListener("change", updateCaptureOptions);
+    captureSelect.addEventListener("change", () => { saveCurrentDraft(); updateCaptureOptions(); prepare(); });
+    fieldSelect.addEventListener("change", () => { saveCurrentDraft(); updateCaptureOptions(); prepare(); });
     $("#numericLibraryGlyphs").addEventListener("change", (event) => {
       if (!current) return;
       const target = event.target;
-      if (target.matches("[data-digit-index]")) current.labels[Number(target.dataset.digitIndex)] = target.value;
+      if (target.matches("[data-digit-index]")) { const index = Number(target.dataset.digitIndex); current.labels[index] = target.value; current.manuallyLabeled.add(index); }
       if (target.matches("[data-exclude-index]")) { const index = Number(target.dataset.excludeIndex); if (target.checked) current.excluded.add(index); else current.excluded.delete(index); }
+      saveCurrentDraft(); renderGlyphs();
     });
     $("#numericLibraryDigits").addEventListener("click", async (event) => {
       const deleteButton = event.target.closest("[data-delete-ref]");
@@ -393,5 +627,6 @@
   }
 
   return { schema: SCHEMA, schemaVersion: SCHEMA_VERSION, familyId: FAMILY_ID, normalizationVersion: NORMALIZATION_VERSION, target: TARGET,
-    normalizeGlyph, estimateShear, shearGlyph, componentLabels, extractGlyphs, validateManualValue, sha256, createReference, emptyLibrary, exportLibrary, parseLibrary, validateLibrary, mergeLibraries, summarize, createStore, init };
+    normalizeGlyph, estimateShear, shearGlyph, componentLabels, extractGlyphs, extractGlyphsFromBounds, componentReaderForField,
+    validateGlyphSelection, validateManualValue, sha256, createReference, emptyLibrary, exportLibrary, parseLibrary, validateLibrary, mergeLibraries, summarize, createStore, init };
 });
