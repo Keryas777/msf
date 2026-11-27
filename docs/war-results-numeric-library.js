@@ -113,6 +113,21 @@
     return { labels, boxes };
   }
   function sameBox(a, b) { return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height; }
+  function componentReaderForField(field, imageData) {
+    if (field.endsWith("Score")) {
+      const scoreLocator = globalThis.WarResultsScoreLocatorExperiment;
+      if (typeof scoreLocator?.componentsInRegion !== "function") return null;
+      const result = scoreLocator.componentsInRegion(imageData, { x: 0, y: 0, width: imageData.width, height: imageData.height },
+        { ...(scoreLocator.defaults || {}), minimumArea: 1 });
+      if (!(result?.mask instanceof Uint8Array) || result.mask.length !== imageData.width * imageData.height) return null;
+      return { source: "score-localizer-yellow-mask", foreground: () => result.mask };
+    }
+    const digitReader = globalThis.WarResultsDigitReader;
+    if (typeof digitReader?.foreground !== "function") return null;
+    const mask = digitReader.foreground(imageData, "trophy");
+    return mask instanceof Uint8Array && mask.length === imageData.width * imageData.height
+      ? { source: "trophy-localizer-digit-reader-mask", foreground: () => mask } : null;
+  }
   function extractGlyphs(imageData, category, count, reader) {
     assertImageData(imageData);
     if (!reader || typeof reader.segment !== "function" || typeof reader.foreground !== "function") throw new TypeError("Le lecteur de glyphes MSF n’est pas disponible.");
@@ -153,9 +168,10 @@
     }
     return { glyphs, segmentation, warnings: [...new Set(warnings)], reason: null };
   }
-  // Builds the per-glyph masks from the already selected groups returned by
-  // locateNumericFields. This deliberately does not call segment() and its
-  // result is independent of OCR text or a manually entered digit count.
+  // Rebuilds source-pixel components from the same color mask used by the
+  // selected localizer, then associates whole components with its groups by
+  // bounding-box overlap/area. It never divides a connected component by
+  // distance to a glyph center. Unresolvable ownership is reported and withheld.
   function extractGlyphsFromBounds(imageData, category, bounds, reader) {
     assertImageData(imageData);
     if (!reader || typeof reader.foreground !== "function") throw new TypeError("Le masque colorimétrique MSF n’est pas disponible.");
@@ -168,27 +184,68 @@
       const x = Math.max(0, Math.floor(box.x)), y = Math.max(0, Math.floor(box.y));
       const right = Math.min(width, Math.ceil(box.x + box.width)), bottom = Math.min(height, Math.ceil(box.y + box.height));
       return { index, sourceBounds: { ...box }, x, y, width: right - x, height: bottom - y,
-        centerX: (box.x + box.width / 2), area: 0, sharedPixelCount: 0, pixels: [], componentIds: new Set() };
+        area: 0, pixels: [], componentIds: [], ambiguous: false, extendedComponentIds: [] };
     });
     const warnings = [];
     for (let i = 1; i < groups.length; i++) {
       if (groups[i - 1].sourceBounds.x + groups[i - 1].sourceBounds.width > groups[i].sourceBounds.x)
         warnings.push(`overlapping-bounds:${i - 1}:${i}`);
     }
-    for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
-      const at = y * width + x;
-      if (!ink[at]) continue;
-      const candidates = groups.filter((group) => x >= group.x && x < group.x + group.width && y >= group.y && y < group.y + group.height);
-      if (!candidates.length) continue;
-      candidates.sort((a, b) => Math.abs(x + .5 - a.centerX) - Math.abs(x + .5 - b.centerX));
-      const owner = candidates[0];
-      if (candidates.length > 1) owner.sharedPixelCount++;
-      owner.pixels.push(at); owner.area++;
-      if (components.labels[at]) owner.componentIds.add(components.labels[at]);
+    const pixelsByComponent = new Map(components.boxes.map((component) => [component.id, []]));
+    for (let pixel = 0; pixel < components.labels.length; pixel++) {
+      const id = components.labels[pixel];
+      if (id) pixelsByComponent.get(id).push(pixel);
+    }
+    const unassigned = [];
+    for (const component of components.boxes) {
+      const componentArea = Math.max(1, component.width * component.height);
+      const candidates = groups.map((group) => {
+        const left = Math.max(component.x, group.x), top = Math.max(component.y, group.y);
+        const right = Math.min(component.x + component.width, group.x + group.width);
+        const bottom = Math.min(component.y + component.height, group.y + group.height);
+        const intersection = Math.max(0, right - left) * Math.max(0, bottom - top);
+        const coverage = intersection / componentArea;
+        const union = componentArea + group.width * group.height - intersection;
+        const iou = intersection / Math.max(1, union);
+        const expectedArea = Number(group.sourceBounds.area);
+        const areaAgreement = Number.isFinite(expectedArea) && expectedArea > 0
+          ? 1 - Math.min(1, Math.abs(component.area - expectedArea) / Math.max(component.area, expectedArea)) : 0;
+        return { group, coverage, iou, areaAgreement, score: .8 * iou + .2 * areaAgreement, intersection };
+      }).filter((candidate) => candidate.coverage >= .6).sort((a, b) => b.score - a.score);
+      if (!candidates.length) {
+        const partial = groups.map((group) => {
+          const intersection = Math.max(0, Math.min(component.x + component.width, group.x + group.width) - Math.max(component.x, group.x)) *
+            Math.max(0, Math.min(component.y + component.height, group.y + group.height) - Math.max(component.y, group.y));
+          return { group, coverage: intersection / componentArea };
+        }).filter((candidate) => candidate.coverage > 0);
+        for (const { group } of partial) group.ambiguous = true;
+        if (partial.length) warnings.push(`component-ownership-incomplete:${component.id}`);
+        unassigned.push({ component, pixelCount: pixelsByComponent.get(component.id).length, ambiguous: partial.length > 0 });
+        continue;
+      }
+      if (candidates.length > 1 && candidates[0].score - candidates[1].score < .08) {
+        for (const candidate of candidates.filter((item) => candidates[0].score - item.score < .08)) candidate.group.ambiguous = true;
+        warnings.push(`component-ownership-ambiguous:${component.id}`);
+        unassigned.push({ component, pixelCount: pixelsByComponent.get(component.id).length, ambiguous: true });
+        continue;
+      }
+      const { group } = candidates[0];
+      group.componentIds.push(component.id);
+      group.pixels.push(...pixelsByComponent.get(component.id));
+      group.area += pixelsByComponent.get(component.id).length;
+      const contained = component.x >= group.x && component.y >= group.y &&
+        component.x + component.width <= group.x + group.width && component.y + component.height <= group.y + group.height;
+      if (!contained) {
+        group.extendedComponentIds.push(component.id);
+        warnings.push(`component-extends-localizer-bounds:${component.id}:${group.index}`);
+      }
     }
     const glyphs = groups.map((group) => {
+      if (group.ambiguous) return { index: group.index, bounds: group.sourceBounds, native: null, normalized: null, sheared: null,
+        maskCoverage: 0, integrity: { status: "ambiguous", reason: "component-ownership-not-unique", componentIds: group.componentIds,
+          unresolvedPixelCount: unassigned.filter((item) => item.ambiguous).reduce((sum, item) => sum + item.pixelCount, 0) } };
       if (!group.area) return { index: group.index, bounds: group.sourceBounds, native: null, normalized: null, sheared: null,
-        maskCoverage: 0, integrity: { status: "empty", reason: "no-foreground-pixels-in-localizer-group", sharedPixelCount: 0 } };
+        maskCoverage: 0, integrity: { status: "empty", reason: "no-foreground-components-matched-to-localizer-group", componentIds: [] } };
       let minX = width, minY = height, maxX = -1, maxY = -1;
       for (const p of group.pixels) { const x = p % width, y = Math.floor(p / width); minX = Math.min(minX, x); minY = Math.min(minY, y); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y); }
       const nativeWidth = maxX - minX + 1, nativeHeight = maxY - minY + 1;
@@ -202,18 +259,21 @@
       const normalized = normalizeGlyph(native), estimate = estimateShear(normalized);
       return { index: group.index, bounds: group.sourceBounds, pixelBounds: { x: minX, y: minY, width: nativeWidth, height: nativeHeight },
         area: group.area, native, normalized, sheared: shearGlyph(normalized, estimate), maskCoverage: group.area / (nativeWidth * nativeHeight),
-        integrity: { status: group.sharedPixelCount ? "review" : "isolated", sharedPixelCount: group.sharedPixelCount,
-          pixelOwnership: "nearest-localizer-group-center", componentIds: [...group.componentIds], componentCount: group.componentIds.size } };
+        integrity: { status: group.extendedComponentIds.length ? "review" : "isolated", extendedComponentIds: group.extendedComponentIds,
+          pixelOwnership: "whole-connected-component-to-localizer-group", componentIds: group.componentIds, componentCount: group.componentIds.length } };
     });
     if (glyphs.some((glyph) => glyph.integrity.status === "empty")) warnings.push("one-or-more-localizer-groups-have-no-ink");
-    if (glyphs.some((glyph) => glyph.integrity.sharedPixelCount)) warnings.push("overlapping-ink-assigned-once-by-nearest-group-center");
-    return { glyphs, warnings: [...new Set(warnings)], reason: null, source: "shared-localizer-groups" };
+    if (glyphs.some((glyph) => glyph.integrity.status === "ambiguous")) warnings.push("ambiguous-components-withheld-from-glyph-masks");
+    return { glyphs, warnings: [...new Set(warnings)], reason: null, source: "shared-localizer-groups+connected-components",
+      pixelMaskSource: reader.source || "provided-foreground-mask",
+      componentCount: components.boxes.length, assignedComponentCount: groups.reduce((sum, group) => sum + group.componentIds.length, 0),
+      unassignedComponentCount: unassigned.length, unassignedPixelCount: unassigned.reduce((sum, item) => sum + item.pixelCount, 0) };
   }
   function validateGlyphSelection(glyphs, labels, excluded, confirmedValue = "") {
     const value = String(confirmedValue ?? "").replace(/\D/g, ""), excludedSet = new Set(excluded || []);
     const selected = glyphs.map((glyph, index) => ({ glyph, index, digit: String(labels?.[index] ?? "") }))
       .filter((item) => !excludedSet.has(item.index) && item.digit !== "");
-    const invalid = selected.filter(({ glyph, digit }) => !glyph?.native || !/^\d$/.test(digit));
+    const invalid = selected.filter(({ glyph, digit }) => !glyph?.native || glyph.integrity?.status === "ambiguous" || !/^\d$/.test(digit));
     const contradictions = value.length === glyphs.length
       ? selected.filter(({ index, digit }) => digit !== value[index]).map(({ index }) => index) : [];
     const valid = selected.length > 0 && invalid.length === 0 && contradictions.length === 0;
@@ -249,7 +309,7 @@
     return { id, digit: String(digit), familyId: FAMILY_ID, source: { captureId: String(provenance.captureId), captureHash: String(provenance.captureHash), confirmedValue: String(provenance.confirmedValue || ""),
       fileName: String(provenance.fileName || "capture"), field: String(provenance.field), fieldType: provenance.fieldType === "score" ? "score" : "trophy",
       side: provenance.side === "opponent" ? "opponent" : "losp", captureDimensions: { width: Number(provenance.captureWidth), height: Number(provenance.captureHeight) },
-      position: Number(provenance.position), segmentIndex: Number(provenance.segmentIndex ?? provenance.position), isolationMethod: "shared-localizer-bounds+color-component-mask", sourceCropRect: provenance.sourceCropRect || null,
+      position: Number(provenance.position), segmentIndex: Number(provenance.segmentIndex ?? provenance.position), isolationMethod: "shared-localizer-groups+whole-connected-components", sourceCropRect: provenance.sourceCropRect || null,
       locatorVersion: String(provenance.locatorVersion || "unknown"), locatorMethod: String(provenance.locatorMethod || "unknown"),
       localizationStatus: String(provenance.localizationStatus || "localized"), localizationWarnings: Array.isArray(provenance.localizationWarnings) ? provenance.localizationWarnings : [],
       segmentation: provenance.segmentation || null, glyphBounds: provenance.glyphBounds || null },
@@ -374,9 +434,9 @@
         : `${count} groupe(s) physique(s) fourni(s) par le localisateur. ${mismatch}`;
       host.innerHTML = current.extraction.glyphs.map((glyph, index) => {
         const selected = current.labels[index] ?? "", isExcluded = current.excluded.has(index), isValidated = current.validatedIndices.has(index);
-        const statusText = isExcluded ? "Exclu" : !glyph.native ? "À contrôler · masque vide" : isValidated ? "Validé" : selected ? "Identifié · à valider" : "Détecté · à identifier";
-        const previews = glyph.native ? `<div class="numeric-library-previews"><figure><figcaption>Natif</figcaption><canvas data-glyph="${index}" width="${glyph.native.width}" height="${glyph.native.height}" aria-label="Glyphe natif isolé ${index + 1}"></canvas></figure><figure><figcaption>Normalisé 48×64</figcaption><canvas data-normalized="${index}" width="48" height="64" aria-label="Glyphe normalisé ${index + 1}"></canvas></figure><figure><figcaption>Redressé</figcaption><canvas data-sheared="${index}" width="${glyph.sheared.width}" height="${glyph.sheared.height}" aria-label="Glyphe redressé ${index + 1}"></canvas></figure></div>` : `<p class="is-error">Aucun pixel isolé dans ce groupe.</p>`;
-        const metrics = glyph.native ? `${glyph.area} pixel(s) de masque · ${glyph.native.width}×${glyph.native.height} px natifs · pente ${glyph.sheared.shear.slope.toFixed(2)} · confiance d’estimation ${Math.round(glyph.sheared.shear.confidence * 100)} %${glyph.integrity.sharedPixelCount ? ` · ${glyph.integrity.sharedPixelCount} pixel(s) attribué(s) dans des rectangles chevauchants` : ""}` : "Référence désactivée tant que le masque reste vide.";
+        const statusText = isExcluded ? "Exclu" : glyph.integrity.status === "ambiguous" ? "À contrôler · appartenance ambiguë" : !glyph.native ? "À contrôler · masque vide" : isValidated ? "Validé" : selected ? "Identifié · à valider" : "Détecté · à identifier";
+        const previews = glyph.native ? `<div class="numeric-library-previews"><figure><figcaption>Natif</figcaption><canvas data-glyph="${index}" width="${glyph.native.width}" height="${glyph.native.height}" aria-label="Glyphe natif isolé ${index + 1}"></canvas></figure><figure><figcaption>Normalisé 48×64</figcaption><canvas data-normalized="${index}" width="48" height="64" aria-label="Glyphe normalisé ${index + 1}"></canvas></figure><figure><figcaption>Redressé</figcaption><canvas data-sheared="${index}" width="${glyph.sheared.width}" height="${glyph.sheared.height}" aria-label="Glyphe redressé ${index + 1}"></canvas></figure></div>` : `<p class="is-error">${glyph.integrity.status === "ambiguous" ? "Appartenance des composantes ambiguë : aucun masque de référence n’est créé." : "Aucun pixel isolé dans ce groupe."}</p>`;
+        const metrics = glyph.native ? `${glyph.area} pixel(s) de masque · ${glyph.native.width}×${glyph.native.height} px natifs · ${glyph.integrity.componentCount} composante(s) · pente ${glyph.sheared.shear.slope.toFixed(2)} · confiance d’estimation ${Math.round(glyph.sheared.shear.confidence * 100)} %${glyph.integrity.extendedComponentIds?.length ? ` · composante(s) débordant du rectangle localisé : ${glyph.integrity.extendedComponentIds.join(", ")}` : ""}` : "Référence désactivée tant que le masque reste vide ou ambigu.";
         return `<article class="numeric-library-glyph"><strong>Position physique ${index + 1} · ${statusText}</strong>${previews}<label>Identification manuelle du chiffre<select data-digit-index="${index}" ${glyph.native ? "" : "disabled"}><option value="">À identifier</option>${Array.from({ length: 10 }, (_, d) => `<option value="${d}" ${selected === String(d) ? "selected" : ""}>${d}</option>`).join("")}</select></label><label class="numeric-library-exclude"><input type="checkbox" data-exclude-index="${index}" ${isExcluded ? "checked" : ""}> Exclure cette position physique</label><small>Rectangle ${glyph.bounds.x},${glyph.bounds.y} · ${glyph.bounds.width}×${glyph.bounds.height} · ${metrics}</small></article>`;
       }).join("");
       $("#numericLibraryReviewed").checked = false;
@@ -440,9 +500,11 @@
         const prior = drafts.get(`${captureHash}:${field}`) || {};
         const persistedPositions = references.filter((ref) => ref.source.captureId === captureHash && ref.source.field === field).map((ref) => ref.source.position);
         const groups = rect ? fieldGroups(localization, field, rect) : [];
-        const extraction = rect && localization?.status === "localized" && groups.length
-          ? extractGlyphsFromBounds(imageData, field.endsWith("Score") ? "score" : "trophy", groups, root.WarResultsDigitReader)
-          : { glyphs: [], warnings: [], reason: localization?.status !== "localized" ? localization?.reason || localization?.status || "field-not-localized" : "physical-glyph-groups-unavailable" };
+        const componentReader = rect && localization?.status === "localized" && groups.length ? componentReaderForField(field, imageData) : null;
+        const extraction = componentReader
+          ? extractGlyphsFromBounds(imageData, field.endsWith("Score") ? "score" : "trophy", groups, componentReader)
+          : { glyphs: [], warnings: [], reason: localization?.status !== "localized" ? localization?.reason || localization?.status || "field-not-localized"
+            : !groups.length ? "physical-glyph-groups-unavailable" : "localizer-component-mask-unavailable" };
         current = { entry, field, rect: rect || null, dimensions: located.dimensions, imageData, localization, extraction,
           value: prior.value || "", labels: prior.labels || [], excluded: new Set(prior.excluded || []), manuallyLabeled: new Set(prior.manuallyLabeled || []),
           validatedIndices: new Set([...(prior.validatedIndices || []), ...persistedPositions]), captureHash, draftKey: `${captureHash}:${field}`,
@@ -502,7 +564,8 @@
         locatorVersion: fieldType === "score" ? "score-locator-v0.2.0" : "numeric-locator+vertical-recovery-combined",
         locatorMethod: current.localization.method, localizationStatus: current.localization.status, localizationWarnings: current.localization.warnings || [],
         glyphBounds: { ...glyph.bounds, coordinateSpace: "field-crop-pixels" },
-        segmentation: { source: "shared-localizer-groups", physicalGroupCount: glyphs.length, bounds: glyph.bounds,
+        segmentation: { source: "shared-localizer-groups", pixelMaskSource: current.extraction.pixelMaskSource || null,
+          physicalGroupCount: glyphs.length, bounds: glyph.bounds,
           integrity: glyph.integrity, extractionWarnings: current.extraction.warnings || [] }
       }, root.crypto));
       const known = new Set(references.map(referenceKey)); let added = 0, duplicates = 0;
@@ -564,5 +627,6 @@
   }
 
   return { schema: SCHEMA, schemaVersion: SCHEMA_VERSION, familyId: FAMILY_ID, normalizationVersion: NORMALIZATION_VERSION, target: TARGET,
-    normalizeGlyph, estimateShear, shearGlyph, componentLabels, extractGlyphs, extractGlyphsFromBounds, validateGlyphSelection, validateManualValue, sha256, createReference, emptyLibrary, exportLibrary, parseLibrary, validateLibrary, mergeLibraries, summarize, createStore, init };
+    normalizeGlyph, estimateShear, shearGlyph, componentLabels, extractGlyphs, extractGlyphsFromBounds, componentReaderForField,
+    validateGlyphSelection, validateManualValue, sha256, createReference, emptyLibrary, exportLibrary, parseLibrary, validateLibrary, mergeLibraries, summarize, createStore, init };
 });

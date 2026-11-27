@@ -19,7 +19,7 @@ assert.match(html, /data-score-locator-variant="joint"/, 'joint fallback impleme
 assert.match(html, /war-results-score-locator-experiment\.js\?v=0\.1\.1-v020-measurement-api/);
 assert.match(html, /war-results-numeric-locator-experiment\.js/, 'the experimental pixel locator is loaded only by the vision page');
 assert.match(html, /war-results-vision-data\.js/, 'loads local data model');
-assert.match(html, /war-results-numeric-library\.js\?v=2\.0\.0-shared-localizers/);
+assert.match(html, /war-results-numeric-library\.js\?v=2\.0\.1-component-ownership/);
 assert.match(html, /war-results-numeric-library\.css\?v=2\.0\.0-shared-localizers/);
 assert.match(html, /war-results-vision\.css\?v=6\.8-numeric-lab-stable/);
 assert.match(fs.readFileSync(path.join(root, 'war-results-vision.css'), 'utf8'), /\[hidden\]\{display:none!important\}/, 'hidden legacy controls stay hidden despite display rules');

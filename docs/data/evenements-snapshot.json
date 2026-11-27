@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "status": "ok",
   "source": "verified-daily-game-events",
-  "updatedAt": "2026-11-26T23:25:58.828Z",
-  "revision": "aa9db9201d3cce0fb770",
-  "total": 133,
-  "count": 133,
+  "updatedAt": "2026-11-27T14:11:39.274Z",
+  "revision": "d7d17d83939e0b0e1e04",
+  "total": 131,
+  "count": 131,
   "pages": 2,
   "events": [
     {
@@ -4592,36 +4592,6 @@
       }
     },
     {
-      "id": "6b0748ccfbfcb2dfafa648c3",
-      "type": "milestone",
-      "startTime": 1795640400,
-      "endTime": 1795726800,
-      "name": "Sauvez le monde !",
-      "subName": "Dépensez de l’énergie de campagne",
-      "details": "Dépensez de l’énergie de campagne pour obtenir des récompenses de phase.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Event_7DLS_Card_02_68630e9fa33fa5d5d348e5833f385a00da32.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Event_7DLS_Banner_02_68630ec0a33fa5d5d348e584c275c86c25ed.jpg",
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Dépenser de l'ÉNERGIE DE CAMPAGNE.",
-          "methods": [
-            {
-              "description": "Dépensez 1 point d’énergie de campagne",
-              "points": 5
-            }
-          ],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
       "id": "64af10cc047ced79ecce7f71",
       "type": "episodic",
       "startTime": 1689195600,
@@ -4697,18 +4667,6 @@
       "endTime": 1796587200
     },
     {
-      "id": "6b04c5702c6b04c8d8a63f24",
-      "type": "donation",
-      "startTime": 1795478400,
-      "endTime": 1795564800
-    },
-    {
-      "id": "6b076870fbfcb2dfafa64959",
-      "type": "donation",
-      "startTime": 1795651200,
-      "endTime": 1795737600
-    },
-    {
       "id": "6b0616f02c6b04c8d8a6461c",
       "type": "donation",
       "startTime": 1795564800,
@@ -4719,6 +4677,12 @@
       "type": "donation",
       "startTime": 1795737600,
       "endTime": 1795824000
+    },
+    {
+      "id": "6b076870fbfcb2dfafa64959",
+      "type": "donation",
+      "startTime": 1795651200,
+      "endTime": 1795737600
     },
     {
       "id": "6580b1fe9746d7f21414ca51",
@@ -4873,7 +4837,7 @@
   ],
   "locale": "fr",
   "localizationStatus": "verified",
-  "localizedFields": 615,
-  "localizedAt": "2026-11-26T23:25:58.828Z",
-  "lastChangedAt": "2026-11-26T23:10:41.786Z"
+  "localizedFields": 610,
+  "localizedAt": "2026-11-27T14:11:39.274Z",
+  "lastChangedAt": "2026-11-27T09:04:29.849Z"
 }
