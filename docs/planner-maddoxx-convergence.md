@@ -442,7 +442,7 @@ La branche a été comparée à `main` au SHA `9a4c77bb2e74d028784e1a743d02d23bf
 
 Le candidat est préparé dans la PR #218 existante, sans fusion ni déploiement.
 
-- Roster Service : PR #218, branche `work/maddoxx-convergence-ui`, head `99fb66b7172ac35acb372ddb7762264a6b849c84`, base `main` `5af430a10cd636badb0f18d9055e44693a96ef90`. PR #218 est ouverte, en brouillon et `mergeable=true`.
+- Roster Service : PR #218, branche `work/maddoxx-convergence-ui`, head `4bf0443f757c2b566955483ef9f0afbc903d4dd7`, base `main` `5af430a10cd636badb0f18d9055e44693a96ef90`. PR #218 est ouverte, en brouillon et `mergeable=true`.
 - Web-app MSF : PR #739 était ouverte/en brouillon au head `3bf2758baeaf3ce104c354bc337ac17a8299bd2b` au début du checkpoint. Ce commit documentaire conserve la PR existante.
 - Production Cloudflare vérifiée en lecture seule : deployment `b99ceaa6-a9f8-4076-b450-358ec96f5895`, version 239 `4dd8bc00-f1ea-45a7-b32c-3517a5f7a6dd`, 100 % du trafic. Le détail de version montre le bucket R2 `losp-roster-sessions`, les trois Durable Objects déjà utilisés, les assets et la migration `personal-event-cache-v1`. La branche de convergence prod citée dans le dossier reste `integration/guest-initial-sync-production` au SHA `fe5d00899732026a624ca157ab65c2a6d2cafe81`.
 
@@ -452,7 +452,7 @@ Le code existant continue d’utiliser le même `/oauth2/token` pour le code d�
 
 Il inspecte localement la structure de `id_token` et expose seulement : réponse reçue ou non, format, algorithme annoncé, présence booléenne de `iss` et `sub`, état de validation et motif technique. Les valeurs de claims, la signature, le `kid`, les jetons et les identifiants n’entrent dans aucun affichage, log ou stockage. Les claims observés sont toujours signalés comme non vérifiés.
 
-Le diagnostic administrateur reçoit l’indicateur via un cookie HttpOnly, Secure, SameSite=Strict, limité à 15 minutes, signé par HMAC avec une sous-clé HKDF séparée issue de la clé existante `CAPTAIN_ENCRYPTION_KEY_HEX`, lié à la session courante et supprimé à la lecture. Aucun nouveau stockage serveur, binding, secret, Worker, Durable Object ou migration n’est créé. Le cron ne produit que des compteurs globaux dans l’objet de monitoring déjà écrasé à chaque contrôle, sans détail par session.
+Le diagnostic administrateur reçoit l’indicateur via un cookie HttpOnly, Secure, SameSite=Strict, limité à 15 minutes, signé par HMAC avec une sous-clé HKDF séparée issue de la clé existante `CAPTAIN_ENCRYPTION_KEY_HEX`, lié à la session courante et supprimé à la lecture. Aucun nouveau stockage serveur, binding, secret, Worker, Durable Object ou migration n’est créé. Les réponses de rotation du cron ne sont ni exposées ni conservées comme observations OAuth.
 
 ### Limites actuelles et suite
 
@@ -477,3 +477,8 @@ Mise à jour du contrôle précédent : les workflows initialement en cours sont
 - Laboratoire WebKit : succès (run 46091321195).
 - Administration des alliances invitées et historique trophées : succès (runs 46091321202 et 46091321317).
 - Worker OAuth : 909/924; les 15 échecs connus restent les deux scénarios de collecte tardive/invitée, trois assertions DD9, deux assertions de budget et huit assertions de l’explorateur R2, et ne touchent aucun fichier modifié par l’instrumentation.
+
+
+Complément de conformité (28 novembre 2026) : les réponses OAuth de renouvellement planifié ne sont finalement pas observées, journalisées ni conservées. La première version locale avait ajouté trois compteurs agrégés au rapport global existant; ils ont été retirés avant la finalisation et ne figurent pas dans le candidat actuel. Le code d’observation temporaire des authentifications et renouvellements déclenchés pendant une session navigateur reste limité au cookie HMAC de 15 minutes décrit ci-dessus. Toute rétention d’observations de cron nécessiterait une proposition séparée avant activation.
+
+Le candidat final de la PR #218 est maintenant au head `4bf0443f757c2b566955483ef9f0afbc903d4dd7`, après les commits de correction documentaire et du périmètre cron. La PR reste ouverte/en brouillon, sans merge ni déploiement. Les 74 tests ciblés ont été relancés localement après cette correction et passent; les contrôles CI propres au head final restent à vérifier.
