@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "status": "ok",
   "source": "verified-daily-game-events",
-  "updatedAt": "2026-11-27T23:52:32.020Z",
-  "revision": "c9bbdd82992d6b1cf02e",
-  "total": 145,
-  "count": 145,
+  "updatedAt": "2026-11-28T00:41:03.095Z",
+  "revision": "972a770802d898e634d3",
+  "total": 143,
+  "count": 143,
   "pages": 2,
   "events": [
     {
@@ -4005,77 +4005,6 @@
       }
     },
     {
-      "id": "6a9611fd5f578febe8b78732",
-      "type": "milestone",
-      "startTime": 1788220800,
-      "endTime": 1795651200,
-      "name": "S.T.R.I.K.E. : troisième assaut",
-      "subName": "Combattre dans l'Épreuve cosmique, en guerre et en arène",
-      "details": "Partez à la conquête de l'Épreuve cosmique, combattez en guerre d’alliances, grimpez les rangs dans l’arène et dépensez de l’énergie de campagne Iso-8 pour progresser.Les récompenses incluent de nouveaux personnages pour votre effectif, et d’autres surprises !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/CC_Card_01_665ded2272edc2982a83496889b1087266bb.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/CC_Banner_665ded6272edc2982a834969e5dd86b4b1e6.jpg",
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Combattre dans l'Épreuve cosmique, en guerre et en arène",
-          "methods": [],
-          "cappedScorings": [
-            {
-              "cap": 40000,
-              "methods": [
-                {
-                  "description": "Dépenser 1 point d'énergie de campagne d'iso-8",
-                  "points": 3
-                }
-              ]
-            },
-            {
-              "cap": 15000,
-              "methods": [
-                {
-                  "description": "Combattre en raid",
-                  "points": 150
-                }
-              ]
-            },
-            {
-              "cap": 15000,
-              "methods": [
-                {
-                  "description": "Combattre en arène",
-                  "points": 300
-                }
-              ]
-            },
-            {
-              "cap": 15000,
-              "methods": [
-                {
-                  "description": "Combattre en guerre (niveau d'alliance 20)",
-                  "points": 500
-                }
-              ]
-            },
-            {
-              "cap": 15000,
-              "methods": [
-                {
-                  "description": "Combattre dans l'Épreuve cosmique",
-                  "points": 5000
-                }
-              ]
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
       "id": "69fbabd0d3a8601fef557215",
       "type": "info",
       "startTime": 1778102400,
@@ -5169,18 +5098,6 @@
       "endTime": 1796587200
     },
     {
-      "id": "6b0616f02c6b04c8d8a6461c",
-      "type": "donation",
-      "startTime": 1795564800,
-      "endTime": 1795651200
-    },
-    {
-      "id": "6b08b9f1fbfcb2dfafa65464",
-      "type": "donation",
-      "startTime": 1795737600,
-      "endTime": 1795824000
-    },
-    {
       "id": "6b076870fbfcb2dfafa64959",
       "type": "donation",
       "startTime": 1795651200,
@@ -5191,6 +5108,12 @@
       "type": "donation",
       "startTime": 1795824000,
       "endTime": 1795910400
+    },
+    {
+      "id": "6b08b9f1fbfcb2dfafa65464",
+      "type": "donation",
+      "startTime": 1795737600,
+      "endTime": 1795824000
     },
     {
       "id": "6580b1fe9746d7f21414ca51",
@@ -5345,7 +5268,7 @@
   ],
   "locale": "fr",
   "localizationStatus": "verified",
-  "localizedFields": 706,
-  "localizedAt": "2026-11-27T23:52:32.020Z",
-  "lastChangedAt": "2026-11-27T23:21:55.983Z"
+  "localizedFields": 697,
+  "localizedAt": "2026-11-28T00:41:03.095Z",
+  "lastChangedAt": "2026-11-28T00:41:03.095Z"
 }
