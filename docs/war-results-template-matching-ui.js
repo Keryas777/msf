@@ -8,7 +8,7 @@
   let files = [], lastReport = null, libraryPromise = null, fieldPreviews = new Map();
   const status = (s, error = false) => { const el = $("#templateMatchingStatus"); if (el) { el.textContent = s; el.classList.toggle("is-error", error); } };
   const b64 = (value) => root.WarResultsTemplateMatching.decodeBase64(value);
-  const asMask = (data) => ({ mask: data.mask ? Uint8Array.from(data.mask, (v) => v ? 1 : 0) : root.WarResultsTemplateMatching.maskFromRgba(data.rgba, data.width, data.height), width: data.width, height: data.height });
+  const asMask = (data) => ({ mask: data.mask ? root.WarResultsTemplateMatching.decodeBytes(data.mask) : root.WarResultsTemplateMatching.maskFromRgba(data.rgba, data.width, data.height), width: data.width, height: data.height });
   async function loadLibrary() {
     if (!libraryPromise) libraryPromise = root.fetch("./data/numeric-references/manifest.json").then((r) => { if (!r.ok) throw new Error(`Manifeste permanent indisponible (${r.status}).`); return r.json(); }).then(async (manifest) => {
       if (manifest.schema !== "msf-numeric-reference-manifest" || !manifest.libraryPath || !manifest.sha256) throw new Error("Manifeste de références invalide.");
@@ -71,10 +71,43 @@
       run.evaluation = truth ? { truth, exactField: run.reconstructed === truth,
         glyphs: run.glyphResults.map((g, i) => ({ position: i, correct: g.proposedDigit === truth[i] })) } : null;
     }
-    const total = report.fields.flatMap((f) => f.configurations.flatMap((c) => c.glyphResults));
-    const scored = total.filter((g) => g.truthDigit != null);
-    const correct = scored.filter((g) => g.proposedDigit === g.truthDigit).length;
-    $("#templateMatchingSummary").textContent = `Champs ${report.fields.length} · glyphes examinés ${total.length} · exacts ${correct}/${scored.length} évalués · abstentions ${total.filter((g) => g.proposedDigit == null).length} · ${report.elapsedMs} ms. Les scores sont des indices visuels, pas des probabilités.`;
+    const totals = { glyphs: 0, correct: 0, errors: 0, abstentions: 0 };
+    for (const field of report.fields) {
+      const truth = String(field.truth || "").replace(/\D/g, "");
+      for (const config of field.configurations || []) for (let i = 0, length = Math.max(truth.length, config.glyphResults.length); i < length; i++) {
+        const proposed = config.glyphResults[i]?.proposedDigit ?? null, expected = truth[i];
+        if (expected == null && !truth) continue;
+        totals.glyphs++;
+        if (proposed == null) totals.abstentions++;
+        else if (expected != null && proposed === expected) totals.correct++;
+        else totals.errors++;
+      }
+    }
+    $("#templateMatchingSummary").textContent = `Champs ${report.fields.length} · glyphes évalués ${totals.glyphs} · exacts ${totals.correct}/${totals.glyphs} · erreurs ${totals.errors} · abstentions ${totals.abstentions} · ${report.elapsedMs} ms. Les scores sont des indices visuels, pas des probabilités.`;
+    renderConfigurationSummary(report);
+  }
+  function renderConfigurationSummary(report) {
+    const target = $("#templateMatchingConfigurationSummary"); if (!target) return;
+    const groups = new Map();
+    for (const field of report.fields) for (const config of field.configurations || []) {
+      const key = [config.representation, config.corpus, config.exclusion].join("|");
+      if (!groups.has(key)) groups.set(key, { representation: config.representation, corpus: config.corpus, exclusion: config.exclusion,
+        exactFields: 0, evaluatedFields: 0, evaluatedGlyphs: 0, correctGlyphs: 0, errors: 0, abstentions: 0, elapsedMs: 0 });
+      const total = groups.get(key), truth = String(field.truth || "").replace(/\D/g, "");
+      total.elapsedMs += Number(config.elapsedMs) || 0;
+      if (truth) { total.evaluatedFields++; if (config.reconstructed === truth) total.exactFields++; }
+      for (let i = 0, length = Math.max(truth.length, (config.glyphResults || []).length); i < length; i++) {
+        const glyph = config.glyphResults[i] || {}, expected = truth[i];
+        if (expected == null && !truth) continue;
+        total.evaluatedGlyphs++;
+        if (expected != null && glyph.proposedDigit === expected) total.correctGlyphs++;
+        else if (glyph.proposedDigit == null) total.abstentions++;
+        else total.errors++;
+      }
+    }
+    const rows = [...groups.values()];
+    if (!rows.length) { target.innerHTML = ""; return; }
+    target.innerHTML = `<h4>Comparaison synthétique des configurations</h4><div class="tm-summary-scroll"><table class="tm-summary-table"><thead><tr><th>Représentation</th><th>Corpus</th><th>Références</th><th>Glyphes exacts</th><th>Champs exacts</th><th>Erreurs</th><th>Abstentions</th><th>Temps cumulé</th></tr></thead><tbody>${rows.map((r) => `<tr><th>${r.representation}</th><td>${r.corpus}</td><td>${r.exclusion === "capture" ? "capture exclue" : "complet"}</td><td>${r.correctGlyphs}/${r.evaluatedGlyphs}${r.evaluatedGlyphs ? ` (${Math.round(100 * r.correctGlyphs / r.evaluatedGlyphs)} %)` : ""}</td><td>${r.exactFields}/${r.evaluatedFields}${r.evaluatedFields ? ` (${Math.round(100 * r.exactFields / r.evaluatedFields)} %)` : ""}</td><td>${r.errors}</td><td>${r.abstentions}</td><td>${Math.round(r.elapsedMs)} ms</td></tr>`).join("")}</tbody></table></div>`;
   }
   function render(report) {
     const results = $("#templateMatchingResults");
@@ -113,6 +146,9 @@
           for (const representation of representations) for (const corpus of selectedCorpora) for (const useExclusion of exclusionModes) {
             const config = { representation, corpus, exclusion: useExclusion ? "capture" : "none", glyphResults: [] }, refs = references.filter((r) => corpus === "mixed" || r.source.fieldType === corpus);
             const excluded = useExclusion ? [captureId] : [];
+            const excludedRefs = refs.filter((r) => excluded.includes(r.source.captureId));
+            config.referenceSelection = { availableReferenceIds: refs.filter((r) => !excluded.includes(r.source.captureId)).map((r) => r.id),
+              excludedReferenceIds: excludedRefs.map((r) => r.id), excludedCaptureIds: excluded };
             for (let i = 0; i < extraction.extracted.glyphs.length; i++) {
               const glyph = extraction.extracted.glyphs[i], t0 = performance.now();
               if (!glyph.native || glyph.integrity.status === "ambiguous") { config.glyphResults.push({ proposedDigit: null, ambiguity: glyph.integrity.reason || "invalid-glyph-mask", classes: [], elapsedMs: performance.now() - t0 }); continue; }

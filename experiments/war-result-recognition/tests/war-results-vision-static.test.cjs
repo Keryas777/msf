@@ -6,9 +6,9 @@ const html = fs.readFileSync(path.join(root, 'war-results-vision.html'), 'utf8')
 for (const file of ['war-results-vision.css', 'war-results-vision-engine.js', 'war-results-identity-engine.js', 'war-results-result-engine.js', 'war-results-vision-data.js', 'war-results-vision.js', 'war-results-numeric-locator-experiment.js', 'war-results-score-locator-experiment.js', 'war-results-numeric-library.js', 'war-results-numeric-library.css', 'war-results-template-matching.js', 'war-results-template-matching-ui.js']) assert.ok(fs.existsSync(path.join(root, file)), `${file} exists`);
 assert.ok(fs.existsSync(path.join(root, 'data/numeric-references/manifest.json')));
 assert.match(html, /war-counter-lab\.css/, 'reuses War Counter Vision styles');
-assert.match(html, /war-results-numeric-library\.css\?v=2\.1\.0-template-matching/);
-assert.match(html, /war-results-template-matching\.js\?v=1\.0\.0/);
-assert.match(html, /war-results-template-matching-ui\.js\?v=1\.0\.0/);
+assert.match(html, /war-results-numeric-library\.css\?v=2\.1\.1-template-matching-summary/);
+assert.match(html, /war-results-template-matching\.js\?v=1\.0\.1-base64-buffers/);
+assert.match(html, /war-results-template-matching-ui\.js\?v=1\.0\.1-evaluation-summary/);
 assert.match(html, /type="file"[^>]+multiple/, 'accepts multiple images');
 assert.match(html, /image\/png,image\/jpeg/, 'accepts PNG and JPEG');
 assert.match(html, /id="localizeNumericFieldsButton"/, 'the simplified lab exposes a localization-only action');
@@ -24,7 +24,7 @@ assert.match(html, /war-results-score-locator-experiment\.js\?v=0\.1\.1-v020-mea
 assert.match(html, /war-results-numeric-locator-experiment\.js/, 'the experimental pixel locator is loaded only by the vision page');
 assert.match(html, /war-results-vision-data\.js/, 'loads local data model');
 assert.match(html, /war-results-numeric-library\.js\?v=2\.0\.1-component-ownership/);
-assert.match(html, /war-results-numeric-library\.css\?v=2\.1\.0-template-matching/);
+assert.match(html, /war-results-numeric-library\.css\?v=2\.1\.1-template-matching-summary/);
 assert.match(html, /war-results-vision\.css\?v=6\.8-numeric-lab-stable/);
 assert.match(fs.readFileSync(path.join(root, 'war-results-vision.css'), 'utf8'), /\[hidden\]\{display:none!important\}/, 'hidden legacy controls stay hidden despite display rules');
 assert.match(html, /war-results-vision-engine\.js\?v=6\.6-numeric-lab-stable/);

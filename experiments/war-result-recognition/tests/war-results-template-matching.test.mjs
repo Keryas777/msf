@@ -33,10 +33,26 @@ test('permanent source corpus has the declared coverage and lossless representat
   assert.deepEqual([...new Set(valid.references.map(r => r.digit))].sort(), [...'0123456789']);
   assert.ok(valid.references.every(r => r.native.mask && r.native.rgba && r.normalized.rgba && r.sheared.rgba));
 });
+test('permanent base64 image buffers are decoded for all three matcher representations', async () => {
+  const lib = JSON.parse(await readFile(new URL('../../../docs/data/numeric-references/library-v1.json', import.meta.url)));
+  const prepared = tm.prepareReferences(lib.references);
+  assert.equal(tm.decodeBytes(lib.references[0].native.mask).length, lib.references[0].native.width * lib.references[0].native.height);
+  for (const representation of ['native', 'normalized', 'sheared']) {
+    const ref0 = lib.references.find((r) => r[representation]?.rgba && (representation !== 'native' || r.native?.mask));
+    const data = ref0[representation];
+    const mask = representation === 'native' ? tm.decodeBytes(data.mask) : tm.maskFromRgba(data.rgba, data.width, data.height);
+    const result = tm.rank({ mask, width: data.width, height: data.height }, prepared, { representation, shiftTolerance: 1 });
+    assert.equal(result.best.digit, ref0.digit, `${representation} keeps its source glyph's class at the top`);
+    const exact = result.classes.find((item) => item.digit === ref0.digit).references.find((item) => item.id === ref0.id);
+    assert.ok(exact, `${representation} exposes the matching source reference`);
+    assert.ok(exact.similarity > 0.999, `${representation} exact source reference remains losslessly comparable`);
+  }
+});
 test('laboratory integration uses selected fields and shared locators without invoking Tesseract', async () => {
   const html = await readFile(new URL('../../../docs/war-results-vision.html', import.meta.url), 'utf8');
   const ui = await readFile(new URL('../../../docs/war-results-template-matching-ui.js', import.meta.url), 'utf8');
   assert.match(html, /id="templateMatchingPanel"/); assert.match(html, /Comparer le Template Matching/);
+  assert.match(html, /id="templateMatchingConfigurationSummary"/); assert.match(ui, /availableReferenceIds/); assert.match(ui, /excludedReferenceIds/);
   assert.match(html, /data-tm-representation="native"/); assert.match(html, /data-tm-corpus="mixed"/);
   assert.match(ui, /input\[data-lab-field\]:checked/); assert.match(ui, /locateNumericFields\(file, \[field\]\)/);
   assert.doesNotMatch(ui, /analyzeField\(|\.analyze\(/);

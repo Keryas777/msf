@@ -7,6 +7,9 @@
   "use strict";
   const VERSION = "1.0.0";
   function maskFromRgba(rgba, width, height) {
+    // Permanent glyph exports store pixel buffers as base64 strings. Decode at
+    // this boundary so browser and Node callers can pass encoded or raw bytes.
+    rgba = decodeBytes(rgba);
     if (!rgba || rgba.length !== width * height * 4) throw new TypeError("RGBA invalide.");
     const out = new Uint8Array(width * height);
     for (let i = 0; i < out.length; i++) { const p = i * 4, l = .2126 * rgba[p] + .7152 * rgba[p + 1] + .0722 * rgba[p + 2]; out[i] = rgba[p + 3] > 0 && l < 250 ? 1 : 0; }
@@ -22,14 +25,23 @@
     }
     return { mask: out, width: target, height: target };
   }
-  function shiftedSimilarity(a, b, width, height, tolerance = 2) {
-    const ap = [], bp = [];
-    for (let i = 0; i < a.length; i++) { if (a[i]) ap.push([i % width, Math.floor(i / width)]); if (b[i]) bp.push([i % width, Math.floor(i / width)]); }
+  function activePositions(mask) {
+    let count = 0; for (let i = 0; i < mask.length; i++) if (mask[i]) count++;
+    const positions = new Uint16Array(count);
+    for (let i = 0, j = 0; i < mask.length; i++) if (mask[i]) positions[j++] = i;
+    return positions;
+  }
+  function shiftedSimilarity(a, b, width, height, tolerance = 2, aPositions = null, bPositions = null) {
+    const ap = aPositions || activePositions(a), bp = bPositions || activePositions(b), aa = ap.length, bb = bp.length;
     let best = { iou: 0, dice: 0, correlation: 0, similarity: 0, dx: 0, dy: 0 };
     for (let dy = -tolerance; dy <= tolerance; dy++) for (let dx = -tolerance; dx <= tolerance; dx++) {
-      let intersection = 0, union = 0, aa = 0, bb = 0;
-      for (const [x, y] of ap) { aa++; const xx = x - dx, yy = y - dy; if (xx >= 0 && xx < width && yy >= 0 && yy < height && b[yy * width + xx]) intersection++; }
-      for (const [x, y] of bp) { const xx = x + dx, yy = y + dy; if (xx >= 0 && xx < width && yy >= 0 && yy < height) bb++; }
+      let intersection = 0, union = 0;
+      for (const position of ap) {
+        const x = position % width, y = Math.floor(position / width), xx = x - dx, yy = y - dy;
+        if (xx >= 0 && xx < width && yy >= 0 && yy < height && b[yy * width + xx]) intersection++;
+      }
+      // Keep the complete foreground areas in the union. Pixels shifted past
+      // the canvas edge are mismatches; they must not disappear from the score.
       union = aa + bb - intersection;
       const iou = union ? intersection / union : 1, dice = aa + bb ? 2 * intersection / (aa + bb) : 1;
       const denominator = Math.sqrt(aa * (width * height - aa) * bb * (width * height - bb));
@@ -43,14 +55,17 @@
     const excluded = new Set(options.excludeCaptureIds || []), category = options.category || "mixed";
     const eligible = refs.filter((r) => !excluded.has(r.source?.captureId) && (category === "mixed" || r.source?.fieldType === category));
     const byDigit = new Map(Array.from({ length: 10 }, (_, i) => [String(i), []]));
+    const query = glyphMask.width === 48 && glyphMask.height === 48 ? glyphMask : fitMask(glyphMask.mask, glyphMask.width, glyphMask.height);
+    const queryPositions = activePositions(query.mask);
+    const representation = options.representation || "normalized";
     for (const ref of eligible) {
       const data = options.representation === "native" ? ref.native : options.representation === "sheared" ? ref.sheared : ref.normalized;
       if (!data?.rgba) continue;
-      const cached = ref.matcherMasks?.[options.representation];
+      const cached = ref.matcherMasks?.[representation];
       const nativeMask = options.representation === "native" && ref.native?.mask ? decodeBytes(ref.native.mask) : null;
       const candidate = cached || fitMask(nativeMask || maskFromRgba(data.rgba, data.width, data.height), data.width, data.height);
-      const query = glyphMask.width === 48 && glyphMask.height === 48 ? glyphMask : fitMask(glyphMask.mask, glyphMask.width, glyphMask.height);
-      const score = shiftedSimilarity(query.mask, candidate.mask, 48, 48, options.shiftTolerance ?? 2);
+      const candidatePositions = ref.matcherPositions?.[representation] || activePositions(candidate.mask);
+      const score = shiftedSimilarity(query.mask, candidate.mask, 48, 48, options.shiftTolerance ?? 2, queryPositions, candidatePositions);
       byDigit.get(String(ref.digit))?.push({ ref, ...score });
     }
     const perClass = [...byDigit].map(([digit, scores]) => {
@@ -75,11 +90,14 @@
   }
   function decodeBytes(value) { return typeof value === "string" ? decodeBase64(value) : value; }
   function prepareReferences(refs) {
-    return refs.map((ref) => ({ ...ref, matcherMasks: Object.fromEntries(["native", "normalized", "sheared"].map((representation) => {
+    return refs.map((ref) => {
+      const matcherMasks = Object.fromEntries(["native", "normalized", "sheared"].map((representation) => {
       const data = representation === "native" ? ref.native : representation === "sheared" ? ref.sheared : ref.normalized;
       const mask = representation === "native" && ref.native?.mask ? decodeBytes(ref.native.mask) : maskFromRgba(data.rgba, data.width, data.height);
       return [representation, fitMask(mask, data.width, data.height)];
-    })) }));
+      }));
+      return { ...ref, matcherMasks, matcherPositions: Object.fromEntries(Object.entries(matcherMasks).map(([key, value]) => [key, activePositions(value.mask)])) };
+    });
   }
   function reconstructDigits(results) { return (results || []).map((item) => /^\d$/.test(String(item?.proposedDigit ?? "")) ? String(item.proposedDigit) : "?").join(""); }
   function serializeReport(report) { if (!report || report.schema !== "msf-template-matching-report" || !Array.isArray(report.fields)) throw new TypeError("Rapport Template Matching invalide."); return JSON.stringify(report, null, 2); }
