@@ -436,3 +436,33 @@ La branche a été comparée à `main` au SHA `9a4c77bb2e74d028784e1a743d02d23bf
 - « Guest LoSP access checks » (run `46027751134`) : 106/107. L’unique échec est `tests/scoped-roster-pages.test.mjs:74`, qui attend l’ancienne URL `joueur.js?v=7`; ce fichier n’appartient pas au diff de #739.
 - « Validate unified season history PR » (run `46027751251`) : 76/80. Les quatre échecs portent sur un ancien cache-busting attendu (`alliance-history-data.js?v=6`), 9 bandes de trophées attendues contre 11 obtenues, et deux fixtures d’archives rejetées comme rangs invalides ou dupliqués. Les tests/fichiers en cause ne sont pas modifiés par #739.
 - Ces cinq échecs sont hors périmètre Maddoxx et le code concerné est inchangé dans le diff. L’état indépendant sur `main` n’a pas été relancé dans cette passe; aucun correctif étranger n’a été apporté. Aucun merge ni déploiement de #739.
+
+
+## Observation de l’identité OAuth — point de reprise du 28 novembre 2026
+
+Le candidat est préparé dans la PR #218 existante, sans fusion ni déploiement.
+
+- Roster Service : PR #218, branche `work/maddoxx-convergence-ui`, head `99fb66b7172ac35acb372ddb7762264a6b849c84`, base `main` `5af430a10cd636badb0f18d9055e44693a96ef90`. PR #218 est ouverte, en brouillon et `mergeable=true`.
+- Web-app MSF : PR #739 était ouverte/en brouillon au head `3bf2758baeaf3ce104c354bc337ac17a8299bd2b` au début du checkpoint. Ce commit documentaire conserve la PR existante.
+- Production Cloudflare vérifiée en lecture seule : deployment `b99ceaa6-a9f8-4076-b450-358ec96f5895`, version 239 `4dd8bc00-f1ea-45a7-b32c-3517a5f7a6dd`, 100 % du trafic. Le détail de version montre le bucket R2 `losp-roster-sessions`, les trois Durable Objects déjà utilisés, les assets et la migration `personal-event-cache-v1`. La branche de convergence prod citée dans le dossier reste `integration/guest-initial-sync-production` au SHA `fe5d00899732026a624ca157ab65c2a6d2cafe81`.
+
+### Ce que l’instrumentation observe
+
+Le code existant continue d’utiliser le même `/oauth2/token` pour le code d’autorisation et les renouvellements. Le candidat ne change ni les scopes, ni les règles de session/consentement, ni les appels Scopely déjà présents. Il n’ajoute aucune découverte OIDC, demande JWKS, collecte ou requête personnelle.
+
+Il inspecte localement la structure de `id_token` et expose seulement : réponse reçue ou non, format, algorithme annoncé, présence booléenne de `iss` et `sub`, état de validation et motif technique. Les valeurs de claims, la signature, le `kid`, les jetons et les identifiants n’entrent dans aucun affichage, log ou stockage. Les claims observés sont toujours signalés comme non vérifiés.
+
+Le diagnostic administrateur reçoit l’indicateur via un cookie HttpOnly, Secure, SameSite=Strict, limité à 15 minutes, signé par HMAC avec une sous-clé HKDF séparée issue de la clé existante `CAPTAIN_ENCRYPTION_KEY_HEX`, lié à la session courante et supprimé à la lecture. Aucun nouveau stockage serveur, binding, secret, Worker, Durable Object ou migration n’est créé. Le cron ne produit que des compteurs globaux dans l’objet de monitoring déjà écrasé à chaque contrôle, sans détail par session.
+
+### Limites actuelles et suite
+
+Aucun émetteur ou point de confiance JWKS Scopely n’est confirmé. La signature, l’émetteur, l’audience, les temps, le nonce, `azp` et les autres contrôles OIDC restent non vérifiés. Aucun URL de validation venant d’un token non vérifié ne sera utilisé. La stabilité entre sessions et la distinction entre comptes MSF ne sont donc pas encore démontrées. Aucun HMAC de `iss + sub` n’est calculé ou conservé. Le protocole proposé plus tard est : configurer une origine/émetteur approuvés indépendamment, vérifier la signature par WebCrypto avec algorithmes autorisés puis l’ensemble des claims OIDC, enfin seulement comparer des HMAC serveur à durée limitée. Le support d’une comparaison temporaire et sa rétention devront être présentés avant activation.
+
+Le diagnostic réel exige le prochain déploiement autorisé et une authentification normale sur Safari iPhone. Un renouvellement ne sera observé que s’il survient naturellement. Aucun essai réel n’est revendiqué à ce checkpoint.
+
+### Vérifications
+
+- Tests ciblés sur la branche #218 : 74/74 réussis; `git diff --check` réussi.
+- Le commit a été appliqué sans conflit, uniquement dans un worktree local, au SHA de production commun `fe5d00899732026a624ca157ab65c2a6d2cafe81`. Les tests ciblés planificateur/OAuth et les tests de convergence invité ont donné 118/119 réussis; l’unique échec est `existing collection receipts are left intact when an initial phase resumes`, reproduit aussi à l’identique sur `fe5d008` (113/114 pour les fichiers de test correspondants). Il est donc préexistant et indépendant de l’instrumentation.
+- Sur la PR #218, le workflow Maddoxx/Event planner tests est vert. La suite Worker OAuth termine à 909/924; ses 15 échecs sont les catégories déjà documentées (collecte tardive/invitée, DD9, budgets différentiels et explorateur R2). Le CI navigateur mobile et le laboratoire WebKit étaient encore en cours au moment de l’écriture de ce checkpoint.
+- Aucune manipulation iPhone, aucun appel Scopely personnel supplémentaire, aucune collecte, aucun merge et aucun déploiement n’ont eu lieu. La production 239 et les travaux de la PR #219 restent intacts.
