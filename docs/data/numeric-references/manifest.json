@@ -1,0 +1,34 @@
+{
+  "schema": "msf-numeric-reference-manifest",
+  "schemaVersion": 1,
+  "familyId": "msf-numeric-common-v1",
+  "libraryVersion": "1.0.0",
+  "libraryPath": "library-v1.json",
+  "sha256": "c60e6b69b85cd64429f68c07e34e19eeb346c1662f5849a2f5fd71d0866ec8af",
+  "sizeBytes": 4830354,
+  "referenceCount": 88,
+  "distinctCaptureCount": 5,
+  "digitCoverage": [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9"
+  ],
+  "fieldTypeCounts": {
+    "score": 48,
+    "trophy": 40
+  },
+  "representations": [
+    "native.rgba",
+    "native.mask",
+    "normalized.rgba",
+    "sheared.rgba"
+  ],
+  "sourceLibrarySchemaVersion": 1
+}
