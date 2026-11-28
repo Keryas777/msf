@@ -1,0 +1,324 @@
+{
+  "schemaVersion": 1,
+  "title": "Référentiel public des ressources Marvel Strike Force",
+  "verifiedOn": "2026-11-25",
+  "provenance": [
+    {
+      "kind": "official-public-game-definition",
+      "source": "Cloudflare R2 archive of GET /game/v1/items/{itemId}",
+      "archiveRunId": "ced5b23f-504c-428b-9ca8-02171f2a21ef",
+      "sourceLanguage": "en"
+    },
+    {
+      "kind": "existing-planner-resource-mapping",
+      "source": "public/event-planner/lib/resources.js",
+      "repository": "Keryas777/losp-roster-service"
+    }
+  ],
+  "localization": {
+    "fr": {
+      "status": "LoSP translation unless explicitly stated otherwise",
+      "officialScopelyFrenchClaimed": false
+    }
+  },
+  "items": [
+    {
+      "id": "SC",
+      "names": {
+        "en": null,
+        "fr": "Or"
+      },
+      "category": "currency",
+      "categoryLabelFr": "Monnaie",
+      "group": "gold",
+      "priority": true,
+      "sortOrder": 1,
+      "icon": null,
+      "sourceKind": "existing-planner-resource-mapping",
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "legacy-observed"
+    },
+    {
+      "id": "HC",
+      "names": {
+        "en": "Power Cores",
+        "fr": "Noyaux d’énergie"
+      },
+      "category": "currency",
+      "categoryLabelFr": "Monnaie",
+      "group": "cores",
+      "priority": true,
+      "sortOrder": 2,
+      "icon": null,
+      "sourceKind": "existing-planner-resource-mapping",
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "legacy-observed"
+    },
+    {
+      "id": "CONSUMABLE_XPLVL20",
+      "names": {
+        "en": "L1 Training Module",
+        "fr": "Module d’entraînement N1"
+      },
+      "description": {
+        "en": "Provides some XP when used to train characters."
+      },
+      "category": "training-module",
+      "categoryLabelFr": "Modules d’entraînement",
+      "group": "training",
+      "priority": true,
+      "sortOrder": 3,
+      "rank": 1,
+      "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_CONSUMABLE_XPLVL20_bcaf9784.png",
+      "sourceKind": "official-public-game-definition",
+      "translationStatus": "LoSP-translation",
+      "identificationStatus": "official-confirmed"
+    },
+    {
+      "id": "CONSUMABLE_XPLVL40",
+      "names": {
+        "en": "L2 Training Module",
+        "fr": "Module d’entraînement N2"
+      },
+      "description": {
+        "en": "Provides moderate XP when used to train characters."
+      },
+      "category": "training-module",
+      "categoryLabelFr": "Modules d’entraînement",
+      "group": "training",
+      "priority": true,
+      "sortOrder": 4,
+      "rank": 2,
+      "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_CONSUMABLE_XPLVL40_c4fc9554.png",
+      "sourceKind": "official-public-game-definition",
+      "translationStatus": "LoSP-translation",
+      "identificationStatus": "official-confirmed"
+    },
+    {
+      "id": "CONSUMABLE_XPLVL60",
+      "names": {
+        "en": "L3 Training Module",
+        "fr": "Module d’entraînement N3"
+      },
+      "description": {
+        "en": "Provides major XP when used to train characters."
+      },
+      "category": "training-module",
+      "categoryLabelFr": "Modules d’entraînement",
+      "group": "training",
+      "priority": true,
+      "sortOrder": 5,
+      "rank": 3,
+      "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_CONSUMABLE_XPLVL60_94cb6207.png",
+      "sourceKind": "official-public-game-definition",
+      "translationStatus": "LoSP-translation",
+      "identificationStatus": "official-confirmed"
+    },
+    {
+      "id": "CONSUMABLE_XPLVL80",
+      "names": {
+        "en": "L4 Training Module",
+        "fr": "Module d’entraînement N4"
+      },
+      "description": {
+        "en": "Provides immense XP when used to train characters."
+      },
+      "category": "training-module",
+      "categoryLabelFr": "Modules d’entraînement",
+      "group": "training",
+      "priority": true,
+      "sortOrder": 6,
+      "rank": 4,
+      "resourceKey": "TRAINING_MODULE_L4",
+      "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_CONSUMABLE_XPLVL80_4ae2e7af.png",
+      "sourceKind": "official-public-game-definition",
+      "translationStatus": "LoSP-translation",
+      "identificationStatus": "official-confirmed"
+    },
+    {
+      "id": "ISO8-TIER-0-CURRENCY",
+      "names": {
+        "en": "T1 Ions",
+        "fr": "Ions P1"
+      },
+      "category": "iso8-ion",
+      "categoryLabelFr": "Ions ISO-8",
+      "group": "iso8Ions",
+      "priority": true,
+      "sortOrder": 7,
+      "iso8Ion": {
+        "tier": 1
+      },
+      "icon": null,
+      "sourceKind": "official-public-game-definition",
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
+    },
+    {
+      "id": "ISO8-TIER-1-A-CURRENCY",
+      "names": {
+        "en": "T2 Level 1 Ions",
+        "fr": "Ions P2 niveau 1"
+      },
+      "category": "iso8-ion",
+      "categoryLabelFr": "Ions ISO-8",
+      "group": "iso8Ions",
+      "priority": true,
+      "sortOrder": 8,
+      "iso8Ion": {
+        "tier": 2,
+        "upgradeLevel": 1
+      },
+      "icon": null,
+      "sourceKind": "official-public-game-definition",
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
+    },
+    {
+      "id": "ISO8-TIER-1-B-CURRENCY",
+      "names": {
+        "en": "T2 Level 4 Ions",
+        "fr": "Ions P2 niveau 4"
+      },
+      "category": "iso8-ion",
+      "categoryLabelFr": "Ions ISO-8",
+      "group": "iso8Ions",
+      "priority": true,
+      "sortOrder": 9,
+      "iso8Ion": {
+        "tier": 2,
+        "upgradeLevel": 4
+      },
+      "icon": null,
+      "sourceKind": "official-public-game-definition",
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
+    },
+    {
+      "id": "ISO8-TIER-1-C-CURRENCY",
+      "names": {
+        "en": "T2 Level 5 Ions",
+        "fr": "Ions P2 niveau 5"
+      },
+      "category": "iso8-ion",
+      "categoryLabelFr": "Ions ISO-8",
+      "group": "iso8Ions",
+      "priority": true,
+      "sortOrder": 10,
+      "iso8Ion": {
+        "tier": 2,
+        "upgradeLevel": 5
+      },
+      "icon": null,
+      "sourceKind": "official-public-game-definition",
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
+    },
+    {
+      "id": "ISO8-TIER-2-A-CURRENCY",
+      "names": {
+        "en": "T3 Level 1 Ions",
+        "fr": "Ions P3 niveau 1"
+      },
+      "category": "iso8-ion",
+      "categoryLabelFr": "Ions ISO-8",
+      "group": "iso8Ions",
+      "priority": true,
+      "sortOrder": 11,
+      "iso8Ion": {
+        "tier": 3,
+        "upgradeLevel": 1
+      },
+      "icon": null,
+      "sourceKind": "official-public-game-definition",
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
+    },
+    {
+      "id": "ISO8-TIER-2-B-CURRENCY",
+      "names": {
+        "en": "T3 Level 4 Ions",
+        "fr": "Ions P3 niveau 4"
+      },
+      "category": "iso8-ion",
+      "categoryLabelFr": "Ions ISO-8",
+      "group": "iso8Ions",
+      "priority": true,
+      "sortOrder": 12,
+      "iso8Ion": {
+        "tier": 3,
+        "upgradeLevel": 4
+      },
+      "icon": null,
+      "sourceKind": "official-public-game-definition",
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
+    },
+    {
+      "id": "ISO8-TIER-2-C-CURRENCY",
+      "names": {
+        "en": "T3 Level 5 Ions",
+        "fr": "Ions P3 niveau 5"
+      },
+      "category": "iso8-ion",
+      "categoryLabelFr": "Ions ISO-8",
+      "group": "iso8Ions",
+      "priority": true,
+      "sortOrder": 13,
+      "iso8Ion": {
+        "tier": 3,
+        "upgradeLevel": 5
+      },
+      "icon": null,
+      "sourceKind": "official-public-game-definition",
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
+    },
+    {
+      "id": "ISO8-TIER-3-A-CURRENCY",
+      "names": {
+        "en": "T4 Level 1 Ions",
+        "fr": "Ions P4 niveau 1"
+      },
+      "category": "iso8-ion",
+      "categoryLabelFr": "Ions ISO-8",
+      "group": "iso8Ions",
+      "priority": true,
+      "sortOrder": 14,
+      "iso8Ion": {
+        "tier": 4,
+        "upgradeLevel": 1
+      },
+      "icon": null,
+      "sourceKind": "official-public-game-definition",
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "official-confirmed"
+    },
+    {
+      "id": "CAMPAIGN_PLAYER_ENERGY",
+      "names": {
+        "en": null,
+        "fr": "Énergie de campagne"
+      },
+      "category": "energy",
+      "categoryLabelFr": "Énergies",
+      "group": "campaign-energy",
+      "priority": false,
+      "sortOrder": 15,
+      "icon": null,
+      "sourceKind": "existing-planner-resource-mapping",
+      "translationStatus": "existing-LoSP-label",
+      "identificationStatus": "legacy-observed"
+    }
+  ],
+  "iso8CrystalMatrix": {
+    "status": "unavailable",
+    "items": [],
+    "reason": "The examined public item archive contains no verified crystal definitions linking inventory IDs to ISO-8 colour, level, class, and stat. Do not infer those properties from an identifier."
+  },
+  "unknownItemPolicy": {
+    "displayFr": "Ressource sans libellé français dans le référentiel",
+    "rawIdOnlyIn": "collapsed diagnostic details",
+    "neverInferMappings": true
+  }
+}

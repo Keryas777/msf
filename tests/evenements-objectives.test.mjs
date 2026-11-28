@@ -1488,7 +1488,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="section-current"[^>]*hidden><div class="ev-groups" id="events-current"><\/div><\/section>/);
   assert.doesNotMatch(html,/id="(?:title|count)-current"|Phases, Poste de commandement et Événements temporaires/);
   assert.match(html,/id="stat-current"/);
-  assert.match(html,/evenements\.js\?v=49/);
+  assert.match(html,/evenements\.js\?v=50/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{

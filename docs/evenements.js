@@ -181,7 +181,7 @@
     return wrap;
   }
   function makeCard(e,group,reference){
-    const card=create('article','ev-card');card.append(cover(e));
+    const card=create('article','ev-card');card.setAttribute('data-event-id',String(e.id??''));card.append(cover(e));
     const body=create('div','ev-card-copy'),top=create('div','ev-card-top');
     const menu=GAME_GROUPS.find(item=>item.key===calendarGroup(e));
     top.append(create('span','ev-category',menu?.label||TYPES[e.type]||e.type));
