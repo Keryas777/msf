@@ -466,3 +466,14 @@ Le diagnostic réel exige le prochain déploiement autorisé et une authentifica
 - Le commit a été appliqué sans conflit, uniquement dans un worktree local, au SHA de production commun `fe5d00899732026a624ca157ab65c2a6d2cafe81`. Les tests ciblés planificateur/OAuth et les tests de convergence invité ont donné 118/119 réussis; l’unique échec est `existing collection receipts are left intact when an initial phase resumes`, reproduit aussi à l’identique sur `fe5d008` (113/114 pour les fichiers de test correspondants). Il est donc préexistant et indépendant de l’instrumentation.
 - Sur la PR #218, le workflow Maddoxx/Event planner tests est vert. La suite Worker OAuth termine à 909/924; ses 15 échecs sont les catégories déjà documentées (collecte tardive/invitée, DD9, budgets différentiels et explorateur R2). Le CI navigateur mobile et le laboratoire WebKit étaient encore en cours au moment de l’écriture de ce checkpoint.
 - Aucune manipulation iPhone, aucun appel Scopely personnel supplémentaire, aucune collecte, aucun merge et aucun déploiement n’ont eu lieu. La production 239 et les travaux de la PR #219 restent intacts.
+
+
+### Résultats CI finaux du commit #218 — 28 novembre 2026
+
+Mise à jour du contrôle précédent : les workflows initialement en cours sont terminés avec succès.
+
+- Event planner tests : succès (run 46091321192).
+- Navigateurs mobiles : Chromium et WebKit réussis (run 46091321242); captures de quatre onglets générées sous Chromium.
+- Laboratoire WebKit : succès (run 46091321195).
+- Administration des alliances invitées et historique trophées : succès (runs 46091321202 et 46091321317).
+- Worker OAuth : 909/924; les 15 échecs connus restent les deux scénarios de collecte tardive/invitée, trois assertions DD9, deux assertions de budget et huit assertions de l’explorateur R2, et ne touchent aucun fichier modifié par l’instrumentation.
